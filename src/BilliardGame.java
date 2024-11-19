@@ -5,8 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class BilliardGame extends JPanel implements ActionListener {
     private final List<Ball> balls;
     private final Timer timer;
@@ -71,12 +69,12 @@ public class BilliardGame extends JPanel implements ActionListener {
 
         // Draw pockets
         g2.setColor(Color.BLACK);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
 
         // Draw each ball
         for (Ball ball : balls) {
