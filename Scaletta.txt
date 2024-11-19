@@ -1,0 +1,8 @@
+1- Trapezi per le buche
+2- Stick, scelta potenza e vettore
+3- Collisione con le buche
+4- Due player e turni iniziali
+5- Impostazione regole
+6- Connessione server
+7- Grafica migliorata con menu iniziale
+ 
