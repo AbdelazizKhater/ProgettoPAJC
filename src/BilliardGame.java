@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -66,6 +67,27 @@ public class BilliardGame extends JPanel implements ActionListener {
         g2.fillRect(TABLE_WIDTH - BORDER_WIDTH, 0, BORDER_WIDTH, TABLE_HEIGHT);
         g2.fillRect(0, 0, TABLE_WIDTH, BORDER_WIDTH);
         g2.fillRect(0, TABLE_HEIGHT - BORDER_WIDTH, TABLE_WIDTH, BORDER_WIDTH);
+
+        g.setColor(Color.RED);
+        int[] xPoints1 = {BORDER_WIDTH + POCKET_RADIUS, TABLE_WIDTH/2 - POCKET_RADIUS - 5, TABLE_WIDTH/2 - POCKET_RADIUS - 25, BORDER_WIDTH + POCKET_RADIUS + 30}; // Coordinate x dei vertici
+        int[] yPoints1 = {BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH + 25, BORDER_WIDTH + 25}; // Coordinate y dei vertici
+        g.fillPolygon(xPoints1, yPoints1, 4);
+        int[] xPoints2 = {TABLE_WIDTH/2 + POCKET_RADIUS + 5, TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH,  TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS - 30, TABLE_WIDTH/2 + POCKET_RADIUS + 25}; // Coordinate x dei vertici
+        g.fillPolygon(xPoints2, yPoints1, 4);
+        int[] xPoints3 = {BORDER_WIDTH, BORDER_WIDTH + 25, BORDER_WIDTH + 25, BORDER_WIDTH}; // Coordinate x dei vertici
+        int[] yPoints3 = {BORDER_WIDTH + POCKET_RADIUS, BORDER_WIDTH + POCKET_RADIUS + 25, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - 25, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS}; // Coordinate y dei vertici
+        g.fillPolygon(xPoints3, yPoints3, 4);
+        int[] xPoints4 = {BORDER_WIDTH + POCKET_RADIUS + 25, TABLE_WIDTH/2 - POCKET_RADIUS - 25, TABLE_WIDTH/2 - POCKET_RADIUS - 5, BORDER_WIDTH + POCKET_RADIUS}; // Coordinate x dei vertici
+        int[] yPoints4 = {TABLE_HEIGHT - BORDER_WIDTH - 25, TABLE_HEIGHT - BORDER_WIDTH - 25, TABLE_HEIGHT - BORDER_WIDTH, TABLE_HEIGHT - BORDER_WIDTH}; // Coordinate y dei vertici
+        g.fillPolygon(xPoints4, yPoints4, 4);
+        int[] xPoints5 = {TABLE_WIDTH/2 + POCKET_RADIUS + 30, TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH - 30, TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH, TABLE_WIDTH/2 + POCKET_RADIUS + 5}; // Coordinate x dei vertici
+        g.fillPolygon(xPoints5, yPoints4, 4);
+        int[] xPoints6 = {TABLE_WIDTH - BORDER_WIDTH - 25, TABLE_WIDTH - BORDER_WIDTH, TABLE_WIDTH - BORDER_WIDTH, TABLE_WIDTH - BORDER_WIDTH - 25}; // Coordinate x dei vertici
+        int[] yPoints6 = {BORDER_WIDTH + POCKET_RADIUS + 25, BORDER_WIDTH + POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - 25}; // Coordinate y dei vertici
+        g.fillPolygon(xPoints6, yPoints6, 4);
+
+
+
 
         // Draw pockets
         g2.setColor(Color.BLACK);
