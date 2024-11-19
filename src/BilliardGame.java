@@ -5,13 +5,17 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class BilliardGame extends JPanel implements ActionListener {
     private final List<Ball> balls;
     private final Timer timer;
 
-    // Pool table dimensions
+    // Pool table dimensions and constants
     private static final int TABLE_WIDTH = 1200;
     private static final int TABLE_HEIGHT = 600;
+    public static final int BORDER_WIDTH = 50;
+    public static final int POCKET_RADIUS = 30;
 
     public BilliardGame() {
         balls = new ArrayList<>();
@@ -25,11 +29,11 @@ public class BilliardGame extends JPanel implements ActionListener {
 
     private void setupInitialPositions() {
         // Radius of each ball
-        int radius = 20;
+        int radius = 15;
 
         // Position for the white ball
         balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 3, 0, Color.WHITE, 0)); // White ball
-        balls.get(0).setVx(80);
+        balls.get(0).setVx(53);
         // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
@@ -53,13 +57,26 @@ public class BilliardGame extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Draw pool table background
-        g2.setColor(new Color(34, 139, 34)); // Green pool table color
+
+        // Draw table background
+        g2.setColor(new Color(34, 139, 34));
         g2.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
 
-        // Draw table boundaries
+        // Draw brown borders
+        g2.setColor(new Color(139, 69, 19));
+        g2.fillRect(0, 0, BORDER_WIDTH, TABLE_HEIGHT);
+        g2.fillRect(TABLE_WIDTH - BORDER_WIDTH, 0, BORDER_WIDTH, TABLE_HEIGHT);
+        g2.fillRect(0, 0, TABLE_WIDTH, BORDER_WIDTH);
+        g2.fillRect(0, TABLE_HEIGHT - BORDER_WIDTH, TABLE_WIDTH, BORDER_WIDTH);
+
+        // Draw pockets
         g2.setColor(Color.BLACK);
-        g2.drawRect(0, 0, TABLE_WIDTH - 1, TABLE_HEIGHT - 1);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
 
         // Draw each ball
         for (Ball ball : balls) {
@@ -74,7 +91,6 @@ public class BilliardGame extends JPanel implements ActionListener {
             ball.updatePosition();
             ball.checkBounds(TABLE_WIDTH, TABLE_HEIGHT);
 
-            // Check collisions with other balls
             for (int j = i + 1; j < balls.size(); j++) {
                 Ball other = balls.get(j);
                 if (ball.isColliding(other)) {
@@ -89,7 +105,7 @@ public class BilliardGame extends JPanel implements ActionListener {
         JFrame frame = new JFrame("Billiard Game");
         BilliardGame game = new BilliardGame();
         frame.add(game);
-        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39); // Account for window borders
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -98,10 +114,15 @@ public class BilliardGame extends JPanel implements ActionListener {
 class Ball {
     private double x, y; // Position
     private double vx, vy; // Velocity
-    private final int radius = 20;
+    private final int radius = 15;
     private final Color color;
     private final int number; // Ball number
     private double accumulatedDistance = 0; // Distance for rotation effect
+    private static final int TABLE_WIDTH = 1200;
+    private static final int TABLE_HEIGHT = 600;
+
+
+
 
     public Ball(double x, double y, double vx, double vy, Color color, int number) {
         this.x = x;
@@ -131,14 +152,39 @@ class Ball {
 
     public void checkBounds(int width, int height) {
         // Bounce off walls
-        if (x - radius < 0 || x + radius > width) {
+        if (x - radius < BilliardGame.BORDER_WIDTH || x + radius > width - BilliardGame.BORDER_WIDTH) {
             vx = -vx;
-            x = Math.max(radius, Math.min(width - radius, x)); // Keep ball within bounds
+            x = Math.max(radius + BilliardGame.BORDER_WIDTH, Math.min(width - radius - BilliardGame.BORDER_WIDTH, x));
         }
-        if (y - radius < 0 || y + radius > height) {
+        if (y - radius < BilliardGame.BORDER_WIDTH || y + radius > height - BilliardGame.BORDER_WIDTH) {
             vy = -vy;
-            y = Math.max(radius, Math.min(height - radius, y)); // Keep ball within bounds
+            y = Math.max(radius + BilliardGame.BORDER_WIDTH, Math.min(height - radius - BilliardGame.BORDER_WIDTH, y));
         }
+
+        // Check for pocket collisions
+        checkPocketCollision(width, height);
+    }
+
+    private void checkPocketCollision(int width, int height) {
+        int pocketCenterX, pocketCenterY;
+
+        // Check top left pocket
+        pocketCenterX = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
+        pocketCenterY = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
+        if (isInsidePocket(x, y, pocketCenterX, pocketCenterY)) {
+           //TODO: balls.remove(this);
+        }
+
+        // Check other pockets similarly
+        // ... (implement checks for other pockets)
+    }
+
+    private boolean isInsidePocket(double x, double y, double pocketX, double pocketY) {
+        double dx = x - pocketX;
+        double dy = y - pocketY;
+        double distanceSquared = dx * dx + dy * dy;
+
+        return distanceSquared <= BilliardGame.POCKET_RADIUS * BilliardGame.POCKET_RADIUS;
     }
 
     public boolean isColliding(Ball other) {
