@@ -33,7 +33,7 @@ public class BilliardGame extends JPanel implements ActionListener {
 
         // Position for the white ball
         balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 3, 0, Color.WHITE, 0)); // White ball
-        balls.get(0).setVx(53);
+        balls.get(0).setVx(200);
         // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
@@ -73,7 +73,7 @@ public class BilliardGame extends JPanel implements ActionListener {
         int[] xPoints1 = {BORDER_WIDTH + POCKET_RADIUS, TABLE_WIDTH/2 - POCKET_RADIUS - POCKET_RADIUS/6, TABLE_WIDTH/2 - POCKET_RADIUS - BORDER_WIDTH/2, BORDER_WIDTH + POCKET_RADIUS*2}; // Coordinate x dei vertici
         int[] yPoints1 = {BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH/2, BORDER_WIDTH + BORDER_WIDTH/2}; // Coordinate y dei vertici
         g.fillPolygon(xPoints1, yPoints1, 4);
-        int[] xPoints2 = {TABLE_WIDTH/2 + POCKET_RADIUS/6, TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH,  TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS*2, TABLE_WIDTH/2 + POCKET_RADIUS + BORDER_WIDTH/2}; // Coordinate x dei vertici
+        int[] xPoints2 = {TABLE_WIDTH/2 + + POCKET_RADIUS + POCKET_RADIUS/6, TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH,  TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS*2, TABLE_WIDTH/2 + POCKET_RADIUS + BORDER_WIDTH/2}; // Coordinate x dei vertici
         g.fillPolygon(xPoints2, yPoints1, 4);
         int[] xPoints3 = {BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH/2, BORDER_WIDTH + BORDER_WIDTH/2, BORDER_WIDTH}; // Coordinate x dei vertici
         int[] yPoints3 = {BORDER_WIDTH + POCKET_RADIUS, BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH/2, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - BORDER_WIDTH/2, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS}; // Coordinate y dei vertici
