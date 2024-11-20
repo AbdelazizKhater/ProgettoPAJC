@@ -1,8 +1,9 @@
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,8 @@ public class BilliardGame extends JPanel implements ActionListener {
             for (int col = 0; col <= row; col++) {
                 double x = startX + row * (radius * 2 * Math.sqrt(3) / 2);
                 double y = startY - row * radius + col * radius * 2;
-                Color color = new Color((int) (Math.random() * 255), (int) (Math.random() * 255), (int) (Math.random() * 255));
+                Color color = new Color((int) (Math.random() * 255), (int) (Math.random() * 255),
+                        (int) (Math.random() * 255));
                 balls.add(new Ball(x, y, 0, 0, color, number++));
             }
         }
@@ -55,7 +57,6 @@ public class BilliardGame extends JPanel implements ActionListener {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 
         // Draw table background
         g2.setColor(new Color(34, 139, 34));
@@ -86,17 +87,20 @@ public class BilliardGame extends JPanel implements ActionListener {
         int[] yPoints6 = {BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH/2, BORDER_WIDTH + POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - BORDER_WIDTH/2}; // Coordinate y dei vertici
         g.fillPolygon(xPoints6, yPoints6, 4);
 
-
-
-
         // Draw pockets
         g2.setColor(Color.BLACK);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5, POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
+                POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
+                POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
+                POCKET_RADIUS * 2);
+        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
+                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
+                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
+                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
 
         // Draw each ball
         for (Ball ball : balls) {
@@ -141,9 +145,6 @@ class Ball {
     private static final int TABLE_WIDTH = 1200;
     private static final int TABLE_HEIGHT = 600;
 
-
-
-
     public Ball(double x, double y, double vx, double vy, Color color, int number) {
         this.x = x;
         this.y = y;
@@ -166,8 +167,10 @@ class Ball {
         vy *= friction;
 
         // Stop ball if velocity is very low
-        if (Math.abs(vx) < 0.3) vx = 0;
-        if (Math.abs(vy) < 0.3) vy = 0;
+        if (Math.abs(vx) < 0.3)
+            vx = 0;
+        if (Math.abs(vy) < 0.3)
+            vy = 0;
     }
 
     public void checkBounds(int width, int height) {
@@ -192,7 +195,7 @@ class Ball {
         pocketCenterX = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
         pocketCenterY = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
         if (isInsidePocket(x, y, pocketCenterX, pocketCenterY)) {
-           //TODO: balls.remove(this);
+            // TODO: balls.remove(this);
         }
 
         // Check other pockets similarly
@@ -213,7 +216,8 @@ class Ball {
         double distanceSquared = dx * dx + dy * dy;
         double radiusSum = this.radius + other.radius;
 
-        // Check if the distance between centers is less than or equal to the sum of the radii
+        // Check if the distance between centers is less than or equal to the sum of the
+        // radii
         return distanceSquared <= radiusSum * radiusSum;
     }
 
@@ -262,41 +266,92 @@ class Ball {
     }
 
     public void draw(Graphics2D g) {
-        // Disegna il corpo della pallina
-        g.setColor(color);
+        // Colori delle palline in base al numero
+        Color[] ballColors = {
+                Color.WHITE, // Palla 0 (bianca)
+                new Color(255, 255, 0), // Palla 1 (gialla)
+                new Color(0, 0, 255), // Palla 2 (blu)
+                new Color(255, 0, 0), // Palla 3 (rossa)
+                new Color(128, 0, 128), // Palla 4 (viola)
+                new Color(255, 165, 0), // Palla 5 (arancione)
+                new Color(0, 128, 0), // Palla 6 (verde)
+                new Color(128, 0, 0), // Palla 7 (bordeaux)
+                new Color(0, 0, 0), // Palla 8 (nera)
+                new Color(255, 255, 0), // Palla 9 (gialla striata)
+                new Color(0, 0, 255), // Palla 10 (blu striata)
+                new Color(255, 0, 0), // Palla 11 (rossa striata)
+                new Color(128, 0, 128), // Palla 12 (viola striata)
+                new Color(255, 165, 0), // Palla 13 (arancione striata)
+                new Color(0, 128, 0), // Palla 14 (verde striata)
+                new Color(128, 0, 0) // Palla 15 (bordeaux striata)
+        };
+
+        // Disegna il corpo della pallina con il colore appropriato
+        g.setColor(ballColors[number]);
         g.fillOval((int) x - radius, (int) y - radius, radius * 2, radius * 2);
 
-        // Aggiungi la striscia per le palline numerate dalla 9 alla 15
+        // Usa un'area di clipping per disegnare le strisce solo all'interno del cerchio
+        // (per le palline numerate dalla 9 alla 15)
         if (number >= 9) {
-            g.setColor(Color.WHITE); // Striscia bianca per le palline strisciate
+            Shape originalClip = g.getClip();
+            g.setClip(new Ellipse2D.Double((int) x - radius, (int) y - radius, radius * 2, radius * 2));
 
-            // Aumentiamo la larghezza della striscia
-            int stripeHeight = radius / 2; // Aumento della larghezza della striscia
-            int stripeWidth = radius * 2; // La striscia si estende su tutta la larghezza della pallina
+            // Disegna le bande bianche superiori e inferiori
+            g.setColor(Color.WHITE);
+            int bandHeight = radius / 2;
+            g.fillRect((int) x - radius, (int) y - radius, radius * 2, bandHeight); // Banda superiore
+            g.fillRect((int) x - radius, (int) y + radius - bandHeight, radius * 2, bandHeight); // Banda inferiore
 
-            // Disegna la striscia inclinata
-            // Posizioniamo la striscia al centro della pallina e inclinata di 45°
-            g.rotate(Math.toRadians(45), x, y);
-            g.fillRect((int) (x - radius), (int) (y - stripeHeight / 2), stripeWidth, stripeHeight);
-            g.rotate(-Math.toRadians(45), x, y); // Ripristina la rotazione originale
+            // Ripristina l'area di clipping originale
+            g.setClip(originalClip);
         }
 
-        // Calcola un angolo in base alla distanza accumulata per simulare la rotazione
-        double rotationAngle = accumulatedDistance / radius;
-        int spotX = (int) (x + radius * 0.6 * Math.cos(rotationAngle));
-        int spotY = (int) (y + radius * 0.6 * Math.sin(rotationAngle));
+        // Disegna il cerchio bianco al centro per il numero (per tutte le palline
+        // numerate)
+        if (number > 0) {
+            // int whiteCircleDiameter = radius; // Diametro del cerchio bianco
+            // double whiteCircleX = x - whiteCircleDiameter / 2;
+            // double whiteCircleY = y - whiteCircleDiameter / 2;
 
-        // Disegna la macchia bianca che ruota attorno al centro della pallina
-        g.setColor(Color.WHITE);
-        g.fillOval(spotX - 3, spotY - 3, 6, 6);
+            // g.setColor(Color.WHITE);
+            // g.fillOval((int) whiteCircleX, (int) whiteCircleY, whiteCircleDiameter,
+            // whiteCircleDiameter);
 
-        // Disegna il numero al centro della pallina
-        g.setColor(Color.BLACK);
-        g.drawString(String.valueOf(number), (int) x - 5, (int) y + 5);
+            // Disegna il numero al centro del cerchio bianco
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Arial", Font.BOLD, 11));
+            FontMetrics metrics = g.getFontMetrics();
+            int textWidth = metrics.stringWidth(String.valueOf(number));
+            int textHeight = metrics.getAscent();
+            g.drawString(String.valueOf(number), (int) x - textWidth / 2, (int) y + textHeight / 4);
+        }
+
+        // Disegna un riflesso fisso sul lato superiore della pallina
+        Graphics2D g2d = (Graphics2D) g.create(); // Crea una copia per mantenere il contesto originale
+
+        // Crea un gradiente radiale per il riflesso
+        RadialGradientPaint gradient = new RadialGradientPaint(
+                new Point2D.Double(x, y - radius * 0.7), // Centro del riflesso (più lontano dal centro della pallina)
+                radius * 0.4f, // Raggio del riflesso
+                new float[] { 0f, 1f }, // Posizioni dei colori nel gradiente
+                new Color[] { new Color(255, 255, 255, 200), new Color(255, 255, 255, 0) } // Bianco opaco al centro,
+                                                                                           // trasparente ai bordi
+        );
+
+        // Applica il gradiente al contesto grafico
+        g2d.setPaint(gradient);
+
+        // Disegna un cerchio per simulare il riflesso
+        g2d.fill(new Ellipse2D.Double(
+                x - radius * 0.4, // Posizione X del cerchio
+                y - radius * 1.1, // Posizione Y del cerchio (più distante dal centro)
+                radius * 0.8, // Diametro del cerchio
+                radius * 0.8 // Diametro del cerchio
+        ));
+
+        g2d.dispose(); // Libera la copia del contesto grafico
+
     }
-
-
-
 
     public void setVx(double vx) {
         this.vx = vx;
@@ -306,4 +361,3 @@ class Ball {
         this.vy = vy;
     }
 }
-
