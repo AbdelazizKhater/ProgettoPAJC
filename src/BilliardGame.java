@@ -327,13 +327,13 @@ class Ball {
         // Disegna il cerchio bianco al centro per il numero (per tutte le palline
         // numerate)
         if (number > 0) {
-            // int whiteCircleDiameter = radius; // Diametro del cerchio bianco
-            // double whiteCircleX = x - whiteCircleDiameter / 2;
-            // double whiteCircleY = y - whiteCircleDiameter / 2;
+            int whiteCircleDiameter = radius; // Diametro del cerchio bianco
+            double whiteCircleX = x - whiteCircleDiameter / 2;
+             double whiteCircleY = y - whiteCircleDiameter / 2;
 
-            // g.setColor(Color.WHITE);
-            // g.fillOval((int) whiteCircleX, (int) whiteCircleY, whiteCircleDiameter,
-            // whiteCircleDiameter);
+             g.setColor(Color.WHITE);
+             g.fillOval((int) whiteCircleX, (int) whiteCircleY, whiteCircleDiameter,
+             whiteCircleDiameter);
 
             // Disegna il numero al centro del cerchio bianco
             g.setColor(Color.BLACK);
