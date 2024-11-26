@@ -1,10 +1,11 @@
+package it.unibs.pajc;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class BilliardGameApp {
+import static it.unibs.pajc.CostantiStatiche.*;
 
-    private static final int TABLE_WIDTH = 1200;
-    private static final int TABLE_HEIGHT = 600;
+public class BilliardGameApp {
 
     private BilliardController cntrl;
     private GameField model;

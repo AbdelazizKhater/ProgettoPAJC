@@ -1,3 +1,5 @@
+package it.unibs.pajc;
+
 import java.util.ArrayList;
 
 public class BilliardController {

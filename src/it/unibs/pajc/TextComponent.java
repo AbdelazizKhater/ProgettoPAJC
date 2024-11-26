@@ -1,3 +1,5 @@
+package it.unibs.pajc;
+
 import java.awt.Color;
 import java.awt.Font;
 

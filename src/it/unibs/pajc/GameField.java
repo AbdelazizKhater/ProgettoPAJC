@@ -1,13 +1,9 @@
-//MODEL
+package it.unibs.pajc;//MODEL
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
+import static it.unibs.pajc.CostantiStatiche.*;
 
 public class GameField {
-    private static final int TABLE_WIDTH = 1200;
-    private static final int TABLE_HEIGHT = 600;
 
     private final ArrayList<Ball> balls;
 

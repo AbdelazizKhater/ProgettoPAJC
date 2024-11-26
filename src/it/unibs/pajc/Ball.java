@@ -1,3 +1,5 @@
+package it.unibs.pajc;
+
 import java.awt.Color;
 import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
@@ -6,18 +8,16 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
+import static it.unibs.pajc.CostantiStatiche.*;
 
 class Ball {
     private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
     private final Color color;
-    private final int number; // Ball number
+    private final int number; // it.unibs.pajc.Ball number
     private double accumulatedDistance = 0; // Distance for rotation effect
-    private static final int TABLE_WIDTH = 1200;
-    private static final int TABLE_HEIGHT = 600;
-    public static final int BORDER_WIDTH = 50;
-    public static final int POCKET_RADIUS = 30;
+
 
     // Array per memorizzare i colori delle palline in base al loro numero
     private static final Color[] BALL_COLORS = {

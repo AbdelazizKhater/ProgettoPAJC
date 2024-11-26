@@ -1,16 +1,15 @@
+package it.unibs.pajc;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 
+import static it.unibs.pajc.CostantiStatiche.*;
+
 public class GameView extends JPanel implements MouseInputListener
 {
-    private static final int TABLE_WIDTH = 1200;
-    private static final int TABLE_HEIGHT = 600;
-    public static final int BORDER_WIDTH = 50;
-    public static final int POCKET_RADIUS = 30;
-
     private BilliardController cntrl;
 
 
@@ -41,57 +40,29 @@ public class GameView extends JPanel implements MouseInputListener
         g2.fillRect(0, 0, TABLE_WIDTH, BORDER_WIDTH);
         g2.fillRect(0, TABLE_HEIGHT - BORDER_WIDTH, TABLE_WIDTH, BORDER_WIDTH);
 
-        g.setColor(Color.RED);
-        int[] xPoints1 = { BORDER_WIDTH + POCKET_RADIUS, TABLE_WIDTH / 2 - POCKET_RADIUS - POCKET_RADIUS / 6,
-                TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 2, BORDER_WIDTH + POCKET_RADIUS * 2 }; // Coordinate x
-        // dei vertici
-        int[] yPoints1 = { BORDER_WIDTH, BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH / 2,
-                BORDER_WIDTH + BORDER_WIDTH / 2 }; // Coordinate y dei vertici
-        g.fillPolygon(xPoints1, yPoints1, 4);
-        int[] xPoints2 = { TABLE_WIDTH / 2 + +POCKET_RADIUS + POCKET_RADIUS / 6,
-                TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH, TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS * 2,
-                TABLE_WIDTH / 2 + POCKET_RADIUS + BORDER_WIDTH / 2 }; // Coordinate x dei vertici
-        g.fillPolygon(xPoints2, yPoints1, 4);
-        int[] xPoints3 = { BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH / 2, BORDER_WIDTH + BORDER_WIDTH / 2,
-                BORDER_WIDTH }; // Coordinate x dei vertici
-        int[] yPoints3 = { BORDER_WIDTH + POCKET_RADIUS, BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH / 2,
-                TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - BORDER_WIDTH / 2,
-                TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS }; // Coordinate y dei vertici
-        g.fillPolygon(xPoints3, yPoints3, 4);
-        int[] xPoints4 = { BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH / 2,
-                TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 2, TABLE_WIDTH / 2 - POCKET_RADIUS - POCKET_RADIUS / 6,
-                BORDER_WIDTH + POCKET_RADIUS }; // Coordinate x dei vertici
-        int[] yPoints4 = { TABLE_HEIGHT - BORDER_WIDTH - BORDER_WIDTH / 2,
-                TABLE_HEIGHT - BORDER_WIDTH - BORDER_WIDTH / 2, TABLE_HEIGHT - BORDER_WIDTH,
-                TABLE_HEIGHT - BORDER_WIDTH }; // Coordinate y dei vertici
-        g.fillPolygon(xPoints4, yPoints4, 4);
-        int[] xPoints5 = { TABLE_WIDTH / 2 + POCKET_RADIUS * 2, TABLE_WIDTH - POCKET_RADIUS * 2 - BORDER_WIDTH,
-                TABLE_WIDTH - POCKET_RADIUS - BORDER_WIDTH, TABLE_WIDTH / 2 + POCKET_RADIUS + POCKET_RADIUS / 6 }; // Coordinate
-        // x
-        // dei
-        // vertici
-        g.fillPolygon(xPoints5, yPoints4, 4);
-        int[] xPoints6 = { TABLE_WIDTH - BORDER_WIDTH - BORDER_WIDTH / 2, TABLE_WIDTH - BORDER_WIDTH,
-                TABLE_WIDTH - BORDER_WIDTH, TABLE_WIDTH - BORDER_WIDTH - BORDER_WIDTH / 2 }; // Coordinate x dei vertici
-        int[] yPoints6 = { BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH / 2, BORDER_WIDTH + POCKET_RADIUS,
-                TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS,
-                TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS - BORDER_WIDTH / 2 }; // Coordinate y dei vertici
-        g.fillPolygon(xPoints6, yPoints6, 4);
+        g.setColor(new Color(109, 39, 9));
+        for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
+            g.fillPolygon(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i], 4);
+        }
 
         // Draw pockets
         g2.setColor(Color.BLACK);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
-                POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
-                POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, BORDER_WIDTH - POCKET_RADIUS - 5, POCKET_RADIUS * 2,
-                POCKET_RADIUS * 2);
-        g2.fillOval(BORDER_WIDTH - POCKET_RADIUS - 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
-                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        //Top left pocket
+        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
+                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
+        //Top middle pocket
+        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5,
+                POCKET_RADIUS * 2,POCKET_RADIUS * 2);
+        //Top right pocket
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
+                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
+        //Bottom left pocket
+        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS,TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
+                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
         g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
                 POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS + 5, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
-                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
+                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
 
         // Draw each ball
         for (Ball ball : cntrl.listBalls()) {
