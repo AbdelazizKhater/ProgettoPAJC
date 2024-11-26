@@ -16,6 +16,8 @@ class Ball {
     private double accumulatedDistance = 0; // Distance for rotation effect
     private static final int TABLE_WIDTH = 1200;
     private static final int TABLE_HEIGHT = 600;
+    public static final int BORDER_WIDTH = 50;
+    public static final int POCKET_RADIUS = 30;
 
     // Array per memorizzare i colori delle palline in base al loro numero
     private static final Color[] BALL_COLORS = {
@@ -67,13 +69,13 @@ class Ball {
 
     public void checkBounds(int width, int height) {
         // Bounce off walls
-        if (x - radius < BilliardGame.BORDER_WIDTH || x + radius > width - BilliardGame.BORDER_WIDTH) {
+        if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
             vx = -vx;
-            x = Math.max(radius + BilliardGame.BORDER_WIDTH, Math.min(width - radius - BilliardGame.BORDER_WIDTH, x));
+            x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH, x));
         }
-        if (y - radius < BilliardGame.BORDER_WIDTH || y + radius > height - BilliardGame.BORDER_WIDTH) {
+        if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
             vy = -vy;
-            y = Math.max(radius + BilliardGame.BORDER_WIDTH, Math.min(height - radius - BilliardGame.BORDER_WIDTH, y));
+            y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH, y));
         }
 
         // Check for pocket collisions
@@ -84,8 +86,8 @@ class Ball {
         int pocketCenterX, pocketCenterY;
 
         // Check top left pocket
-        pocketCenterX = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
-        pocketCenterY = BilliardGame.BORDER_WIDTH + BilliardGame.POCKET_RADIUS;
+        pocketCenterX = BORDER_WIDTH + POCKET_RADIUS;
+        pocketCenterY = BORDER_WIDTH + POCKET_RADIUS;
         if (isInsidePocket(x, y, pocketCenterX, pocketCenterY)) {
             // TODO: balls.remove(this);
         }
@@ -99,7 +101,7 @@ class Ball {
         double dy = y - pocketY;
         double distanceSquared = dx * dx + dy * dy;
 
-        return distanceSquared <= BilliardGame.POCKET_RADIUS * BilliardGame.POCKET_RADIUS;
+        return distanceSquared <= POCKET_RADIUS * POCKET_RADIUS;
     }
 
     public boolean isColliding(Ball other) {
