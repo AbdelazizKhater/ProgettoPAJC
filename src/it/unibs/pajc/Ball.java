@@ -4,13 +4,15 @@ import java.awt.Color;
 import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import static it.unibs.pajc.CostantiStatiche.*;
 
-class Ball {
+class Ball extends GameFieldObject {
     private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
@@ -40,12 +42,14 @@ class Ball {
     };
 
     public Ball(double x, double y, double vx, double vy, int number) {
+        super();
         this.x = x;
         this.y = y;
         this.vx = vx;
         this.vy = vy;
         this.number = number;
-        this.color = BALL_COLORS[number]; // Imposta il colore basato sul numero della pallina
+        this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
+        this.shape = new Area(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
     }
 
     public void updatePosition() {
@@ -56,18 +60,18 @@ class Ball {
         accumulatedDistance += Math.sqrt(vx * vx + vy * vy);
 
         // Apply friction
-        double friction = 0.97; // Increased friction for more realistic slowdown
+        double friction = 1; // Increased friction for more realistic slowdown
         vx *= friction;
         vy *= friction;
 
         // Stop ball if velocity is very low
-        if (Math.abs(vx) < 0.3)
+        if (Math.abs(vx) < 0.1)
             vx = 0;
-        if (Math.abs(vy) < 0.3)
+        if (Math.abs(vy) < 0.1)
             vy = 0;
     }
 
-    public void checkBounds(int width, int height) {
+    /*public void checkBounds(int width, int height) {
         // Bounce off walls
         if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
             vx = -vx;
@@ -81,6 +85,65 @@ class Ball {
         // Check for pocket collisions
         checkPocketCollision(width, height);
     }
+
+     */
+
+    public void checkBounds(List<Trapezoid> trapezoids) {
+        if (trapezoids != null) {
+            for (Trapezoid trapezoid : trapezoids) {
+                for (Line2D edge : trapezoid.getEdges()) {
+                    if (isCollidingWithEdge(edge)) {
+                        handleCollisionWithEdge(edge);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isCollidingWithEdge(Line2D edge) {
+        double dx = edge.getX2() - edge.getX1();
+        double dy = edge.getY2() - edge.getY1();
+        double lengthSquared = dx * dx + dy * dy;
+
+        // Closest point on edge
+        double t = ((x - edge.getX1()) * dx + (y - edge.getY1()) * dy) / lengthSquared;
+        t = Math.max(0, Math.min(1, t)); // Clamp t to [0, 1]
+
+        double closestX = edge.getX1() + t * dx;
+        double closestY = edge.getY1() + t * dy;
+
+        double distSquared = (x - closestX) * (x - closestX) + (y - closestY) * (y - closestY);
+        if (distSquared <= radius * radius) {
+            return true;
+        }
+
+        // Check endpoints
+        double distToStart = (x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1());
+        double distToEnd = (x - edge.getX2()) * (x - edge.getX2()) + (y - edge.getY2()) * (y - edge.getY2());
+
+        return distToStart <= radius * radius || distToEnd <= radius * radius;
+    }
+    private void handleCollisionWithEdge(Line2D edge) {
+        // Calculate the edge's normal vector
+        double dx = edge.getX2() - edge.getX1();
+        double dy = edge.getY2() - edge.getY1();
+        double length = Math.sqrt(dx * dx + dy * dy);
+        double nx = -dy / length; // Normal vector (perpendicular to edge)
+        double ny = dx / length;
+
+        // Reflect velocity using the edge normal
+        double dotProduct = vx * nx + vy * ny;
+        vx -= 2 * dotProduct * nx;
+        vy -= 2 * dotProduct * ny;
+
+        // Move the ball outside the collision area
+        double overlap = radius - Math.sqrt((x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1()));
+        if (overlap > 0) {
+            x += overlap * nx;
+            y += overlap * ny;
+        }
+    }
+
 
     private void checkPocketCollision(int width, int height) {
         int pocketCenterX, pocketCenterY;
@@ -222,6 +285,8 @@ class Ball {
 
         return components;
     }
+
+
 
     public void setVx(double vx) {
         this.vx = vx;
