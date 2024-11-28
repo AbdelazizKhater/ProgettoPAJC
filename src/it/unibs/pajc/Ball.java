@@ -48,7 +48,7 @@ class Ball extends GameFieldObject {
         this.vy = vy;
         this.number = number;
         this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
-        this.shape = new Area(new Ellipse2D.Double(radius, radius, radius * 2, radius * 2));
+        this.shape = new Area(new Ellipse2D.Double(0, 0, radius * 2, radius * 2));
     }
 
     public void updatePosition() {

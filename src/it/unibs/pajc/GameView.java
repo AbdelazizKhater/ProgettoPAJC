@@ -22,7 +22,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        Timer timer = new Timer(5, e -> {
+        Timer timer = new Timer(1, e -> {
             cntrl.stepNext();
             repaint();
         });
