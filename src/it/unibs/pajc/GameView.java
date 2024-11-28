@@ -113,39 +113,35 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     }
 
     private void drawStick(Graphics2D g, Ball whiteBall, Stick stick, Boolean isHitting) {
-
+        // Salva lo stato originale del Graphics2D
+        Shape originalClip = g.getClip();
+    
+        // Imposta il clipping all'area visibile del pannello
+        g.setClip(0, 0, this.getWidth(), this.getHeight());
+    
         g.setStroke(new BasicStroke(10));
-        g.setColor(Color.black);
-        // Calcola la distanza iniziale della stecca dalla palla
+        g.setColor(Color.BLACK);
+    
+        
         if (isHitting)
             releaseStick(stick, whiteBall);
-
+    
         double stickDistance = whiteBall.getBallRadius() + (isHitting ? 0 : 10) + stick.getPower();
         double stickLength = 300; // Lunghezza totale della stecca
-
+    
         // Calcola le coordinate della stecca
         double startX = whiteBall.getX() + stickDistance * Math.cos(stick.getAngleRadians());
         double startY = whiteBall.getY() + stickDistance * Math.sin(stick.getAngleRadians());
         double endX = whiteBall.getX() + (stickDistance + stickLength) * Math.cos(stick.getAngleRadians());
         double endY = whiteBall.getY() + (stickDistance + stickLength) * Math.sin(stick.getAngleRadians());
-
-        // Ottieni i confini della finestra
-        int panelWidth = this.getWidth();
-        int panelHeight = this.getHeight();
-
-        // Correggi le coordinate della stecca se escono dai bordi
-        if (endX < 0)
-            endX = 0;
-        if (endX > panelWidth)
-            endX = panelWidth;
-        if (endY < 0)
-            endY = 0;
-        if (endY > panelHeight)
-            endY = panelHeight;
-
-        // Disegna la linea della stecca
+    
+        // Disegna la linea della stecca (limitata dal clipping)
         g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
+    
+        // Ripristina lo stato originale del Graphics2D
+        g.setClip(originalClip);
     }
+    
 
     private double originalStickPower;
 
@@ -168,11 +164,13 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
     private int dragStartX;
     private int dragStartY;
+    private Boolean isCharging = false;
 
     @Override
     public void mousePressed(MouseEvent e) {
         dragStartX = e.getX();
         dragStartY = e.getY();
+        isCharging = true;
     }
 
     @Override
@@ -190,17 +188,13 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             stick.setPower(Math.min(distance, MAX_POWER));
 
-            double ballX = whiteBall.getX();
-            double ballY = whiteBall.getY();
-            double angle = Math.atan2(mouseY - ballY, mouseX - ballX);
-            stick.setAngleDegrees(Math.toDegrees(angle));
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
 
-        if (!isHitting) {
+        if (!isHitting && !isCharging) {
             Ball whiteBall = cntrl.getWhiteBall();
             Stick stick = cntrl.getStick();
 
@@ -227,8 +221,14 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseReleased(MouseEvent e) {
 
-        isHitting = true;
-        originalStickPower = cntrl.getStick().getPower();
+        if (cntrl.getStick().getPower() > 2) {
+            isHitting = true;
+            originalStickPower = cntrl.getStick().getPower();
+        } else {
+            cntrl.getStick().setPower(0);
+        }
+
+        isCharging = false;
 
     }
 
