@@ -75,8 +75,8 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             drawBall(g2, ball);
         }
 
-        if (cntrl.getWhiteBall().isStationary())
-            drawStick(g2, cntrl.getWhiteBall(), cntrl.geStick(), isHitting);
+        if (cntrl.checkAllStationary())
+            drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick(), isHitting);
 
     }
 
@@ -150,7 +150,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     private double originalStickPower;
 
     public void releaseStick(Stick stick, Ball whiteBall) {
-        final double RETURN_SPEED = 20;
+        final double RETURN_SPEED = 15;
 
         if (stick.getPower() > 0) {
             // Riduci solo la distanza visiva della stecca
@@ -161,6 +161,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             stick.setPower(originalStickPower);
             cntrl.hitBall();
             isHitting = false;
+            stick.setPower(0);
         }
 
     }
@@ -178,7 +179,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     public void mouseDragged(MouseEvent e) {
         if (!isHitting) {
             Ball whiteBall = cntrl.getWhiteBall();
-            Stick stick = cntrl.geStick();
+            Stick stick = cntrl.getStick();
 
             int mouseX = e.getX();
             int mouseY = e.getY();
@@ -201,7 +202,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
         if (!isHitting) {
             Ball whiteBall = cntrl.getWhiteBall();
-            Stick stick = cntrl.geStick();
+            Stick stick = cntrl.getStick();
 
             // Ottieni le coordinate del mouse
             int mouseX = e.getX();
@@ -227,7 +228,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     public void mouseReleased(MouseEvent e) {
 
         isHitting = true;
-        originalStickPower = cntrl.geStick().getPower();
+        originalStickPower = cntrl.getStick().getPower();
 
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 import static it.unibs.pajc.CostantiStatiche.*;
 
 class Ball extends GameFieldObject {
-    //private double x, y; // Position
+    // private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
     private final Color color;
@@ -48,7 +48,7 @@ class Ball extends GameFieldObject {
         this.vy = vy;
         this.number = number;
         this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
-        this.shape = new Area(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
+        this.shape = new Area(new Ellipse2D.Double(radius, radius, radius * 2, radius * 2));
     }
 
     public void updatePosition() {
@@ -70,25 +70,22 @@ class Ball extends GameFieldObject {
             vy = 0;
     }
 
-    /*
-     * public void checkBounds(int width, int height) {
-     * // Bounce off walls
-     * if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
-     * vx = -vx;
-     * x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH,
-     * x));
-     * }
-     * if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
-     * vy = -vy;
-     * y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH,
-     * y));
-     * }
-     * 
-     * // Check for pocket collisions
-     * checkPocketCollision(width, height);
-     * }
-     * 
-     */
+    // public void checkBounds(int width, int height) {
+    // // Bounce off walls
+    // if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
+    // vx = -vx;
+    // x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH,
+    // x));
+    // }
+    // if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
+    // vy = -vy;
+    // y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH,
+    // y));
+    // }
+
+    // // Check for pocket collisions
+    // checkPocketCollision(width, height);
+    // }
 
     public void checkBounds(List<Trapezoid> trapezoids) {
         if (trapezoids != null) {
@@ -300,21 +297,21 @@ class Ball extends GameFieldObject {
     public double getVx() {
         return vx;
     }
+
     public double getVy() {
         return vy;
     }
+
     public void applyVelocity(double[] velocity) {
         this.vx = velocity[0];
         this.vy = velocity[1];
     }
 
-    public int getBallRadius()
-    {
+    public int getBallRadius() {
         return radius;
     }
 
-    public Boolean isStationary()
-    {
+    public Boolean isStationary() {
         return vx == 0 && vy == 0;
     }
 }

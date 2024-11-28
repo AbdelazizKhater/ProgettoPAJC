@@ -28,7 +28,7 @@ public class BilliardController {
         whiteBall.applyVelocity(velocity);
     }
 
-    public Stick geStick()
+    public Stick getStick()
     {
         return model.getStick();
     }
@@ -41,5 +41,10 @@ public class BilliardController {
     public void hitWhiteBall()
     {
         model.hitBall();
+    }
+
+    public Boolean checkAllStationary()
+    {
+        return model.allBallsAreStationary();
     }
 }

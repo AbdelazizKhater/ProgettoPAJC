@@ -23,9 +23,8 @@ public class GameField {
         setupInitialPositions();
     }
 
-    public void hitBall()
-    {
-        double[] velocity =  stick.calculateBallVelocity();
+    public void hitBall() {
+        double[] velocity = stick.calculateBallVelocity();
         balls.get(0).applyVelocity(velocity);
     }
 
@@ -56,11 +55,21 @@ public class GameField {
 
             for (int j = i + 1; j < balls.size(); j++) {
                 Ball other = balls.get(j);
-                if (ball.checkCollision(other)) {
+                if (ball.checkCollision(other) && (!ball.isStationary() || !ball.isStationary())) {
                     ball.resolveCollision(other);
                 }
             }
         }
+    }
+
+    public boolean allBallsAreStationary()
+    {
+        for (Ball ball : balls) {
+
+            if(!ball.isStationary()) return false;
+            
+        }
+        return true;
     }
 
     private void setupInitialPositions() {
