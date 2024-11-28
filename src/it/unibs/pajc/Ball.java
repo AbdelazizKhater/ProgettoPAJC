@@ -13,13 +13,12 @@ import java.util.List;
 import static it.unibs.pajc.CostantiStatiche.*;
 
 class Ball extends GameFieldObject {
-    private double x, y; // Position
+    //private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
     private final Color color;
     private final int number; // it.unibs.pajc.Ball number
     private double accumulatedDistance = 0; // Distance for rotation effect
-
 
     // Array per memorizzare i colori delle palline in base al loro numero
     private static final Color[] BALL_COLORS = {
@@ -60,7 +59,7 @@ class Ball extends GameFieldObject {
         accumulatedDistance += Math.sqrt(vx * vx + vy * vy);
 
         // Apply friction
-        double friction = 1; // Increased friction for more realistic slowdown
+        double friction = 0.98; // Increased friction for more realistic slowdown
         vx *= friction;
         vy *= friction;
 
@@ -71,21 +70,24 @@ class Ball extends GameFieldObject {
             vy = 0;
     }
 
-    /*public void checkBounds(int width, int height) {
-        // Bounce off walls
-        if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
-            vx = -vx;
-            x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH, x));
-        }
-        if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
-            vy = -vy;
-            y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH, y));
-        }
-
-        // Check for pocket collisions
-        checkPocketCollision(width, height);
-    }
-
+    /*
+     * public void checkBounds(int width, int height) {
+     * // Bounce off walls
+     * if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
+     * vx = -vx;
+     * x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH,
+     * x));
+     * }
+     * if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
+     * vy = -vy;
+     * y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH,
+     * y));
+     * }
+     * 
+     * // Check for pocket collisions
+     * checkPocketCollision(width, height);
+     * }
+     * 
      */
 
     public void checkBounds(List<Trapezoid> trapezoids) {
@@ -123,6 +125,7 @@ class Ball extends GameFieldObject {
 
         return distToStart <= radius * radius || distToEnd <= radius * radius;
     }
+
     private void handleCollisionWithEdge(Line2D edge) {
         // Calculate the edge's normal vector
         double dx = edge.getX2() - edge.getX1();
@@ -137,13 +140,13 @@ class Ball extends GameFieldObject {
         vy -= 2 * dotProduct * ny;
 
         // Move the ball outside the collision area
-        double overlap = radius - Math.sqrt((x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1()));
+        double overlap = radius
+                - Math.sqrt((x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1()));
         if (overlap > 0) {
             x += overlap * nx;
             y += overlap * ny;
         }
     }
-
 
     private void checkPocketCollision(int width, int height) {
         int pocketCenterX, pocketCenterY;
@@ -286,13 +289,32 @@ class Ball extends GameFieldObject {
         return components;
     }
 
-
-
     public void setVx(double vx) {
         this.vx = vx;
     }
 
     public void setVy(double vy) {
         this.vy = vy;
+    }
+
+    public double getVx() {
+        return vx;
+    }
+    public double getVy() {
+        return vy;
+    }
+    public void applyVelocity(double[] velocity) {
+        this.vx = velocity[0];
+        this.vy = velocity[1];
+    }
+
+    public int getBallRadius()
+    {
+        return radius;
+    }
+
+    public Boolean isStationary()
+    {
+        return vx == 0 && vy == 0;
     }
 }

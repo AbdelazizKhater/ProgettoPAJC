@@ -2,19 +2,25 @@ package it.unibs.pajc;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
 
 import static it.unibs.pajc.CostantiStatiche.*;
 
-public class GameView extends JPanel implements MouseInputListener
-{
-    private BilliardController cntrl;
+public class GameView extends JPanel implements MouseMotionListener, MouseListener {
 
+    public static final int MAX_POWER = 80;
+
+    private BilliardController cntrl;
+    private Boolean isHitting = false;
 
     public GameView(BilliardController cntrl) {
         this.cntrl = cntrl;
+
+        this.addMouseMotionListener(this);
+        this.addMouseListener(this);
 
         Timer timer = new Timer(5, e -> {
             cntrl.stepNext();
@@ -47,27 +53,31 @@ public class GameView extends JPanel implements MouseInputListener
 
         // Draw pockets
         g2.setColor(Color.BLACK);
-        //Top left pocket
+        // Top left pocket
         g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
-        //Top middle pocket
+                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
+        // Top middle pocket
         g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5,
-                POCKET_RADIUS * 2,POCKET_RADIUS * 2);
-        //Top right pocket
+                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
+        // Top right pocket
         g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
-        //Bottom left pocket
-        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS,TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
+                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
+        // Bottom left pocket
+        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
+                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
         g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
                 POCKET_RADIUS * 2, POCKET_RADIUS * 2);
         g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2,BIG_POCKET_RADIUS * 2);
+                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
 
         // Draw each ball
         for (Ball ball : cntrl.listBalls()) {
             drawBall(g2, ball);
         }
+
+        if (cntrl.getWhiteBall().isStationary())
+            drawStick(g2, cntrl.getWhiteBall(), cntrl.geStick(), isHitting);
+
     }
 
     public void drawBall(Graphics2D g, Ball ball) {
@@ -102,47 +112,135 @@ public class GameView extends JPanel implements MouseInputListener
         }
     }
 
+    private void drawStick(Graphics2D g, Ball whiteBall, Stick stick, Boolean isHitting) {
+
+        g.setStroke(new BasicStroke(10));
+        g.setColor(Color.black);
+        // Calcola la distanza iniziale della stecca dalla palla
+        if (isHitting)
+            releaseStick(stick, whiteBall);
+
+        double stickDistance = whiteBall.getBallRadius() + (isHitting ? 0 : 10) + stick.getPower();
+        double stickLength = 300; // Lunghezza totale della stecca
+
+        // Calcola le coordinate della stecca
+        double startX = whiteBall.getX() + stickDistance * Math.cos(stick.getAngleRadians());
+        double startY = whiteBall.getY() + stickDistance * Math.sin(stick.getAngleRadians());
+        double endX = whiteBall.getX() + (stickDistance + stickLength) * Math.cos(stick.getAngleRadians());
+        double endY = whiteBall.getY() + (stickDistance + stickLength) * Math.sin(stick.getAngleRadians());
+
+        // Ottieni i confini della finestra
+        int panelWidth = this.getWidth();
+        int panelHeight = this.getHeight();
+
+        // Correggi le coordinate della stecca se escono dai bordi
+        if (endX < 0)
+            endX = 0;
+        if (endX > panelWidth)
+            endX = panelWidth;
+        if (endY < 0)
+            endY = 0;
+        if (endY > panelHeight)
+            endY = panelHeight;
+
+        // Disegna la linea della stecca
+        g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
+    }
+
+    private double originalStickPower;
+
+    public void releaseStick(Stick stick, Ball whiteBall) {
+        final double RETURN_SPEED = 20;
+
+        if (stick.getPower() > 0) {
+            // Riduci solo la distanza visiva della stecca
+            stick.setPower(Math.max(0, stick.getPower() - RETURN_SPEED));
+
+        } else {
+
+            stick.setPower(originalStickPower);
+            cntrl.hitBall();
+            isHitting = false;
+        }
+
+    }
+
+    private int dragStartX;
+    private int dragStartY;
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        dragStartX = e.getX();
+        dragStartY = e.getY();
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (!isHitting) {
+            Ball whiteBall = cntrl.getWhiteBall();
+            Stick stick = cntrl.geStick();
+
+            int mouseX = e.getX();
+            int mouseY = e.getY();
+
+            double deltaX = mouseX - dragStartX;
+            double deltaY = mouseY - dragStartY;
+
+            double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            stick.setPower(Math.min(distance, MAX_POWER));
+
+            double ballX = whiteBall.getX();
+            double ballY = whiteBall.getY();
+            double angle = Math.atan2(mouseY - ballY, mouseX - ballX);
+            stick.setAngleDegrees(Math.toDegrees(angle));
+        }
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+        if (!isHitting) {
+            Ball whiteBall = cntrl.getWhiteBall();
+            Stick stick = cntrl.geStick();
+
+            // Ottieni le coordinate del mouse
+            int mouseX = e.getX();
+            int mouseY = e.getY();
+
+            // Calcola l'angolo tra il centro della palla e il mouse
+            double ballX = whiteBall.getX();
+            double ballY = whiteBall.getY();
+            double angle = Math.atan2(mouseY - ballY, mouseX - ballX); // Angolo in radianti
+
+            // Converti l'angolo in gradi e aggiornalo nella stecca
+            stick.setAngleDegrees(Math.toDegrees(angle));
+        }
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
-    }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+
+        isHitting = true;
+        originalStickPower = cntrl.geStick().getPower();
+
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+
     }
 
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseDragged'");
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseMoved'");
-    }
-    
 }

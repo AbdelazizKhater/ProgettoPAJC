@@ -18,4 +18,28 @@ public class BilliardController {
         return model.getBalls();
     }
     
+    // Metodo per simulare il colpo
+    public void hitBall() {
+        Stick stick = model.getStick();
+        Ball whiteBall = model.getBalls().get(0);
+
+        System.out.println(stick.getPower());
+        double[] velocity = stick.calculateBallVelocity();
+        whiteBall.applyVelocity(velocity);
+    }
+
+    public Stick geStick()
+    {
+        return model.getStick();
+    }
+
+    public Ball getWhiteBall()
+    {
+        return model.getBalls().get(0);
+    }
+
+    public void hitWhiteBall()
+    {
+        model.hitBall();
+    }
 }

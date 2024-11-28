@@ -6,7 +6,7 @@ import java.awt.geom.Area;
 
 public class GameFieldObject {
 
-    private double x, y; // Position
+    public double x, y; // Position
     private double vx, vy;
 
     protected Shape shape;
@@ -25,7 +25,7 @@ public class GameFieldObject {
 
         a.intersect(objArea);
 
-        System.out.println(!a.isEmpty());
+        //System.out.println(!a.isEmpty());
         return !a.isEmpty();
     }
 

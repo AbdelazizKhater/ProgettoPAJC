@@ -5,10 +5,11 @@ import static it.unibs.pajc.CostantiStatiche.*;
 
 public class GameField {
 
-    private final ArrayList<Ball> balls;
-    private final ArrayList<Trapezoid> trapezoids;
+    private ArrayList<Ball> balls;
+    private ArrayList<Trapezoid> trapezoids;
 
-    private final ArrayList<GameFieldObject> objects;
+    private ArrayList<GameFieldObject> objects;
+    private Stick stick;
 
     public GameField() {
         balls = new ArrayList<>();
@@ -16,36 +17,42 @@ public class GameField {
         objects = new ArrayList<>();
         objects.addAll(balls);
         objects.addAll(trapezoids);
+        stick = new Stick();
 
         // Add billiard balls in initial positions
         setupInitialPositions();
     }
 
-    /*
-    private void detectCollision() {
-        int numberObjects= objects.size();
-
-        GameFieldObject[] objs = new GameFieldObject[][numberObjects];
-        objects.toArray(objs);
-
-        for(int i = 0; i < numberObjects; i++) {
-            for(int j = i + 1; j < numberObjects; j++) {
-                if(objs[i].checkCollision(objs[j])) {
-                    objs[i].collided();
-                    objs[j].collided();
-                }
-            }
-        }
+    public void hitBall()
+    {
+        double[] velocity =  stick.calculateBallVelocity();
+        balls.get(0).applyVelocity(velocity);
     }
 
+    /*
+     * private void detectCollision() {
+     * int numberObjects= objects.size();
+     * 
+     * GameFieldObject[] objs = new GameFieldObject[][numberObjects];
+     * objects.toArray(objs);
+     * 
+     * for(int i = 0; i < numberObjects; i++) {
+     * for(int j = i + 1; j < numberObjects; j++) {
+     * if(objs[i].checkCollision(objs[j])) {
+     * objs[i].collided();
+     * objs[j].collided();
+     * }
+     * }
+     * }
+     * }
+     * 
      */
 
-    public void stepNext(){
+    public void stepNext() {
         for (int i = 0; i < balls.size(); i++) {
             Ball ball = balls.get(i);
             ball.updatePosition();
             ball.checkBounds(trapezoids);
-
 
             for (int j = i + 1; j < balls.size(); j++) {
                 Ball other = balls.get(j);
@@ -55,6 +62,7 @@ public class GameField {
             }
         }
     }
+
     private void setupInitialPositions() {
         // Radius of each ball
         int radius = 15;
@@ -64,8 +72,8 @@ public class GameField {
         }
 
         // Position for the white ball
-        balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 3, 0,  0)); // White ball
-        balls.get(0).setVx(30);
+        balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0)); // White ball
+        balls.get(0).setVx(0);
         // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
@@ -81,11 +89,16 @@ public class GameField {
             }
         }
 
+        stick.setAngleDegrees(180);
 
     }
-
 
     public ArrayList<Ball> getBalls() {
         return balls;
     }
+
+    public Stick getStick() {
+        return stick;
+    }
+
 }
