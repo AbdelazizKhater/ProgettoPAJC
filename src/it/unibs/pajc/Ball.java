@@ -48,7 +48,7 @@ class Ball extends GameFieldObject {
         this.vy = vy;
         this.number = number;
         this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
-        this.shape = new Area(new Ellipse2D.Double(0, 0, radius * 2, radius * 2));
+        this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
     }
 
     public void updatePosition() {
@@ -91,7 +91,7 @@ class Ball extends GameFieldObject {
         if (trapezoids != null) {
             for (Trapezoid trapezoid : trapezoids) {
                 if (isCollidingWithEdge(trapezoid)) {
-                        handleCollisionWithShape(trapezoid);
+                    handleCollisionWithShape(trapezoid);
                 }
             }
         }
@@ -102,48 +102,50 @@ class Ball extends GameFieldObject {
         return this.checkCollision(trapezoid);
     }
 
-
     private void handleCollisionWithShape(GameFieldObject object) {
-        // Create Area objects for the ball and the trapezoid
-        Area ballArea = new Area(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
+        // Crea oggetti Area per la pallina e l'oggetto
+        Area ballArea = new Area(this.getShape());
         Area objectArea = new Area(object.getShape());
-
-        // Intersect the areas to detect overlap
+    
+        // Interseca le aree per rilevare la sovrapposizione
         ballArea.intersect(objectArea);
-
-        if (!ballArea.isEmpty()) { // Collision detected
-            // Get the center of the intersection area
+    
+        if (!ballArea.isEmpty()) { // Collisione rilevata
+            // Ottieni il bounding box dell'area di intersezione
             Rectangle bounds = ballArea.getBounds();
             double intersectionCenterX = bounds.getCenterX();
             double intersectionCenterY = bounds.getCenterY();
-
-            // Calculate the normal vector (from the center of intersection to the ball center)
+    
+            // Calcola il vettore normale (dal centro dell'intersezione al centro della pallina)
             double nx = x - intersectionCenterX;
             double ny = y - intersectionCenterY;
             double length = Math.sqrt(nx * nx + ny * ny);
-
-            if (length == 0) {
-                nx = 1; // Avoid division by zero
+    
+            if (length < 1e-6) {
+                nx = 1; // Evita la divisione per zero
                 ny = 0;
                 length = 1;
             }
-
-            nx /= length; // Normalize the normal vector
+    
+            nx /= length; // Normalizza il vettore normale
             ny /= length;
-
-            // Reflect the velocity
+    
+            // Riflette la velocità lungo la normale con un fattore di smorzamento
+            double elasticity = 0.8; // Coefficiente di restituzione (0 = inelastic, 1 = elastic)
             double dotProduct = vx * nx + vy * ny;
-            vx -= 2 * dotProduct * nx;
-            vy -= 2 * dotProduct * ny;
-
-            // Push the ball out of the shape to prevent sticking
-            double overlap = radius - bounds.getWidth() / 2; // Approximation
+            vx -= (1 + elasticity) * dotProduct * nx;
+            vy -= (1 + elasticity) * dotProduct * ny;
+    
+            // Corregge la posizione per evitare sovrapposizioni
+            double overlap = radius - length; // Correzione basata sulla distanza effettiva
             if (overlap > 0) {
-                x += nx * overlap;
-                y += ny * overlap;
+                x += nx * overlap * 0.5; // Correzione meno aggressiva (solo metà dell'overlap)
+                y += ny * overlap * 0.5;
             }
         }
     }
+    
+    
 
     private void checkPocketCollision(int width, int height) {
         int pocketCenterX, pocketCenterY;
@@ -167,27 +169,46 @@ class Ball extends GameFieldObject {
         return distanceSquared <= POCKET_RADIUS * POCKET_RADIUS;
     }
 
-    public boolean isColliding(Ball other) {
-        double dx = other.x - this.x;
-        double dy = other.y - this.y;
-        double distanceSquared = dx * dx + dy * dy;
-        double radiusSum = this.radius + other.radius;
+    // public boolean isColliding(Ball other) {
 
-        // Check if the distance between centers is less than or equal to the sum of the
-        // radii
-        return distanceSquared <= radiusSum * radiusSum;
-    }
+    // double dx = other.x - this.x;
+    // double dy = other.y - this.y;
+    // double distanceSquared = dx * dx + dy * dy;
+    // double radiusSum = this.radius + other.radius;
+
+    // // Check if the distance between centers is less than or equal to the sum of
+    // the
+    // // radii
+    // return distanceSquared <= radiusSum * radiusSum;
+    // }
+
+    // public boolean willCollideNextFrame(Ball other) {
+    // double futureX1 = this.x + this.vx;
+    // double futureY1 = this.y + this.vy;
+    // double futureX2 = other.x + other.vx;
+    // double futureY2 = other.y + other.vy;
+
+    // double dx = futureX2 - futureX1;
+    // double dy = futureY2 - futureY1;
+    // double distanceSquared = dx * dx + dy * dy;
+    // double radiusSum = this.radius + other.radius;
+
+    // // Controllo per collisione predittiva
+    // return distanceSquared <= radiusSum * radiusSum;
+    // }
 
     public void resolveCollision(Ball other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance == 0) {
-            distance = 0.1; // Avoid division by zero
+        // Evita divisioni per zero o instabilità numerica
+        if (distance < 1e-6) {
+            distance = 1e-6; // Distanza minima per evitare errore
         }
 
-        double overlap = this.radius + other.radius - distance;
+        // Correggi il sovrapposizionamento
+        double overlap = (this.radius + other.radius) - distance;
         if (overlap > 0) {
             double correctionFactor = overlap / 2.0 / distance;
             double correctionX = dx * correctionFactor;
@@ -199,36 +220,36 @@ class Ball extends GameFieldObject {
             other.y += correctionY;
         }
 
+        // Calcola il vettore normale e tangenziale
         double nx = dx / distance;
         double ny = dy / distance;
 
         double tx = -ny;
         double ty = nx;
 
+        // Decomponi le velocità lungo normale e tangente
         double v1n = this.vx * nx + this.vy * ny;
         double v1t = this.vx * tx + this.vy * ty;
         double v2n = other.vx * nx + other.vy * ny;
         double v2t = other.vx * tx + other.vy * ty;
 
+        // Inverti le velocità lungo la normale (urto elastico)
         double newV1n = v2n;
         double newV2n = v1n;
 
-        double newV1t = v1t;
-        double newV2t = v2t;
-
-
-        this.vx = newV1n * nx + newV1t * tx;
-        this.vy = newV1n * ny + newV1t * ty;
-        other.vx = newV2n * nx + newV2t * tx;
-        other.vy = newV2n * ny + newV2t * ty;
+        // Ricombina le velocità
+        this.vx = newV1n * nx + v1t * tx;
+        this.vy = newV1n * ny + v1t * ty;
+        other.vx = newV2n * nx + v2t * tx;
+        other.vy = newV2n * ny + v2t * ty;
     }
 
     public List<Object> getShapeComponents() {
         List<Object> components = new ArrayList<>();
 
-        // Corpo principale della pallina
-        Ellipse2D body = new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
-        components.add(new ShapeComponent(body, color));
+        // Usa lo Shape già esistente nella classe, applicando la trasformazione
+        Shape transformedShape = getShape(); // Questo restituisce lo Shape con la posizione applicata
+        components.add(new ShapeComponent(transformedShape, color));
 
         // Cerchio bianco per il numero (se non è la palla bianca)
         if (number > 0) {
@@ -236,32 +257,32 @@ class Ball extends GameFieldObject {
             double whiteCircleX = x - whiteCircleDiameter / 2.0;
             double whiteCircleY = y - whiteCircleDiameter / 2.0;
 
-            Ellipse2D whiteCircle = new Ellipse2D.Double(whiteCircleX, whiteCircleY, whiteCircleDiameter,
+            Shape whiteCircle = new Ellipse2D.Double(whiteCircleX, whiteCircleY, whiteCircleDiameter,
                     whiteCircleDiameter);
             components.add(new ShapeComponent(whiteCircle, Color.WHITE));
 
             // Aggiungi il numero al centro del cerchio bianco
-            components.add(
-                    new TextComponent(String.valueOf(number), Color.BLACK, x, y));
+            components.add(new TextComponent(String.valueOf(number), Color.BLACK, x, y));
         }
+
         // Bande per le palline dalla 9 alla 15
         if (number >= 9) {
             // Crea un'area di clipping limitata al cerchio della pallina
-            Ellipse2D clippingArea = new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
+            Shape clippingArea = transformedShape;
 
             // Riduci l'altezza delle bande
-            int bandHeight = radius / 3; // Altezza ridotta delle bande (prima era radius / 2)
+            int bandHeight = radius / 3; // Altezza ridotta delle bande
 
             // Banda superiore (clipping limitato)
             Rectangle bandTop = new Rectangle((int) (x - radius), (int) (y - radius), radius * 2, bandHeight);
-            Shape bandTopClipped = new java.awt.geom.Area(clippingArea);
-            ((java.awt.geom.Area) bandTopClipped).intersect(new java.awt.geom.Area(bandTop));
+            Area bandTopClipped = new Area(clippingArea);
+            bandTopClipped.intersect(new Area(bandTop));
 
             // Banda inferiore (clipping limitato)
             Rectangle bandBottom = new Rectangle((int) (x - radius), (int) (y + radius - bandHeight), radius * 2,
                     bandHeight);
-            Shape bandBottomClipped = new java.awt.geom.Area(clippingArea);
-            ((java.awt.geom.Area) bandBottomClipped).intersect(new java.awt.geom.Area(bandBottom));
+            Area bandBottomClipped = new Area(clippingArea);
+            bandBottomClipped.intersect(new Area(bandBottom));
 
             // Aggiungi le bande come componenti grafici
             components.add(new ShapeComponent(bandTopClipped, Color.WHITE));
@@ -276,7 +297,7 @@ class Ball extends GameFieldObject {
                 new Color[] { new Color(255, 255, 255, 200), new Color(255, 255, 255, 0) } // Bianco opaco al centro,
                                                                                            // trasparente ai bordi
         );
-        Ellipse2D reflection = new Ellipse2D.Double(
+        Shape reflection = new Ellipse2D.Double(
                 x - radius * 0.4, // Posizione X del cerchio
                 y - radius * 1.1, // Posizione Y del cerchio
                 radius * 0.8, // Diametro del cerchio

@@ -1,9 +1,7 @@
 package it.unibs.pajc;
 
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.List;
+
 
 class Trapezoid extends GameFieldObject {
 

@@ -58,7 +58,7 @@ public class GameField {
 
             for (int j = i + 1; j < balls.size(); j++) {
                 Ball other = balls.get(j);
-                if (ball.checkCollision(other) && (!ball.isStationary() || !ball.isStationary())) {
+                if (ball.checkCollision(other) && (!ball.isStationary() || !other.isStationary())) {
                     ball.resolveCollision(other);
                 }
             }
@@ -72,6 +72,7 @@ public class GameField {
             if(!ball.isStationary()) return false;
             
         }
+
         return true;
     }
 
