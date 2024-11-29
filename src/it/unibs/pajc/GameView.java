@@ -22,7 +22,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        Timer timer = new Timer(1, e -> {
+        Timer timer = new Timer(5, e -> {
             cntrl.stepNext();
             repaint();
         });
@@ -46,29 +46,22 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         g2.fillRect(0, 0, TABLE_WIDTH, BORDER_WIDTH);
         g2.fillRect(0, TABLE_HEIGHT - BORDER_WIDTH, TABLE_WIDTH, BORDER_WIDTH);
 
-        g.setColor(new Color(109, 39, 9));
+        g2.setColor(new Color(109, 39, 9));
+
+        //Disegno trapezi
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
-            g.fillPolygon(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i], 4);
+            g2.fillPolygon(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i], 4);
         }
 
         // Draw pockets
         g2.setColor(Color.BLACK);
-        // Top left pocket
-        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
-        // Top middle pocket
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, BORDER_WIDTH - POCKET_RADIUS - 5,
-                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        // Top right pocket
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
-        // Bottom left pocket
-        g2.fillOval(BORDER_WIDTH - BIG_POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
-        g2.fillOval((TABLE_WIDTH / 2) - POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - POCKET_RADIUS + 5,
-                POCKET_RADIUS * 2, POCKET_RADIUS * 2);
-        g2.fillOval(TABLE_WIDTH - BORDER_WIDTH - BIG_POCKET_RADIUS, TABLE_HEIGHT - BORDER_WIDTH - BIG_POCKET_RADIUS,
-                BIG_POCKET_RADIUS * 2, BIG_POCKET_RADIUS * 2);
+        for (int[] pocket : POCKET_POSITIONS) {
+            int x = pocket[0];
+            int y = pocket[1];
+            int width = pocket[2];
+            int height = pocket[3];
+            g2.fillOval(x, y, width, height);
+        }
 
         // Draw each ball
         for (Ball ball : cntrl.listBalls()) {

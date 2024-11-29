@@ -90,58 +90,58 @@ class Ball extends GameFieldObject {
     public void checkBounds(List<Trapezoid> trapezoids) {
         if (trapezoids != null) {
             for (Trapezoid trapezoid : trapezoids) {
-                for (Line2D edge : trapezoid.getEdges()) {
-                    if (isCollidingWithEdge(edge)) {
-                        handleCollisionWithEdge(edge);
-                    }
+                if (isCollidingWithEdge(trapezoid)) {
+                        handleCollisionWithShape(trapezoid);
                 }
             }
         }
     }
 
-    private boolean isCollidingWithEdge(Line2D edge) {
-        double dx = edge.getX2() - edge.getX1();
-        double dy = edge.getY2() - edge.getY1();
-        double lengthSquared = dx * dx + dy * dy;
-
-        // Closest point on edge
-        double t = ((x - edge.getX1()) * dx + (y - edge.getY1()) * dy) / lengthSquared;
-        t = Math.max(0, Math.min(1, t)); // Clamp t to [0, 1]
-
-        double closestX = edge.getX1() + t * dx;
-        double closestY = edge.getY1() + t * dy;
-
-        double distSquared = (x - closestX) * (x - closestX) + (y - closestY) * (y - closestY);
-        if (distSquared <= radius * radius) {
-            return true;
-        }
-
-        // Check endpoints
-        double distToStart = (x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1());
-        double distToEnd = (x - edge.getX2()) * (x - edge.getX2()) + (y - edge.getY2()) * (y - edge.getY2());
-
-        return distToStart <= radius * radius || distToEnd <= radius * radius;
+    private boolean isCollidingWithEdge(Trapezoid trapezoid) {
+        // Check collision with the edge itself
+        return this.checkCollision(trapezoid);
     }
 
-    private void handleCollisionWithEdge(Line2D edge) {
-        // Calculate the edge's normal vector
-        double dx = edge.getX2() - edge.getX1();
-        double dy = edge.getY2() - edge.getY1();
-        double length = Math.sqrt(dx * dx + dy * dy);
-        double nx = -dy / length; // Normal vector (perpendicular to edge)
-        double ny = dx / length;
 
-        // Reflect velocity using the edge normal
-        double dotProduct = vx * nx + vy * ny;
-        vx -= 2 * dotProduct * nx;
-        vy -= 2 * dotProduct * ny;
+    private void handleCollisionWithShape(GameFieldObject object) {
+        // Create Area objects for the ball and the trapezoid
+        Area ballArea = new Area(new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2));
+        Area objectArea = new Area(object.getShape());
 
-        // Move the ball outside the collision area
-        double overlap = radius
-                - Math.sqrt((x - edge.getX1()) * (x - edge.getX1()) + (y - edge.getY1()) * (y - edge.getY1()));
-        if (overlap > 0) {
-            x += overlap * nx;
-            y += overlap * ny;
+        // Intersect the areas to detect overlap
+        ballArea.intersect(objectArea);
+
+        if (!ballArea.isEmpty()) { // Collision detected
+            // Get the center of the intersection area
+            Rectangle bounds = ballArea.getBounds();
+            double intersectionCenterX = bounds.getCenterX();
+            double intersectionCenterY = bounds.getCenterY();
+
+            // Calculate the normal vector (from the center of intersection to the ball center)
+            double nx = x - intersectionCenterX;
+            double ny = y - intersectionCenterY;
+            double length = Math.sqrt(nx * nx + ny * ny);
+
+            if (length == 0) {
+                nx = 1; // Avoid division by zero
+                ny = 0;
+                length = 1;
+            }
+
+            nx /= length; // Normalize the normal vector
+            ny /= length;
+
+            // Reflect the velocity
+            double dotProduct = vx * nx + vy * ny;
+            vx -= 2 * dotProduct * nx;
+            vy -= 2 * dotProduct * ny;
+
+            // Push the ball out of the shape to prevent sticking
+            double overlap = radius - bounds.getWidth() / 2; // Approximation
+            if (overlap > 0) {
+                x += nx * overlap;
+                y += ny * overlap;
+            }
         }
     }
 
@@ -215,6 +215,7 @@ class Ball extends GameFieldObject {
 
         double newV1t = v1t;
         double newV2t = v2t;
+
 
         this.vx = newV1n * nx + newV1t * tx;
         this.vy = newV1n * ny + newV1t * ty;

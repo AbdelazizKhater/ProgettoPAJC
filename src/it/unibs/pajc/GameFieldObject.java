@@ -15,7 +15,6 @@ public class GameFieldObject {
         AffineTransform t = new AffineTransform();
         t.translate(getX(), getY());
 
-
         return t.createTransformedShape(shape);
     }
 

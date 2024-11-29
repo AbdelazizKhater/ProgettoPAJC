@@ -1,5 +1,6 @@
 package it.unibs.pajc;//MODEL
 
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import static it.unibs.pajc.CostantiStatiche.*;
 
@@ -7,6 +8,8 @@ public class GameField {
 
     private ArrayList<Ball> balls;
     private ArrayList<Trapezoid> trapezoids;
+    private final static int MAX_VELOCITY = 50;
+
 
     private ArrayList<GameFieldObject> objects;
     private Stick stick;
@@ -79,6 +82,9 @@ public class GameField {
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             trapezoids.add(new Trapezoid(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i]));
         }
+        Area a = new Area(trapezoids.get(0).getShape());
+        System.out.println(a.isEmpty());
+
 
         // Position for the white ball
         balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0)); // White ball

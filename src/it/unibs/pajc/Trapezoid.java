@@ -1,21 +1,23 @@
 package it.unibs.pajc;
 
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
 class Trapezoid extends GameFieldObject {
-    private List<Line2D> edges;
 
     public Trapezoid(int[] xPoints, int[] yPoints) {
-        edges = new ArrayList<>();
-        for (int i = 0; i < xPoints.length; i++) {
-            int next = (i + 1) % xPoints.length; // Ensure wrapping around to the first point
-            edges.add(new Line2D.Double(xPoints[i], yPoints[i], xPoints[next], yPoints[next]));
+        super();
+
+        Path2D path = new Path2D.Double();
+        path.moveTo(xPoints[0], yPoints[0]);
+        for (int i = 1; i < 4; i++) {
+            path.lineTo(xPoints[i], yPoints[i]);
         }
+        path.closePath();
+
+        this.shape = path;
     }
 
-    public List<Line2D> getEdges() {
-        return edges;
-    }
 }
