@@ -6,20 +6,15 @@ import static it.unibs.pajc.CostantiStatiche.*;
 
 public class GameField {
 
-    private ArrayList<Ball> balls;
-    private ArrayList<Trapezoid> trapezoids;
-    private final static int MAX_VELOCITY = 50;
-
-
-    private ArrayList<GameFieldObject> objects;
-    private Stick stick;
+    private final ArrayList<Ball> balls;
+    private final ArrayList<Trapezoid> trapezoids;
+    private final ArrayList<Pocket> pockets;
+    private final Stick stick;
 
     public GameField() {
         balls = new ArrayList<>();
         trapezoids = new ArrayList<>();
-        objects = new ArrayList<>();
-        objects.addAll(balls);
-        objects.addAll(trapezoids);
+        pockets = new ArrayList<>();
         stick = new Stick();
 
         // Add billiard balls in initial positions
@@ -55,7 +50,12 @@ public class GameField {
             Ball ball = balls.get(i);
             ball.updatePosition();
             ball.checkBounds(trapezoids);
-
+            for (Pocket pocket : pockets) {
+                if (ball.handleCollisionWithPocket(pocket)) {
+                    balls.remove(ball);
+                    break;
+                }
+            }
             for (int j = i + 1; j < balls.size(); j++) {
                 Ball other = balls.get(j);
                 if (ball.checkCollision(other) && (!ball.isStationary() || !other.isStationary())) {
@@ -78,14 +78,25 @@ public class GameField {
 
     private void setupInitialPositions() {
         // Radius of each ball
-        int radius = 15;
+        int ballRadius = 15;
 
+        //Definizione area di ogni trapezio
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             trapezoids.add(new Trapezoid(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i]));
         }
         Area a = new Area(trapezoids.get(0).getShape());
         System.out.println(a.isEmpty());
 
+        //Definizione area di ogni buca
+        for(int i = 0; i < POCKET_POSITIONS.length; i++) {
+            int x = POCKET_POSITIONS[i][0];
+            int y = POCKET_POSITIONS[i][1];
+            int pocketRadius = POCKET_POSITIONS[i][2] / 2;
+
+            System.out.println("x: " + x + " y: " + y + " r: " + pocketRadius);
+
+            pockets.add(new Pocket(x, y, pocketRadius));
+        }
 
         // Position for the white ball
         balls.add(new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0)); // White ball
@@ -99,8 +110,8 @@ public class GameField {
         int number = 1;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col <= row; col++) {
-                double x = startX + row * (radius * 2 * Math.sqrt(3) / 2);
-                double y = startY - row * radius + col * radius * 2;
+                double x = startX + row * (ballRadius * 2 * Math.sqrt(3) / 2);
+                double y = startY - row * ballRadius + col * ballRadius * 2;
                 balls.add(new Ball(x, y, 0, 0, number++));
             }
         }

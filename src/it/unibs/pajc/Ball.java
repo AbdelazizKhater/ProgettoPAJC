@@ -87,6 +87,14 @@ class Ball extends GameFieldObject {
     // checkPocketCollision(width, height);
     // }
 
+    public boolean handleCollisionWithPocket(Pocket pocket) {
+        double dx = this.x - pocket.x - pocket.getRadius();
+        double dy = this.y - pocket.y - pocket.getRadius();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+       return distance <= pocket.getRadius();
+    }
+
     public void checkBounds(List<Trapezoid> trapezoids) {
         if (trapezoids != null) {
             for (Trapezoid trapezoid : trapezoids) {

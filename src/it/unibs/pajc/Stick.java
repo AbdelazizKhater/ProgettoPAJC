@@ -4,7 +4,7 @@ public class Stick {
     private double angleDegrees; // Angolo in gradi
     private double power = 0;
 
-    public static final int MAX_POWER = 80;
+    public static final int MAX_POWER = 30;
 
     // Getter e Setter per l'angolo in gradi
     public double getAngleDegrees() {

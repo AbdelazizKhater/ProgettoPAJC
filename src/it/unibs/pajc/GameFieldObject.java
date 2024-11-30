@@ -19,9 +19,6 @@ public class GameFieldObject {
     }
 
     public boolean checkCollision(GameFieldObject o) {
-    
-
-        // Per altre forme, usa Area come fallback
         Area a = new Area(this.getShape());
         Area objArea = new Area(o.getShape());
 

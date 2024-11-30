@@ -13,7 +13,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
     public static final int MAX_POWER = 80;
 
-    private BilliardController cntrl;
+    private final BilliardController cntrl;
     private Boolean isHitting = false;
 
     public GameView(BilliardController cntrl) {
@@ -22,7 +22,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        Timer timer = new Timer(5, e -> {
+        Timer timer = new Timer(1, e -> {
             cntrl.stepNext();
             repaint();
         });
