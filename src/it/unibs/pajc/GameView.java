@@ -73,10 +73,11 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
         if (cntrl.checkAllStationary()) {
             if (isHitting) {
-                releaseStick(); // Gestisce l'animazione
-            } else {
-                drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
+                releaseStick(); 
             }
+
+            drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
+
         }
 
     }

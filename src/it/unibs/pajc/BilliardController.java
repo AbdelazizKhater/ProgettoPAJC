@@ -63,7 +63,7 @@ public class BilliardController {
     }
 
     public void updateStickAngle(int mouseX, int mouseY) {
-        
+
         Stick stick = model.getStick();
         Ball cueBall = model.getCueBall();
 
@@ -80,13 +80,13 @@ public class BilliardController {
         double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         model.getStick().setPower(Math.min(distance, Stick.MAX_POWER));
     }
-    
+
     public boolean isStickCharged() {
         return model.getStick().getPower() > 2;
     }
 
     public boolean reduceStickVisualPowerForAnimation() {
-        return model.reduceStickVisualPower(15); // Velocità dell'animazione
+        return model.reduceStickVisualPower(10); // Velocità dell'animazione
     }
 
     public void onStickAnimationComplete() {
