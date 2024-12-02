@@ -213,8 +213,11 @@ class Ball extends GameFieldObject {
         return inPlay;
     }
 
-    public BallInfo getBallInfo()
-    {
-        return new BallInfo(this.x, this.y, this.radius, this.number);
+    public int getRadius() {
+        return radius;
+    }
+
+    public int getNumber() {
+        return number;
     }
 }

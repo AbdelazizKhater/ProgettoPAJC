@@ -28,6 +28,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             cntrl.stepNext();
             repaint();
         });
+        
         timer.start();
     }
 
@@ -66,7 +67,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
 
         // Draw each ball
-        for (BallInfo ballInfo : cntrl.listBallInfos()) {
+        for (BallInfo ballInfo : cntrl.getBallInfos()) {
             drawBall(g2, ballInfo);
         }
 
@@ -220,16 +221,11 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseDragged(MouseEvent e) {
         if (!isHitting) {
-            Stick stick = cntrl.getStick();
 
-            int mouseX = e.getX();
-            int mouseY = e.getY();
+            double deltaX = e.getX() - dragStartX;
+            double deltaY = e.getY() - dragStartY;
 
-            double deltaX = mouseX - dragStartX;
-            double deltaY = mouseY - dragStartY;
-
-            double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            stick.setPower(Math.min(distance, MAX_POWER));
+            cntrl.handleMouseDragged(deltaX, deltaY);
 
         }
     }

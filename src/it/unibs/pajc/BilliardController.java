@@ -17,9 +17,9 @@ public class BilliardController {
         model.stepNext();
     }
 
-    public List<BallInfo> listBallInfos() {
+    public List<BallInfo> getBallInfos() {
         return model.getBalls().stream()
-                .map(Ball::getBallInfo)
+                .map(ball -> new BallInfo(ball.getX(), ball.getY(), ball.getRadius(), ball.getNumber()))
                 .toList();
     }
 
@@ -53,4 +53,13 @@ public class BilliardController {
         // TODO: turni giocatori
         // model.placeBall(x, y);
     }
+
+    public void handleMouseDragged(double deltaX, double deltaY) {
+
+        Stick stick = model.getStick();
+
+        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        stick.setPower(Math.min(distance, Stick.MAX_POWER));
+    }
+
 }

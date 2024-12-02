@@ -7,8 +7,8 @@ import static it.unibs.pajc.CostantiStatiche.*;
 
 public class BilliardGameApp {
 
-    private final BilliardController cntrl;
-    private final GameField model;
+    private BilliardController cntrl;
+    private GameField model;
 
     private JFrame frame;
 
