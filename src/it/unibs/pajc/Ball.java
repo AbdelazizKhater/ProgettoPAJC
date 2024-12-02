@@ -17,28 +17,12 @@ class Ball extends GameFieldObject {
     private double vx, vy; // Velocity
     private final int radius = 15;
     private final Color color;
+    private boolean inPlay;
     private final int number; // it.unibs.pajc.Ball number
-    private double accumulatedDistance = 0; // Distance for rotation effect
+    private double accumulatedDistance = 0;// Distance for rotation effect
 
     // Array per memorizzare i colori delle palline in base al loro numero
-    private static final Color[] BALL_COLORS = {
-            Color.WHITE, // Palla 0 (bianca)
-            new Color(255, 255, 0), // Palla 1 (gialla)
-            new Color(0, 0, 255), // Palla 2 (blu)
-            new Color(255, 0, 0), // Palla 3 (rossa)
-            new Color(128, 0, 128), // Palla 4 (viola)
-            new Color(255, 165, 0), // Palla 5 (arancione)
-            new Color(0, 128, 0), // Palla 6 (verde)
-            new Color(128, 0, 0), // Palla 7 (bordeaux)
-            new Color(0, 0, 0), // Palla 8 (nera)
-            new Color(255, 255, 0), // Palla 9 (gialla striata)
-            new Color(0, 0, 255), // Palla 10 (blu striata)
-            new Color(255, 0, 0), // Palla 11 (rossa striata)
-            new Color(128, 0, 128), // Palla 12 (viola striata)
-            new Color(255, 165, 0), // Palla 13 (arancione striata)
-            new Color(0, 128, 0), // Palla 14 (verde striata)
-            new Color(128, 0, 0) // Palla 15 (bordeaux striata)
-    };
+
 
     public Ball(double x, double y, double vx, double vy, int number) {
         super();
@@ -47,6 +31,7 @@ class Ball extends GameFieldObject {
         this.vx = vx;
         this.vy = vy;
         this.number = number;
+        this.inPlay = true;
         this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
     }
@@ -70,23 +55,6 @@ class Ball extends GameFieldObject {
             vy = 0;
     }
 
-    // public void checkBounds(int width, int height) {
-    // // Bounce off walls
-    // if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
-    // vx = -vx;
-    // x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH,
-    // x));
-    // }
-    // if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
-    // vy = -vy;
-    // y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH,
-    // y));
-    // }
-
-    // // Check for pocket collisions
-    // checkPocketCollision(width, height);
-    // }
-
     public boolean handleCollisionWithPocket(Pocket pocket) {
         double dx = this.x - pocket.x - pocket.getRadius();
         double dy = this.y - pocket.y - pocket.getRadius();
@@ -109,6 +77,15 @@ class Ball extends GameFieldObject {
         // Check collision with the edge itself
         return this.checkCollision(trapezoid);
     }
+
+    public void resetSpeed(){
+        this.vx = 0;
+        this.vy = 0;
+    }
+
+
+
+
 
     private void handleCollisionWithShape(GameFieldObject object) {
         // Crea oggetti Area per la pallina e l'oggetto
@@ -152,58 +129,6 @@ class Ball extends GameFieldObject {
             }
         }
     }
-    
-    
-
-    private void checkPocketCollision(int width, int height) {
-        int pocketCenterX, pocketCenterY;
-
-        // Check top left pocket
-        pocketCenterX = BORDER_WIDTH + POCKET_RADIUS;
-        pocketCenterY = BORDER_WIDTH + POCKET_RADIUS;
-        if (isInsidePocket(x, y, pocketCenterX, pocketCenterY)) {
-            // TODO: balls.remove(this);
-        }
-
-        // Check other pockets similarly
-        // ... (implement checks for other pockets)
-    }
-
-    private boolean isInsidePocket(double x, double y, double pocketX, double pocketY) {
-        double dx = x - pocketX;
-        double dy = y - pocketY;
-        double distanceSquared = dx * dx + dy * dy;
-
-        return distanceSquared <= POCKET_RADIUS * POCKET_RADIUS;
-    }
-
-    // public boolean isColliding(Ball other) {
-
-    // double dx = other.x - this.x;
-    // double dy = other.y - this.y;
-    // double distanceSquared = dx * dx + dy * dy;
-    // double radiusSum = this.radius + other.radius;
-
-    // // Check if the distance between centers is less than or equal to the sum of
-    // the
-    // // radii
-    // return distanceSquared <= radiusSum * radiusSum;
-    // }
-
-    // public boolean willCollideNextFrame(Ball other) {
-    // double futureX1 = this.x + this.vx;
-    // double futureY1 = this.y + this.vy;
-    // double futureX2 = other.x + other.vx;
-    // double futureY2 = other.y + other.vy;
-
-    // double dx = futureX2 - futureX1;
-    // double dy = futureY2 - futureY1;
-    // double distanceSquared = dx * dx + dy * dy;
-    // double radiusSum = this.radius + other.radius;
-
-    // // Controllo per collisione predittiva
-    // return distanceSquared <= radiusSum * radiusSum;
-    // }
 
     public void resolveCollision(Ball other) {
         double dx = other.x - this.x;
@@ -324,6 +249,7 @@ class Ball extends GameFieldObject {
         this.vy = vy;
     }
 
+
     public double getVx() {
         return vx;
     }
@@ -343,5 +269,16 @@ class Ball extends GameFieldObject {
 
     public Boolean isStationary() {
         return vx == 0 && vy == 0;
+    }
+    public boolean isWhite() {
+        return (color == Color.WHITE);
+    }
+
+    public void setInPlay(boolean inPlay) {
+        this.inPlay = inPlay;
+    }
+
+    public boolean isInPlay() {
+        return inPlay;
     }
 }

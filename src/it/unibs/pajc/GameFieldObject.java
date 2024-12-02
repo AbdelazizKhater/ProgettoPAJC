@@ -7,7 +7,6 @@ import java.awt.geom.Area;
 public class GameFieldObject {
 
     public double x, y; // Position
-    private double vx, vy;
 
     protected Shape shape;
 
@@ -33,5 +32,16 @@ public class GameFieldObject {
 
     public double getY() {
         return y;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+    public void setY(double y) {
+        this.y = y;
+    }
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 }

@@ -1,12 +1,37 @@
 package it.unibs.pajc;
 
+import java.awt.*;
+
 public class CostantiStatiche {
 
     public static final int TABLE_WIDTH = 1200;
     public static final int TABLE_HEIGHT = 600;
     public static final int BORDER_WIDTH = 50;
+    public static final int BALL_RADIUS = 15;
     public static final int POCKET_RADIUS = 30;
     public static final int BIG_POCKET_RADIUS = 35;
+    public static final double MIN_BOUND = BORDER_WIDTH * 1.5 + BALL_RADIUS;
+    public static final double MAX_BOUND_X = TABLE_WIDTH -  MIN_BOUND;
+    public static final double MAX_BOUND_Y = TABLE_HEIGHT -  MIN_BOUND;
+
+    public static final Color[] BALL_COLORS = {
+            Color.WHITE, // Palla 0 (bianca)
+            new Color(255, 255, 0), // Palla 1 (gialla)
+            new Color(0, 0, 255), // Palla 2 (blu)
+            new Color(255, 0, 0), // Palla 3 (rossa)
+            new Color(128, 0, 128), // Palla 4 (viola)
+            new Color(255, 165, 0), // Palla 5 (arancione)
+            new Color(0, 128, 0), // Palla 6 (verde)
+            new Color(128, 0, 0), // Palla 7 (bordeaux)
+            new Color(0, 0, 0), // Palla 8 (nera)
+            new Color(255, 255, 0), // Palla 9 (gialla striata)
+            new Color(0, 0, 255), // Palla 10 (blu striata)
+            new Color(255, 0, 0), // Palla 11 (rossa striata)
+            new Color(128, 0, 128), // Palla 12 (viola striata)
+            new Color(255, 165, 0), // Palla 13 (arancione striata)
+            new Color(0, 128, 0), // Palla 14 (verde striata)
+            new Color(128, 0, 0) // Palla 15 (bordeaux striata)
+    };
 
     public static final int[][] X_POINTS_TRAPEZI =  {
             //TRAPEZIO 1

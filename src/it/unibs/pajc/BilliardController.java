@@ -1,5 +1,7 @@
 package it.unibs.pajc;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class BilliardController {
@@ -35,7 +37,7 @@ public class BilliardController {
 
     public Ball getWhiteBall()
     {
-        return model.getBalls().get(0);
+        return model.getBalls().getFirst();
     }
 
     public void hitWhiteBall()
@@ -46,5 +48,10 @@ public class BilliardController {
     public Boolean checkAllStationary()
     {
         return model.allBallsAreStationary();
+    }
+
+    public void placeBall(int x, int y) {
+        //TODO: turni giocatori
+        //model.placeBall(x, y);
     }
 }

@@ -12,7 +12,7 @@ import static it.unibs.pajc.CostantiStatiche.*;
 public class GameView extends JPanel implements MouseMotionListener, MouseListener {
 
     public static final int MAX_POWER = 80;
-
+    private Point mousePoint;
     private final BilliardController cntrl;
     private Boolean isHitting = false;
 
@@ -68,8 +68,17 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             drawBall(g2, ball);
         }
 
-        if (cntrl.checkAllStationary())
-            drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick(), isHitting);
+        if (cntrl.checkAllStationary()) {
+            //Funzionamento normale, viene disegnata la stecca
+            if(cntrl.getWhiteBall().isInPlay()) {
+                drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick(), isHitting);
+            }
+            //Pallina bianca in buca
+            else {
+                visualizeCueBallReposition(g2);
+            }
+        }
+
 
     }
 
@@ -105,6 +114,19 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
     }
 
+    private void visualizeCueBallReposition(Graphics2D g2) {
+        if(mousePoint != null)
+        {
+            if (isWithinBounds(mousePoint.x, mousePoint.y)) {
+                g2.setColor(Color.WHITE);
+            } else {
+                //Pallina out of bounds
+                g2.setColor(Color.RED);
+            }
+            g2.fillOval(mousePoint.x - BALL_RADIUS, mousePoint.y - BALL_RADIUS,
+                    BALL_RADIUS * 2, BALL_RADIUS * 2);
+        }
+    }
     private void drawStick(Graphics2D g, Ball whiteBall, Stick stick, Boolean isHitting) {
         // Salva lo stato originale del Graphics2D
         Shape originalClip = g.getClip();
@@ -155,6 +177,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
     }
 
+
     private int dragStartX;
     private int dragStartY;
     private Boolean isCharging = false;
@@ -169,7 +192,6 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseDragged(MouseEvent e) {
         if (!isHitting) {
-            Ball whiteBall = cntrl.getWhiteBall();
             Stick stick = cntrl.getStick();
 
             int mouseX = e.getX();
@@ -187,7 +209,10 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseMoved(MouseEvent e) {
 
-        if (!isHitting && !isCharging) {
+        if (!cntrl.getWhiteBall().isInPlay()) {
+            mousePoint = getMousePosition();
+        }
+        else if (!isHitting && !isCharging) {
             Ball whiteBall = cntrl.getWhiteBall();
             Stick stick = cntrl.getStick();
 
@@ -204,11 +229,20 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             stick.setAngleDegrees(Math.toDegrees(angle));
         }
     }
+    public boolean isWithinBounds(int x, int y) {
+        return  x > MIN_BOUND && x < MAX_BOUND_X && y > MIN_BOUND && y < MAX_BOUND_Y;
+    }
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
-
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+        if(!cntrl.getWhiteBall().isInPlay() && isWithinBounds(mouseX, mouseY)) {
+            System.out.println("sdkfgh");
+            cntrl.getWhiteBall().setPosition(mouseX, mouseY);
+            cntrl.getWhiteBall().setInPlay(true);
+        }
     }
 
     @Override
