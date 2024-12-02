@@ -3,6 +3,7 @@ package it.unibs.pajc;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BilliardController {
 
@@ -16,10 +17,12 @@ public class BilliardController {
         model.stepNext();
     }
 
-    public ArrayList<Ball> listBalls() {
-        return model.getBalls();
+    public List<BallInfo> listBallInfos() {
+        return model.getBalls().stream()
+                .map(Ball::getBallInfo)
+                .toList();
     }
-    
+
     // Metodo per simulare il colpo
     public void hitBall() {
         Stick stick = model.getStick();
@@ -30,28 +33,24 @@ public class BilliardController {
         whiteBall.applyVelocity(velocity);
     }
 
-    public Stick getStick()
-    {
+    public Stick getStick() {
         return model.getStick();
     }
 
-    public Ball getWhiteBall()
-    {
+    public Ball getWhiteBall() {
         return model.getBalls().getFirst();
     }
 
-    public void hitWhiteBall()
-    {
+    public void hitWhiteBall() {
         model.hitBall();
     }
 
-    public Boolean checkAllStationary()
-    {
+    public Boolean checkAllStationary() {
         return model.allBallsAreStationary();
     }
 
     public void placeBall(int x, int y) {
-        //TODO: turni giocatori
-        //model.placeBall(x, y);
+        // TODO: turni giocatori
+        // model.placeBall(x, y);
     }
 }

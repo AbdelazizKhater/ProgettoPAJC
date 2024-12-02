@@ -1,14 +1,8 @@
 package it.unibs.pajc;
 
-import java.awt.Color;
-import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 import static it.unibs.pajc.CostantiStatiche.*;
 
@@ -16,7 +10,6 @@ class Ball extends GameFieldObject {
     // private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
-    private final Color color;
     private boolean inPlay;
     private final int number; // it.unibs.pajc.Ball number
     private double accumulatedDistance = 0;// Distance for rotation effect
@@ -32,7 +25,6 @@ class Ball extends GameFieldObject {
         this.vy = vy;
         this.number = number;
         this.inPlay = true;
-        this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
         
     }
@@ -178,69 +170,7 @@ class Ball extends GameFieldObject {
         other.vy = newV2n * ny + v2t * ty;
     }
 
-    public List<Object> getShapeComponents() {
-        List<Object> components = new ArrayList<>();
-
-        // Usa lo Shape già esistente nella classe, applicando la trasformazione
-        Shape transformedShape = getShape(); // Questo restituisce lo Shape con la posizione applicata
-        components.add(new ShapeComponent(transformedShape, color));
-
-        // Cerchio bianco per il numero (se non è la palla bianca)
-        if (number > 0) {
-            int whiteCircleDiameter = radius; // Diametro del cerchio bianco
-            double whiteCircleX = x - whiteCircleDiameter / 2.0;
-            double whiteCircleY = y - whiteCircleDiameter / 2.0;
-
-            Shape whiteCircle = new Ellipse2D.Double(whiteCircleX, whiteCircleY, whiteCircleDiameter,
-                    whiteCircleDiameter);
-            components.add(new ShapeComponent(whiteCircle, Color.WHITE));
-
-            // Aggiungi il numero al centro del cerchio bianco
-            components.add(new TextComponent(String.valueOf(number), Color.BLACK, x, y));
-        }
-
-        // Bande per le palline dalla 9 alla 15
-        if (number >= 9) {
-            // Crea un'area di clipping limitata al cerchio della pallina
-            Shape clippingArea = transformedShape;
-
-            // Riduci l'altezza delle bande
-            int bandHeight = radius / 3; // Altezza ridotta delle bande
-
-            // Banda superiore (clipping limitato)
-            Rectangle bandTop = new Rectangle((int) (x - radius), (int) (y - radius), radius * 2, bandHeight);
-            Area bandTopClipped = new Area(clippingArea);
-            bandTopClipped.intersect(new Area(bandTop));
-
-            // Banda inferiore (clipping limitato)
-            Rectangle bandBottom = new Rectangle((int) (x - radius), (int) (y + radius - bandHeight), radius * 2,
-                    bandHeight);
-            Area bandBottomClipped = new Area(clippingArea);
-            bandBottomClipped.intersect(new Area(bandBottom));
-
-            // Aggiungi le bande come componenti grafici
-            components.add(new ShapeComponent(bandTopClipped, Color.WHITE));
-            components.add(new ShapeComponent(bandBottomClipped, Color.WHITE));
-        }
-
-        // Riflesso
-        RadialGradientPaint gradient = new RadialGradientPaint(
-                new Point2D.Double(x, y - radius * 0.7), // Centro del riflesso
-                radius * 0.6f, // Raggio del riflesso
-                new float[] { 0f, 1f }, // Posizioni dei colori nel gradiente
-                new Color[] { new Color(255, 255, 255, 200), new Color(255, 255, 255, 0) } // Bianco opaco al centro,
-                                                                                           // trasparente ai bordi
-        );
-        Shape reflection = new Ellipse2D.Double(
-                x - radius * 0.4, // Posizione X del cerchio
-                y - radius * 1.1, // Posizione Y del cerchio
-                radius * 0.8, // Diametro del cerchio
-                radius * 0.8 // Diametro del cerchio
-        );
-        components.add(new ShapeComponent(reflection, gradient));
-
-        return components;
-    }
+    
 
     public void setVx(double vx) {
         this.vx = vx;
@@ -272,7 +202,7 @@ class Ball extends GameFieldObject {
         return vx == 0 && vy == 0;
     }
     public boolean isWhite() {
-        return (color == Color.WHITE);
+        return this.number == 0;
     }
 
     public void setInPlay(boolean inPlay) {
@@ -281,5 +211,10 @@ class Ball extends GameFieldObject {
 
     public boolean isInPlay() {
         return inPlay;
+    }
+
+    public BallInfo getBallInfo()
+    {
+        return new BallInfo(this.x, this.y, this.radius, this.number);
     }
 }

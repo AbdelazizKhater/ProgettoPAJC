@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 
 import javax.swing.*;
 
@@ -48,7 +50,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
         g2.setColor(new Color(109, 39, 9));
 
-        //Disegno trapezi
+        // Disegno trapezi
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             g2.fillPolygon(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i], 4);
         }
@@ -64,99 +66,126 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
 
         // Draw each ball
-        for (Ball ball : cntrl.listBalls()) {
-            drawBall(g2, ball);
+        for (BallInfo ballInfo : cntrl.listBallInfos()) {
+            drawBall(g2, ballInfo);
         }
 
         if (cntrl.checkAllStationary()) {
-            //Funzionamento normale, viene disegnata la stecca
-            if(cntrl.getWhiteBall().isInPlay()) {
+            // Funzionamento normale, viene disegnata la stecca
+            if (cntrl.getWhiteBall().isInPlay()) {
                 drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick(), isHitting);
             }
-            //Pallina bianca in buca
+            // Pallina bianca in buca
             else {
                 visualizeCueBallReposition(g2);
             }
         }
 
-
     }
 
-    public void drawBall(Graphics2D g, Ball ball) {
-        // Ottieni i componenti della pallina (i vari elementi grafici da disegnare)
-        java.util.List<Object> components = ball.getShapeComponents();
+    public void drawBall(Graphics2D g, BallInfo ballInfo) {
 
-        // Itera su ogni componente e disegnalo utilizzando Graphics2D
-        for (Object component : components) {
-            if (component instanceof ShapeComponent) {
-                ShapeComponent shapeComponent = (ShapeComponent) component;
-                if (shapeComponent.getGradient() != null) {
-                    g.setPaint(shapeComponent.getGradient());
-                } else {
-                    g.setColor(shapeComponent.getColor());
-                }
-                g.fill(shapeComponent.getShape());
-            } else if (component instanceof TextComponent) {
-                TextComponent textComponent = (TextComponent) component;
-                g.setFont(textComponent.getFont());
-                g.setColor(textComponent.getColor());
+        Shape transformedShape = new Area(new Ellipse2D.Double(ballInfo.getX() - ballInfo.getRadius(),
+                ballInfo.getY() - ballInfo.getRadius(), ballInfo.getRadius() * 2, ballInfo.getRadius() * 2));
 
-                // Centrare il testo nella pallina
-                FontMetrics metrics = g.getFontMetrics(textComponent.getFont());
-                int textWidth = metrics.stringWidth(textComponent.getText());
-                int textHeight = metrics.getAscent();
+        // Disegna il cerchio principale
+        g.setColor(getBallColor(ballInfo.getNumber()));
+        g.fill(transformedShape);
 
-                double textX = textComponent.getX() - textWidth / 2.0;
-                double textY = textComponent.getY() + textHeight / 2.0;
+        // Bande per le palline dalla 9 alla 15
+        if (ballInfo.getNumber() >= 9) {
 
-                g.drawString(textComponent.getText(), (float) textX, (float) textY);
-            }
+            // Crea un'area di clipping limitata al cerchio della pallina
+            Shape clippingArea = transformedShape;
+
+            int bandHeight = ballInfo.getRadius() / 3; // Altezza delle bande
+
+            // Banda superiore (clipping limitato)
+            Rectangle bandTop = new Rectangle((int) (ballInfo.getX() - ballInfo.getRadius()),
+                    (int) (ballInfo.getY() - ballInfo.getRadius()), ballInfo.getRadius() * 2, bandHeight);
+            Area bandTopClipped = new Area(clippingArea);
+            bandTopClipped.intersect(new Area(bandTop));
+
+            // Banda inferiore (clipping limitato)
+            Rectangle bandBottom = new Rectangle((int) (ballInfo.getX() - ballInfo.getRadius()),
+                    (int) (ballInfo.getY() + ballInfo.getRadius() - bandHeight), ballInfo.getRadius() * 2, bandHeight);
+            Area bandBottomClipped = new Area(clippingArea);
+            bandBottomClipped.intersect(new Area(bandBottom));
+
+            g.setColor(Color.WHITE);
+
+            // Aggiungi le bande come componenti grafici
+            g.fill(bandBottomClipped);
+            g.fill(bandTopClipped);
+        }
+
+        // Disegna il cerchio bianco per il numero (se non è la pallina bianca)
+        if (ballInfo.getNumber() > 0) {
+            int innerDiameter = ballInfo.getRadius();
+            g.setColor(Color.WHITE);
+            g.fillOval((int) (ballInfo.getX() - innerDiameter / 2.0),
+                    (int) (ballInfo.getY() - innerDiameter / 2.0),
+                    innerDiameter,
+                    innerDiameter);
+
+            // Disegna il numero
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Arial", Font.BOLD, (int) (ballInfo.getRadius() / 1.5)));
+            String number = String.valueOf(ballInfo.getNumber());
+            FontMetrics metrics = g.getFontMetrics();
+            int textWidth = metrics.stringWidth(number);
+            int textHeight = metrics.getAscent();
+            g.drawString(number, (int) (ballInfo.getX() - textWidth / 2.0),
+                    (int) (ballInfo.getY() + textHeight / 2.0));
         }
     }
 
+    private Color getBallColor(int number) {
+        return BALL_COLORS[number];
+
+    }
+
     private void visualizeCueBallReposition(Graphics2D g2) {
-        if(mousePoint != null)
-        {
+        if (mousePoint != null) {
             if (isWithinBounds(mousePoint.x, mousePoint.y)) {
                 g2.setColor(Color.WHITE);
             } else {
-                //Pallina out of bounds
+                // Pallina out of bounds
                 g2.setColor(Color.RED);
             }
             g2.fillOval(mousePoint.x - BALL_RADIUS, mousePoint.y - BALL_RADIUS,
                     BALL_RADIUS * 2, BALL_RADIUS * 2);
         }
     }
+
     private void drawStick(Graphics2D g, Ball whiteBall, Stick stick, Boolean isHitting) {
         // Salva lo stato originale del Graphics2D
         Shape originalClip = g.getClip();
-    
+
         // Imposta il clipping all'area visibile del pannello
         g.setClip(0, 0, this.getWidth(), this.getHeight());
-    
+
         g.setStroke(new BasicStroke(10));
         g.setColor(Color.BLACK);
-    
-        
+
         if (isHitting)
             releaseStick(stick, whiteBall);
-    
+
         double stickDistance = whiteBall.getBallRadius() + (isHitting ? 0 : 10) + stick.getPower();
         double stickLength = 300; // Lunghezza totale della stecca
-    
+
         // Calcola le coordinate della stecca
         double startX = whiteBall.getX() + stickDistance * Math.cos(stick.getAngleRadians());
         double startY = whiteBall.getY() + stickDistance * Math.sin(stick.getAngleRadians());
         double endX = whiteBall.getX() + (stickDistance + stickLength) * Math.cos(stick.getAngleRadians());
         double endY = whiteBall.getY() + (stickDistance + stickLength) * Math.sin(stick.getAngleRadians());
-    
+
         // Disegna la linea della stecca (limitata dal clipping)
         g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
-    
+
         // Ripristina lo stato originale del Graphics2D
         g.setClip(originalClip);
     }
-    
 
     private double originalStickPower;
 
@@ -176,7 +205,6 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
 
     }
-
 
     private int dragStartX;
     private int dragStartY;
@@ -211,8 +239,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
         if (!cntrl.getWhiteBall().isInPlay()) {
             mousePoint = getMousePosition();
-        }
-        else if (!isHitting && !isCharging) {
+        } else if (!isHitting && !isCharging) {
             Ball whiteBall = cntrl.getWhiteBall();
             Stick stick = cntrl.getStick();
 
@@ -229,16 +256,16 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             stick.setAngleDegrees(Math.toDegrees(angle));
         }
     }
-    public boolean isWithinBounds(int x, int y) {
-        return  x > MIN_BOUND && x < MAX_BOUND_X && y > MIN_BOUND && y < MAX_BOUND_Y;
-    }
 
+    public boolean isWithinBounds(int x, int y) {
+        return x > MIN_BOUND && x < MAX_BOUND_X && y > MIN_BOUND && y < MAX_BOUND_Y;
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
-        if(!cntrl.getWhiteBall().isInPlay() && isWithinBounds(mouseX, mouseY)) {
+        if (!cntrl.getWhiteBall().isInPlay() && isWithinBounds(mouseX, mouseY)) {
             System.out.println("sdkfgh");
             cntrl.getWhiteBall().setPosition(mouseX, mouseY);
             cntrl.getWhiteBall().setInPlay(true);

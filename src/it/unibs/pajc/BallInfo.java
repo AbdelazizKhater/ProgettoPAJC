@@ -1,5 +1,6 @@
 package it.unibs.pajc;
 
+import java.awt.Shape;
 
 public class BallInfo {
     private final double x;
@@ -7,11 +8,14 @@ public class BallInfo {
     private final int radius;
     private final int number;
 
+
+
     public BallInfo(double x, double y, int radius, int number) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.number = number;
+
     }
 
     public double getX() {
@@ -30,4 +34,3 @@ public class BallInfo {
         return number;
     }
 }
-
