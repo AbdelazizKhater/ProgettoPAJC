@@ -1,6 +1,5 @@
 package it.unibs.pajc;
 
-import java.awt.Shape;
 
 public class BallInfo {
     private final double x;

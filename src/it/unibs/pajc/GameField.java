@@ -60,10 +60,6 @@ public class GameField {
         }
         stick.setAngleDegrees(180);
     }
-    public void hitBall() {
-        double[] velocity = stick.calculateBallVelocity();
-        balls.getFirst().applyVelocity(velocity);
-    }
 
     public void stepNext() {
         for (int i = 0; i < balls.size(); i++) {
@@ -122,6 +118,23 @@ public class GameField {
         return cueBall;
     }
 
+    public boolean reduceStickVisualPower(double speed) {
+        Stick stick = getStick();
+        if (stick.getVisualPower() > 0) {
+            stick.setVisualPower(stick.getVisualPower() - speed);
+            return true; // Animazione in corso
+        }
+        return false; // Animazione completata
+    }
+    
+    
+    public void hitBall() {
+        double[] velocity = stick.calculateBallVelocity();
+        cueBall.applyVelocity(velocity);
+        stick.setPower(0); // Reset della potenza reale dopo il colpo
+    }
+    
+    
     
 
 }

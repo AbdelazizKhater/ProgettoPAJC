@@ -28,7 +28,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             cntrl.stepNext();
             repaint();
         });
-        
+
         timer.start();
     }
 
@@ -72,13 +72,10 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
 
         if (cntrl.checkAllStationary()) {
-            // Funzionamento normale, viene disegnata la stecca
-            if (cntrl.getWhiteBall().isInPlay()) {
-                drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick(), isHitting);
-            }
-            // Pallina bianca in buca
-            else {
-                visualizeCueBallReposition(g2);
+            if (isHitting) {
+                releaseStick(); // Gestisce l'animazione
+            } else {
+                drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
             }
         }
 
@@ -159,52 +156,28 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         }
     }
 
-    private void drawStick(Graphics2D g, Ball whiteBall, Stick stick, Boolean isHitting) {
-        // Salva lo stato originale del Graphics2D
-        Shape originalClip = g.getClip();
-
-        // Imposta il clipping all'area visibile del pannello
-        g.setClip(0, 0, this.getWidth(), this.getHeight());
-
+    private void drawStick(Graphics2D g, Ball cueBall, Stick stick) {
         g.setStroke(new BasicStroke(10));
         g.setColor(Color.BLACK);
 
-        if (isHitting)
-            releaseStick(stick, whiteBall);
-
-        double stickDistance = whiteBall.getBallRadius() + (isHitting ? 0 : 10) + stick.getPower();
+        double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower();
         double stickLength = 300; // Lunghezza totale della stecca
 
-        // Calcola le coordinate della stecca
-        double startX = whiteBall.getX() + stickDistance * Math.cos(stick.getAngleRadians());
-        double startY = whiteBall.getY() + stickDistance * Math.sin(stick.getAngleRadians());
-        double endX = whiteBall.getX() + (stickDistance + stickLength) * Math.cos(stick.getAngleRadians());
-        double endY = whiteBall.getY() + (stickDistance + stickLength) * Math.sin(stick.getAngleRadians());
+        double startX = cueBall.getX() + stickDistance * Math.cos(Math.toRadians(stick.getAngleDegrees()));
+        double startY = cueBall.getY() + stickDistance * Math.sin(Math.toRadians(stick.getAngleDegrees()));
+        double endX = cueBall.getX()
+                + (stickDistance + stickLength) * Math.cos(Math.toRadians(stick.getAngleDegrees()));
+        double endY = cueBall.getY()
+                + (stickDistance + stickLength) * Math.sin(Math.toRadians(stick.getAngleDegrees()));
 
-        // Disegna la linea della stecca (limitata dal clipping)
         g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
-
-        // Ripristina lo stato originale del Graphics2D
-        g.setClip(originalClip);
     }
 
-    private double originalStickPower;
-
-    public void releaseStick(Stick stick, Ball whiteBall) {
-        final double RETURN_SPEED = 15;
-
-        if (stick.getPower() > 0) {
-            // Riduci solo la distanza visiva della stecca
-            stick.setPower(Math.max(0, stick.getPower() - RETURN_SPEED));
-
-        } else {
-
-            stick.setPower(originalStickPower);
-            cntrl.hitBall();
+    public void releaseStick() {
+        if (!cntrl.reduceStickVisualPowerForAnimation()) {
+            cntrl.onStickAnimationComplete(); // Notifica che l'animazione è completata
             isHitting = false;
-            stick.setPower(0);
         }
-
     }
 
     private int dragStartX;
@@ -225,7 +198,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             double deltaX = e.getX() - dragStartX;
             double deltaY = e.getY() - dragStartY;
 
-            cntrl.handleMouseDragged(deltaX, deltaY);
+            cntrl.updateStickPower(deltaX, deltaY);
 
         }
     }
@@ -236,20 +209,8 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         if (!cntrl.getWhiteBall().isInPlay()) {
             mousePoint = getMousePosition();
         } else if (!isHitting && !isCharging) {
-            Ball whiteBall = cntrl.getWhiteBall();
-            Stick stick = cntrl.getStick();
 
-            // Ottieni le coordinate del mouse
-            int mouseX = e.getX();
-            int mouseY = e.getY();
-
-            // Calcola l'angolo tra il centro della palla e il mouse
-            double ballX = whiteBall.getX();
-            double ballY = whiteBall.getY();
-            double angle = Math.atan2(mouseY - ballY, mouseX - ballX); // Angolo in radianti
-
-            // Converti l'angolo in gradi e aggiornalo nella stecca
-            stick.setAngleDegrees(Math.toDegrees(angle));
+            cntrl.updateStickAngle(e.getX(), e.getY());
         }
     }
 
@@ -271,12 +232,8 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseReleased(MouseEvent e) {
 
-        if (cntrl.getStick().getPower() > 2) {
+        if (cntrl.isStickCharged())
             isHitting = true;
-            originalStickPower = cntrl.getStick().getPower();
-        } else {
-            cntrl.getStick().setPower(0);
-        }
 
         isCharging = false;
 

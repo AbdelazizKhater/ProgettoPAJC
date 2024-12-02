@@ -62,4 +62,35 @@ public class BilliardController {
         stick.setPower(Math.min(distance, Stick.MAX_POWER));
     }
 
+    public void updateStickAngle(int mouseX, int mouseY) {
+        
+        Stick stick = model.getStick();
+        Ball cueBall = model.getCueBall();
+
+        // Calcola il delta rispetto alla posizione della pallina bianca
+        double deltaX = mouseX - cueBall.getX();
+        double deltaY = mouseY - cueBall.getY();
+
+        // Calcola l'angolo rispetto alla pallina bianca
+        double angle = Math.toDegrees(Math.atan2(deltaY, deltaX));
+        stick.setAngleDegrees(angle);
+    }
+
+    public void updateStickPower(double deltaX, double deltaY) {
+        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        model.getStick().setPower(Math.min(distance, Stick.MAX_POWER));
+    }
+    
+    public boolean isStickCharged() {
+        return model.getStick().getPower() > 2;
+    }
+
+    public boolean reduceStickVisualPowerForAnimation() {
+        return model.reduceStickVisualPower(15); // Velocità dell'animazione
+    }
+
+    public void onStickAnimationComplete() {
+        model.hitBall(); // Esegui il colpo
+    }
+
 }
