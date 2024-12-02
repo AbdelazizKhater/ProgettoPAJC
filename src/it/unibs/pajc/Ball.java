@@ -49,6 +49,7 @@ class Ball extends GameFieldObject {
         this.number = number;
         this.color = BALL_COLORS[number];// Imposta il colore basato sul numero della pallina
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
+        
     }
 
     public void updatePosition() {
@@ -70,22 +71,6 @@ class Ball extends GameFieldObject {
             vy = 0;
     }
 
-    // public void checkBounds(int width, int height) {
-    // // Bounce off walls
-    // if (x - radius < BORDER_WIDTH || x + radius > width - BORDER_WIDTH) {
-    // vx = -vx;
-    // x = Math.max(radius + BORDER_WIDTH, Math.min(width - radius - BORDER_WIDTH,
-    // x));
-    // }
-    // if (y - radius < BORDER_WIDTH || y + radius > height - BORDER_WIDTH) {
-    // vy = -vy;
-    // y = Math.max(radius + BORDER_WIDTH, Math.min(height - radius - BORDER_WIDTH,
-    // y));
-    // }
-
-    // // Check for pocket collisions
-    // checkPocketCollision(width, height);
-    // }
 
     public boolean handleCollisionWithPocket(Pocket pocket) {
         double dx = this.x - pocket.x - pocket.getRadius();
@@ -155,19 +140,7 @@ class Ball extends GameFieldObject {
     
     
 
-    private void checkPocketCollision(int width, int height) {
-        int pocketCenterX, pocketCenterY;
 
-        // Check top left pocket
-        pocketCenterX = BORDER_WIDTH + POCKET_RADIUS;
-        pocketCenterY = BORDER_WIDTH + POCKET_RADIUS;
-        if (isInsidePocket(x, y, pocketCenterX, pocketCenterY)) {
-            // TODO: balls.remove(this);
-        }
-
-        // Check other pockets similarly
-        // ... (implement checks for other pockets)
-    }
 
     private boolean isInsidePocket(double x, double y, double pocketX, double pocketY) {
         double dx = x - pocketX;
@@ -177,33 +150,7 @@ class Ball extends GameFieldObject {
         return distanceSquared <= POCKET_RADIUS * POCKET_RADIUS;
     }
 
-    // public boolean isColliding(Ball other) {
-
-    // double dx = other.x - this.x;
-    // double dy = other.y - this.y;
-    // double distanceSquared = dx * dx + dy * dy;
-    // double radiusSum = this.radius + other.radius;
-
-    // // Check if the distance between centers is less than or equal to the sum of
-    // the
-    // // radii
-    // return distanceSquared <= radiusSum * radiusSum;
-    // }
-
-    // public boolean willCollideNextFrame(Ball other) {
-    // double futureX1 = this.x + this.vx;
-    // double futureY1 = this.y + this.vy;
-    // double futureX2 = other.x + other.vx;
-    // double futureY2 = other.y + other.vy;
-
-    // double dx = futureX2 - futureX1;
-    // double dy = futureY2 - futureY1;
-    // double distanceSquared = dx * dx + dy * dy;
-    // double radiusSum = this.radius + other.radius;
-
-    // // Controllo per collisione predittiva
-    // return distanceSquared <= radiusSum * radiusSum;
-    // }
+    
 
     public void resolveCollision(Ball other) {
         double dx = other.x - this.x;
