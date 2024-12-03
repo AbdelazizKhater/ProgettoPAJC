@@ -4,10 +4,8 @@ import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
-import static it.unibs.pajc.CostantiStatiche.*;
 
 class Ball extends GameFieldObject {
-    // private double x, y; // Position
     private double vx, vy; // Velocity
     private final int radius = 15;
     private boolean inPlay;

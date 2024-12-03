@@ -1,8 +1,4 @@
 package it.unibs.pajc;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 public class BilliardController {
@@ -23,15 +19,6 @@ public class BilliardController {
                 .toList();
     }
 
-    // Metodo per simulare il colpo
-    public void hitBall() {
-        Stick stick = model.getStick();
-        Ball whiteBall = model.getBalls().get(0);
-
-        System.out.println(stick.getPower());
-        double[] velocity = stick.calculateBallVelocity();
-        whiteBall.applyVelocity(velocity);
-    }
 
     public Stick getStick() {
         return model.getStick();
