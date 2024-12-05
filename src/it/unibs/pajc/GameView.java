@@ -78,12 +78,21 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
             if (cntrl.getWhiteBall().isInPlay()) {
                 drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
+                drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
                 visualizeCueBallReposition(g2);
             }
 
         }
 
+    }
+
+    public void drawTrajectory(Graphics2D g, TrajectoryInfo trajectoryInfo) {
+        g.setStroke(new BasicStroke(1));
+        g.setColor(Color.lightGray);
+
+        g.drawLine((int) trajectoryInfo.startX, (int) trajectoryInfo.startY, (int) trajectoryInfo.directionX,
+                (int) trajectoryInfo.directionY);
     }
 
     public void drawBall(Graphics2D g, BallInfo ballInfo) {

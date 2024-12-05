@@ -10,6 +10,17 @@ public class GameFieldObject {
 
     protected Shape shape;
 
+    public GameFieldObject(Shape shape) {
+        this.shape = shape;
+        this.x = 0;
+        this.y = 0;
+    }
+
+    public GameFieldObject()
+    {
+
+    }
+
     public Shape getShape() {
         AffineTransform t = new AffineTransform();
         t.translate(getX(), getY());
@@ -37,9 +48,11 @@ public class GameFieldObject {
     public void setX(double x) {
         this.x = x;
     }
+
     public void setY(double y) {
         this.y = y;
     }
+
     public void setPosition(double x, double y) {
         this.x = x;
         this.y = y;

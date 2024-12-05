@@ -1,5 +1,14 @@
 package it.unibs.pajc;
+
+import java.awt.Rectangle;
+
+import java.awt.geom.AffineTransform;
+
 import java.util.List;
+
+import java.awt.geom.Point2D;
+
+import static it.unibs.pajc.CostantiStatiche.*;
 
 public class BilliardController {
 
@@ -18,7 +27,6 @@ public class BilliardController {
                 .map(ball -> new BallInfo(ball.getX(), ball.getY(), ball.getRadius(), ball.getNumber()))
                 .toList();
     }
-
 
     public Stick getStick() {
         return model.getStick();
@@ -78,6 +86,126 @@ public class BilliardController {
 
     public void onStickAnimationComplete() {
         model.hitBall(); // Esegui il colpo
+    }
+
+    public TrajectoryInfo calculateTrajectory() {
+        double angle = Math.toRadians(model.getStick().getAngleDegrees() + 180);
+        double dx = Math.cos(angle);
+        double dy = Math.sin(angle);
+
+        double startX = model.getCueBall().getX() + model.getCueBall().getRadius() * dx;
+        double startY = model.getCueBall().getY() + model.getCueBall().getRadius() * dy;
+
+        // Inizializza le coordinate finali
+        double endX = Double.MAX_VALUE;
+        double endY = Double.MAX_VALUE;
+
+        // Bordo sinistro (x = MIN_BOUND)
+        if (dx != 0) {
+            double t = (MIN_BOUND - startX) / dx;
+            double y = startY + t * dy;
+            if (t > 0 && y >= MIN_BOUND && y <= MAX_BOUND_Y) {
+                endX = MIN_BOUND- BALL_RADIUS;
+                endY = y;
+            }
+        }
+
+        // Bordo destro (x = MAX_BOUND_X)
+        if (dx != 0) {
+            double t = (MAX_BOUND_X - startX) / dx;
+            double y = startY + t * dy;
+            if (t > 0 && y >= MIN_BOUND && y <= MAX_BOUND_Y) {
+                endX = MAX_BOUND_X + BALL_RADIUS;
+                endY = y;
+            }
+        }
+
+        // Bordo superiore (y = MIN_BOUND)
+        if (dy != 0) {
+            double t = (MIN_BOUND - startY) / dy;
+            double x = startX + t * dx;
+            if (t > 0 && x >= MIN_BOUND && x <= MAX_BOUND_X) {
+                endX = x;
+                endY = MIN_BOUND - BALL_RADIUS;
+            }
+        }
+
+        // Bordo inferiore (y = MAX_BOUND_Y)
+        if (dy != 0) {
+            double t = (MAX_BOUND_Y - startY) / dy;
+            double x = startX + t * dx;
+            if (t > 0 && x >= MIN_BOUND && x <= MAX_BOUND_X) {
+                endX = x;
+                endY = MAX_BOUND_Y + BALL_RADIUS;
+            }
+        }
+
+        // Crea l'oggetto GameFieldObject rappresentante la traiettoria
+        double length = Math.sqrt(Math.pow(startY - endY, 2) + Math.pow(startX - endX, 2));
+        Rectangle rectangle = new Rectangle(0, 0, 2, (int) length);
+        AffineTransform t = new AffineTransform();
+        t.translate(startX, startY);
+        t.rotate(angle - Math.toRadians(90));
+
+        GameFieldObject trajectory = new GameFieldObject(t.createTransformedShape(rectangle));
+
+        trajectory.setX(0);
+        trajectory.setY(0);
+
+        double shortestDistance = Double.MAX_VALUE;
+
+        for (Ball ball : model.getBalls()) {
+            if (ball.equals(model.getCueBall())) {
+                continue; // Salta la pallina bianca
+            }
+
+            Point2D intersection = getLineCircleIntersection(
+                    startX, startY, dx, dy, ball.getX(), ball.getY(), ball.getRadius());
+
+            if (intersection != null) {
+                double distance = intersection.distance(startX, startY);
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    endX = intersection.getX();
+                    endY = intersection.getY();
+                }
+            }
+        }
+
+        return new TrajectoryInfo(startX, startY, endX, endY);
+    }
+
+    private Point2D getLineCircleIntersection(double x1, double y1, double dx, double dy, double cx, double cy,
+            double r) {
+        // Calcola i coefficienti dell'equazione quadratica
+        double a = dx * dx + dy * dy;
+        double b = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
+        double c = (x1 - cx) * (x1 - cx) + (y1 - cy) * (y1 - cy) - r * r;
+
+        // Calcola il discriminante
+        double discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0) {
+            return null; // Nessuna intersezione
+        }
+
+        // Calcola i valori di t per le due intersezioni
+        double t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        double t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+
+        // Scegli il t più piccolo positivo
+        double t = Math.min(t1, t2);
+        if (t < 0) {
+            t = Math.max(t1, t2); // Prova l'altro
+        }
+        if (t < 0) {
+            return null; // Entrambi negativi, nessuna intersezione valida
+        }
+
+        // Calcola il punto di intersezione
+        double px = x1 + t * dx;
+        double py = y1 + t * dy;
+        return new Point2D.Double(px, py);
     }
 
 }

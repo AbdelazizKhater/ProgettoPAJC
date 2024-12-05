@@ -1,6 +1,8 @@
 package it.unibs.pajc;//MODEL
 
 import java.util.ArrayList;
+import java.util.List;
+
 import static it.unibs.pajc.CostantiStatiche.*;
 
 public class GameField {
@@ -24,16 +26,31 @@ public class GameField {
         setupInitialPositions();
     }
 
+    public List<GameFieldObject> getGameFieldObjects() {
+        List<GameFieldObject> gameFieldObjects = new ArrayList<>();
+
+        // Aggiungi tutte le palline
+        gameFieldObjects.addAll(balls);
+
+        // Aggiungi tutti i trapezi
+        gameFieldObjects.addAll(trapezoids);
+
+        // Aggiungi tutte le buche
+        gameFieldObjects.addAll(pockets);
+
+        return gameFieldObjects;
+    }
+
     private void setupInitialPositions() {
         // Radius of each ball
         int ballRadius = 15;
 
-        //Definizione area di ogni trapezio
+        // Definizione area di ogni trapezio
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             trapezoids.add(new Trapezoid(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i]));
         }
 
-        //Definizione area di ogni buca
+        // Definizione area di ogni buca
         for (int[] pocketPosition : POCKET_POSITIONS) {
             int x = pocketPosition[0];
             int y = pocketPosition[1];
@@ -44,7 +61,7 @@ public class GameField {
 
         // Position for the white ball
         balls.add(cueBall); // White ball
-         // Pyramid starting position for numbered balls
+        // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
         int rows = 5; // Number of rows in the triangle
@@ -68,7 +85,7 @@ public class GameField {
             ball.checkBounds(trapezoids);
             for (Pocket pocket : pockets) {
                 if (ball.handleCollisionWithPocket(pocket)) {
-                    if(ball.isWhite()) {
+                    if (ball.isWhite()) {
                         ball.setInPlay(false);
                         ball.resetSpeed();
                         balls.remove(ball);
@@ -77,9 +94,9 @@ public class GameField {
                         ball.setInPlay(false);
                         pocketedBalls.add(ball);
                         balls.remove(ball);
-                        //TODO: aggiungere le palline in un panel view
+                        // TODO: aggiungere le palline in un panel view
                     }
-                    //Una volta che la pallina entra in buca, non vengono fatti altri controlli
+                    // Una volta che la pallina entra in buca, non vengono fatti altri controlli
                     break;
                 }
             }
@@ -92,15 +109,12 @@ public class GameField {
         }
     }
 
-
-
-
-    public boolean allBallsAreStationary()
-    {
+    public boolean allBallsAreStationary() {
         for (Ball ball : balls) {
 
-            if(!ball.isStationary()) return false;
-            
+            if (!ball.isStationary())
+                return false;
+
         }
 
         return true;
@@ -126,15 +140,11 @@ public class GameField {
         }
         return false; // Animazione completata
     }
-    
-    
+
     public void hitBall() {
         double[] velocity = stick.calculateBallVelocity();
         cueBall.applyVelocity(velocity);
         stick.setPower(0); // Reset della potenza reale dopo il colpo
     }
-    
-    
-    
 
 }
