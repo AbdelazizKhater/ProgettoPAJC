@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
@@ -66,6 +67,9 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             g2.fillOval(x, y, width, height);
         }
 
+        if (cntrl.checkAllStationary())
+            drawTrajectory(g2, cntrl.calculateTrajectory());
+
         // Draw each ball
         for (BallInfo ballInfo : cntrl.getBallInfos()) {
             drawBall(g2, ballInfo);
@@ -78,7 +82,6 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
             if (cntrl.getWhiteBall().isInPlay()) {
                 drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
-                drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
                 visualizeCueBallReposition(g2);
             }
@@ -88,17 +91,46 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     }
 
     public void drawTrajectory(Graphics2D g, TrajectoryInfo trajectoryInfo) {
-        g.setStroke(new BasicStroke(1));
-        g.setColor(Color.lightGray);
 
-        g.drawLine((int) trajectoryInfo.startX, (int) trajectoryInfo.startY, (int) trajectoryInfo.directionX,
-                (int) trajectoryInfo.directionY);
+        AffineTransform originalTransform = g.getTransform();
+        double scaleFactor = 1000;
+
+        g.scale(1 / scaleFactor, 1 / scaleFactor);
+
+        // Disegna con precisione maggiore
+        g.setStroke(new BasicStroke((int) scaleFactor));
+        g.setColor(Color.LIGHT_GRAY);
+
+        // Moltiplica manualmente le coordinate per il fattore di scala
+        g.drawLine(
+                (int) (trajectoryInfo.startX * scaleFactor),
+                (int) (trajectoryInfo.startY * scaleFactor),
+                (int) (trajectoryInfo.directionX * scaleFactor),
+                (int) (trajectoryInfo.directionY * scaleFactor));
+
+        // Ripristina il contesto grafico originale
+        g.setTransform(originalTransform);
+
     }
 
     public void drawBall(Graphics2D g, BallInfo ballInfo) {
 
-        Shape transformedShape = new Area(new Ellipse2D.Double(ballInfo.getX() - ballInfo.getRadius(),
-                ballInfo.getY() - ballInfo.getRadius(), ballInfo.getRadius() * 2, ballInfo.getRadius() * 2));
+        AffineTransform originalTransform = g.getTransform();
+        double scaleFactor = 1000;
+
+        // Applica una scala inversa
+        g.scale(1 / scaleFactor, 1 / scaleFactor);
+
+        // Scala le coordinate e i raggi manualmente
+        double scaledX = ballInfo.getX() * scaleFactor;
+        double scaledY = ballInfo.getY() * scaleFactor;
+        double scaledRadius = ballInfo.getRadius() * scaleFactor;
+
+        Shape transformedShape = new Area(new Ellipse2D.Double(
+                scaledX - scaledRadius,
+                scaledY - scaledRadius,
+                scaledRadius * 2,
+                scaledRadius * 2));
 
         // Disegna il cerchio principale
         g.setColor(getBallColor(ballInfo.getNumber()));
@@ -106,50 +138,62 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
         // Bande per le palline dalla 9 alla 15
         if (ballInfo.getNumber() >= 9) {
-
             // Crea un'area di clipping limitata al cerchio della pallina
             Shape clippingArea = transformedShape;
 
-            int bandHeight = ballInfo.getRadius() / 3; // Altezza delle bande
+            int bandHeight = (int) (scaledRadius / 3); // Altezza delle bande
 
             // Banda superiore (clipping limitato)
-            Rectangle bandTop = new Rectangle((int) (ballInfo.getX() - ballInfo.getRadius()),
-                    (int) (ballInfo.getY() - ballInfo.getRadius()), ballInfo.getRadius() * 2, bandHeight);
+            Rectangle bandTop = new Rectangle(
+                    (int) (scaledX - scaledRadius),
+                    (int) (scaledY - scaledRadius),
+                    (int) (scaledRadius * 2),
+                    bandHeight);
             Area bandTopClipped = new Area(clippingArea);
             bandTopClipped.intersect(new Area(bandTop));
 
             // Banda inferiore (clipping limitato)
-            Rectangle bandBottom = new Rectangle((int) (ballInfo.getX() - ballInfo.getRadius()),
-                    (int) (ballInfo.getY() + ballInfo.getRadius() - bandHeight), ballInfo.getRadius() * 2, bandHeight);
+            Rectangle bandBottom = new Rectangle(
+                    (int) (scaledX - scaledRadius),
+                    (int) (scaledY + scaledRadius - bandHeight),
+                    (int) (scaledRadius * 2),
+                    bandHeight);
+
             Area bandBottomClipped = new Area(clippingArea);
             bandBottomClipped.intersect(new Area(bandBottom));
 
             g.setColor(Color.WHITE);
 
-            // Aggiungi le bande come componenti grafici
+            // Disegna le bande come componenti grafici
             g.fill(bandBottomClipped);
             g.fill(bandTopClipped);
         }
 
         // Disegna il cerchio bianco per il numero (se non è la pallina bianca)
         if (ballInfo.getNumber() > 0) {
-            int innerDiameter = ballInfo.getRadius();
+            double innerDiameter = scaledRadius;
             g.setColor(Color.WHITE);
-            g.fillOval((int) (ballInfo.getX() - innerDiameter / 2.0),
-                    (int) (ballInfo.getY() - innerDiameter / 2.0),
-                    innerDiameter,
-                    innerDiameter);
+            g.fillOval(
+                    (int) (scaledX - innerDiameter / 2.0),
+                    (int) (scaledY - innerDiameter / 2.0),
+                    (int) innerDiameter,
+                    (int) innerDiameter);
 
             // Disegna il numero
             g.setColor(Color.BLACK);
-            g.setFont(new Font("Arial", Font.BOLD, (int) (ballInfo.getRadius() / 1.5)));
+            g.setFont(new Font("Arial", Font.BOLD, (int) (scaledRadius / 1.5)));
             String number = String.valueOf(ballInfo.getNumber());
             FontMetrics metrics = g.getFontMetrics();
             int textWidth = metrics.stringWidth(number);
             int textHeight = metrics.getAscent();
-            g.drawString(number, (int) (ballInfo.getX() - textWidth / 2.0),
-                    (int) (ballInfo.getY() + textHeight / 2.0));
+            g.drawString(
+                    number,
+                    (int) (scaledX - textWidth / 2.0),
+                    (int) (scaledY + textHeight / 2.0));
         }
+
+        // Ripristina il contesto grafico originale
+        g.setTransform(originalTransform);
     }
 
     private Color getBallColor(int number) {

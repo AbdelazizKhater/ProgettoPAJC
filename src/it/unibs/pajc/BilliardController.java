@@ -100,43 +100,43 @@ public class BilliardController {
         double endX = Double.MAX_VALUE;
         double endY = Double.MAX_VALUE;
 
-        // Bordo sinistro (x = MIN_BOUND)
+        // Bordo sinistro (x = INNER_MARGIN)
         if (dx != 0) {
-            double t = (MIN_BOUND - startX) / dx;
+            double t = (INNER_MARGIN - startX) / dx;
             double y = startY + t * dy;
-            if (t > 0 && y >= MIN_BOUND && y <= MAX_BOUND_Y) {
-                endX = MIN_BOUND- BALL_RADIUS;
+            if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
+                endX = INNER_MARGIN;
                 endY = y;
             }
         }
 
-        // Bordo destro (x = MAX_BOUND_X)
+        // Bordo destro (x = INNER_FIELD_LIMIT_X)
         if (dx != 0) {
-            double t = (MAX_BOUND_X - startX) / dx;
+            double t = (INNER_FIELD_LIMIT_X - startX) / dx;
             double y = startY + t * dy;
-            if (t > 0 && y >= MIN_BOUND && y <= MAX_BOUND_Y) {
-                endX = MAX_BOUND_X + BALL_RADIUS;
+            if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
+                endX = INNER_FIELD_LIMIT_X;
                 endY = y;
             }
         }
 
-        // Bordo superiore (y = MIN_BOUND)
+        // Bordo superiore (y = INNER_MARGIN)
         if (dy != 0) {
-            double t = (MIN_BOUND - startY) / dy;
+            double t = (INNER_MARGIN - startY) / dy;
             double x = startX + t * dx;
-            if (t > 0 && x >= MIN_BOUND && x <= MAX_BOUND_X) {
+            if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
                 endX = x;
-                endY = MIN_BOUND - BALL_RADIUS;
+                endY = INNER_MARGIN ;
             }
         }
 
-        // Bordo inferiore (y = MAX_BOUND_Y)
+        // Bordo inferiore (y = INNER_FIELD_LIMIT_Y)
         if (dy != 0) {
-            double t = (MAX_BOUND_Y - startY) / dy;
+            double t = (INNER_FIELD_LIMIT_Y - startY) / dy;
             double x = startX + t * dx;
-            if (t > 0 && x >= MIN_BOUND && x <= MAX_BOUND_X) {
+            if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
                 endX = x;
-                endY = MAX_BOUND_Y + BALL_RADIUS;
+                endY = INNER_FIELD_LIMIT_Y;
             }
         }
 
