@@ -66,22 +66,20 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             int height = pocket[3];
             g2.fillOval(x, y, width, height);
         }
-
-        if (cntrl.checkAllStationary())
-            drawTrajectory(g2, cntrl.calculateTrajectory());
-
+        
         // Draw each ball
         for (BallInfo ballInfo : cntrl.getBallInfos()) {
             drawBall(g2, ballInfo);
         }
-
+        
         if (cntrl.checkAllStationary()) {
             if (isHitting) {
                 releaseStick();
             }
-
+            
             if (cntrl.getWhiteBall().isInPlay()) {
                 drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
+                drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
                 visualizeCueBallReposition(g2);
             }
@@ -181,7 +179,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
             // Disegna il numero
             g.setColor(Color.BLACK);
-            g.setFont(new Font("Arial", Font.BOLD, (int) (scaledRadius / 1.5)));
+            g.setFont(new Font("Open Sans", Font.BOLD, (int) (scaledRadius / 1.5)));
             String number = String.valueOf(ballInfo.getNumber());
             FontMetrics metrics = g.getFontMetrics();
             int textWidth = metrics.stringWidth(number);
