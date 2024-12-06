@@ -76,8 +76,9 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             if (isHitting) {
                 releaseStick();
             }
-            
-            if (cntrl.getWhiteBall().isInPlay()) {
+
+            //Se non è stato commesso nessun fallo, si procede con il turno regolarmente
+            if (!cntrl.foulDetected()) {
                 drawStick(g2, cntrl.getWhiteBall(), cntrl.getStick());
                 drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
@@ -262,10 +263,9 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseMoved(MouseEvent e) {
 
-        if (!cntrl.getWhiteBall().isInPlay()) {
+        if (cntrl.foulDetected()) {
             mousePoint = getMousePosition();
         } else if (!isHitting && !isCharging) {
-
             cntrl.updateStickAngle(e.getX(), e.getY());
         }
     }
@@ -278,10 +278,12 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     public void mouseClicked(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
-        if (!cntrl.getWhiteBall().isInPlay() && isWithinBounds(mouseX, mouseY)) {
+        if (cntrl.foulDetected() && isWithinBounds(mouseX, mouseY)) {
             System.out.println("sdkfgh");
             cntrl.getWhiteBall().setPosition(mouseX, mouseY);
             cntrl.getWhiteBall().setInPlay(true);
+            cntrl.resetRound();
+
         }
     }
 

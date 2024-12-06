@@ -12,7 +12,7 @@ import static it.unibs.pajc.CostantiStatiche.*;
 
 public class BilliardController {
 
-    private GameField model;
+    private final GameField model;
 
     public BilliardController(GameField model) {
         this.model = model;
@@ -47,6 +47,26 @@ public class BilliardController {
     public void placeBall(int x, int y) {
         // TODO: turni giocatori
         // model.placeBall(x, y);
+    }
+
+    public boolean isMyTurn(Player p) {
+        return p != null && model.getCurrentPlayer().id == p.getId();
+    }
+
+    public GameField.GameStatus getGameStatus() {
+        return model.getStatus();
+    }
+
+    public boolean foulDetected() {
+        return model.isFoulDetected();
+    }
+
+    public void resetRound() {
+        model.resetRound();
+    }
+
+    public Player getCurrentPlayer() {
+        return model.getCurrentPlayer();
     }
 
     public void handleMouseDragged(double deltaX, double deltaY) {

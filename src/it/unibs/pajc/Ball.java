@@ -9,8 +9,7 @@ class Ball extends GameFieldObject {
     private double vx, vy; // Velocity
     private final int radius = 15;
     private boolean inPlay;
-    private final int number; // it.unibs.pajc.Ball number
-    private double accumulatedDistance = 0;// Distance for rotation effect
+    private final int number; // Numero sulla pallina
 
     // Array per memorizzare i colori delle palline in base al loro numero
 
@@ -30,9 +29,6 @@ class Ball extends GameFieldObject {
     public void updatePosition() {
         x += vx;
         y += vy;
-
-        // Update accumulated distance for rotation effect
-        accumulatedDistance += Math.sqrt(vx * vx + vy * vy);
 
         // Apply friction
         double friction = 0.98; // Increased friction for more realistic slowdown
@@ -73,10 +69,6 @@ class Ball extends GameFieldObject {
         this.vx = 0;
         this.vy = 0;
     }
-
-
-
-
 
     private void handleCollisionWithShape(GameFieldObject object) {
         // Crea oggetti Area per la pallina e l'oggetto
@@ -168,8 +160,6 @@ class Ball extends GameFieldObject {
         other.vy = newV2n * ny + v2t * ty;
     }
 
-    
-
     public void setVx(double vx) {
         this.vx = vx;
     }
@@ -177,7 +167,6 @@ class Ball extends GameFieldObject {
     public void setVy(double vy) {
         this.vy = vy;
     }
-
 
     public double getVx() {
         return vx;
@@ -196,9 +185,14 @@ class Ball extends GameFieldObject {
         return radius;
     }
 
+    public int getBallNumber() {
+        return number;
+    }
+
     public Boolean isStationary() {
         return vx == 0 && vy == 0;
     }
+
     public boolean isWhite() {
         return this.number == 0;
     }

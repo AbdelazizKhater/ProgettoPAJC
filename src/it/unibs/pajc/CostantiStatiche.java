@@ -18,6 +18,9 @@ public class CostantiStatiche {
         public static final double INNER_FIELD_LIMIT_X = TABLE_WIDTH - INNER_MARGIN;
         public static final double INNER_FIELD_LIMIT_Y = TABLE_HEIGHT - INNER_MARGIN;
 
+        public static final int[] STRIPED_BALLS = {1, 2, 3, 4, 5, 6, 7};
+        public static final int[] SOLID_BALLS = {9, 10, 11, 12, 13, 14, 15};
+
         public static final Color[] BALL_COLORS = {
                         Color.WHITE, // Palla 0 (bianca)
                         new Color(255, 255, 0), // Palla 1 (gialla)
@@ -36,6 +39,8 @@ public class CostantiStatiche {
                         new Color(0, 128, 0), // Palla 14 (verde striata)
                         new Color(128, 0, 0) // Palla 15 (bordeaux striata)
         };
+
+
 
         public static final int[][] X_POINTS_TRAPEZI = {
                         // TRAPEZIO 1

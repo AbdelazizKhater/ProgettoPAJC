@@ -1,6 +1,7 @@
 package it.unibs.pajc;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
 import static it.unibs.pajc.CostantiStatiche.*;
@@ -9,6 +10,7 @@ public class BilliardGameApp {
 
     private BilliardController cntrl;
     private GameField model;
+    Player localPlayer;
 
     private JFrame frame;
 
@@ -20,8 +22,13 @@ public class BilliardGameApp {
     }
 
     public BilliardGameApp() {
-        model = new GameField();
+        Player p1 = new Player("P1");
+        Player p2 = new Player("P2");
+        model = new GameField(p1);
+        model.addPlayer2(p2);
         cntrl = new BilliardController(model);
+
+        model.addChangeListener(this::modelUpdated);
 
         initialize();
     }
@@ -35,5 +42,12 @@ public class BilliardGameApp {
         frame.setVisible(true);
     }
 
+    private void modelUpdated(ChangeEvent e) {
+        Runnable task = () -> frame.repaint();;
 
+        if(EventQueue.isDispatchThread())
+            task.run();
+        else
+            SwingUtilities.invokeLater(task);
+    }
 }
