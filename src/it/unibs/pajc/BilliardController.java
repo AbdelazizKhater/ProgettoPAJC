@@ -32,8 +32,8 @@ public class BilliardController {
         return model.getStick();
     }
 
-    public Ball getWhiteBall() {
-        return model.getBalls().getFirst();
+    public Ball getCueBall() {
+        return model.getCueBall();
     }
 
     public void hitWhiteBall() {
@@ -55,10 +55,6 @@ public class BilliardController {
 
     public GameStatus getGameStatus() {
         return model.getStatus();
-    }
-
-    public boolean foulDetected() {
-        return model.isFoulDetected();
     }
 
     public void resetRound() {

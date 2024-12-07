@@ -13,16 +13,16 @@ import static it.unibs.pajc.GameStatus.*;
 public class GameField extends BaseModel {
 
     private final ArrayList<Ball> balls;
-    private final ArrayList<Ball> pocketedBalls;
+    private final ArrayList<Ball> pottedBalls;
     private final ArrayList<Trapezoid> trapezoids;
     private final ArrayList<Pocket> pockets;
+    private final ArrayList<Integer> pottedBallsId;
     private final Stick stick;
     private final Ball cueBall;
     private final Player[] players = new Player[2]; // id: 1
     private int currentPlayerIndx;// indx del Player corrente
     private GameStatus status;
     private boolean ballsAssigned = false;
-    private boolean foulDetected = false;
     private int idBallHit = -1;
     private int idFirstBallPocketed = -1;
     private int roundCounter;
@@ -30,9 +30,10 @@ public class GameField extends BaseModel {
 
     public GameField(Player p) {
         balls = new ArrayList<>();
-        pocketedBalls = new ArrayList<>();
+        pottedBalls = new ArrayList<>();
         trapezoids = new ArrayList<>();
         pockets = new ArrayList<>();
+        pottedBallsId = new ArrayList<>();
         stick = new Stick();
         cueBall = new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0);
         //Inizializzato il primo giocatore con indice 0
@@ -42,6 +43,17 @@ public class GameField extends BaseModel {
 
         // Add billiard balls in initial positions
         setupInitialPositions();
+    }
+
+    public void stepNext() {
+        if(!evaluationTriggered && status == roundStart) resetRound();
+        for (int i = 0; i < balls.size(); i++) {
+            Ball ball = balls.get(i);
+            ball.updatePosition();
+            ball.checkBounds(trapezoids);
+            checkPocketCollision(ball);
+            checkOtherBallCollision(i, ball);
+        }
     }
 
     public void addPlayer2(Player p) {
@@ -111,17 +123,6 @@ public class GameField extends BaseModel {
         stick.setAngleDegrees(180);
     }
 
-    public void stepNext() {
-        if(!evaluationTriggered && status == roundStart && !foulDetected) resetRound();
-        for (int i = 0; i < balls.size(); i++) {
-            Ball ball = balls.get(i);
-            ball.updatePosition();
-            ball.checkBounds(trapezoids);
-            checkPocketCollision(ball);
-            checkOtherBallCollision(i, ball);
-        }
-    }
-
     private void checkOtherBallCollision(int i, Ball ball) {
         for (int j = i + 1; j < balls.size(); j++) {
             Ball other = balls.get(j);
@@ -136,15 +137,16 @@ public class GameField extends BaseModel {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
                 if (ball.isWhite()) {
-                    foulDetected = true;
                     ball.setInPlay(false);
+                    ball.setNeedsReposition(true);
                     ball.resetSpeed();
                     balls.remove(ball);
                     balls.addFirst(ball);
                 } else {
                     if (idFirstBallPocketed < 1) idFirstBallPocketed = ball.getBallNumber();
                     ball.setInPlay(false);
-                    pocketedBalls.add(ball);
+                    pottedBalls.add(ball);
+                    pottedBallsId.add(ball.getNumber());
                     balls.remove(ball);
                     // TODO: aggiungere le palline in un panel view
                 }
@@ -168,17 +170,7 @@ public class GameField extends BaseModel {
         return true;
     }
 
-    public ArrayList<Ball> getBalls() {
-        return balls;
-    }
 
-    public Stick getStick() {
-        return stick;
-    }
-
-    public Ball getCueBall() {
-        return cueBall;
-    }
 
     public boolean reduceStickVisualPower(double speed) {
         Stick stick = getStick();
@@ -203,38 +195,51 @@ public class GameField extends BaseModel {
      * Chiamato appena le palline si fermano
      */
     public void resetRound() {
-        evaluateRound();
         evaluateValidHit();
+        evaluateRound();
         idBallHit = -1;
         idFirstBallPocketed = -1;
-        foulDetected = false;
         status = waitingPlayer2;
         roundCounter++;
     }
 
+    /**
+     * Vengono valutati i principali stati di gioco, nei casi non venga messa in buca una biglia
+     * si cambia giocatore, se le biglie non sono ancora state assegnate vengono assegnate, se la
+     * biglia 8 entra in buca si valuta la condizione di vittoria, se vera il giocatore ha vinto,
+     * se falsa ha perso istantaneamente
+     */
     private void evaluateRound() {
         //Se nessuna pallina è stata messa in buca si cambia giocatore
         evaluationTriggered = true;
+
         if(idFirstBallPocketed < 1) {
             swapPlayers();
         } else if(!ballsAssigned && roundCounter > 1) {
-            Player p1 = getCurrentPlayer();
-            Player p2 = getWaitingPlayer();
-            assignBallType(p1, p2);
+            assignBallType();
+        } else if(pottedBallsId.contains(8)) {
+            status = completed;
+            if(checkWinCondition()) {
+                System.out.println("Il giocatore " + getCurrentPlayer().getName() + " vince!");
+            } else {
+                System.out.println("Il giocatore " + getWaitingPlayer().getName() + " vince!");
+            }
         }
     }
 
-    private void assignBallType(Player p1, Player p2) {
+    private void assignBallType() {
+        Player p1 = getCurrentPlayer();
+        Player p2 = getWaitingPlayer();
         if (idFirstBallPocketed < 8 && idFirstBallPocketed > 0) {
             p1.setStripedBalls(false);
             p2.setStripedBalls(true);
-            System.out.println("Giocatore " + p1.id + " gioca con le biglie piene");
-            System.out.println("Giocatore " + p2.id + " gioca con le biglie striate");
-        } else {
+            System.out.println("Giocatore " + p1.name + " gioca con le biglie piene");
+            System.out.println("Giocatore " + p2.name + " gioca con le biglie striate");
+        } else if(idFirstBallPocketed > 0) {
             p1.setStripedBalls(true);
             p2.setStripedBalls(false);
-            System.out.println("Giocatore " + p1.id + " gioca con le biglie striate");
-            System.out.println("Giocatore " + p2.id + " gioca con le biglie piene");
+            System.out.println("Giocatore " + p1.name + " gioca con le biglie striate");
+            System.out.println("Giocatore " + p2.name + " gioca con le biglie piene");
         }
         ballsAssigned = true;
     }
@@ -245,17 +250,48 @@ public class GameField extends BaseModel {
      */
     private void evaluateValidHit() {
         if(ballsAssigned) {
+            System.out.println(idBallHit);
             Player p = getCurrentPlayer();
+            System.out.println(p.name);
+            System.out.println(p.isStripedBalls());
             if(p.isStripedBalls() && idBallHit < 9) {
-                foulDetected = true;
+                System.out.println("we're in1");
+                cueBall.setNeedsReposition(true);
             }
             else if(!p.isStripedBalls() && idBallHit > 7) {
-                foulDetected = true;
+                System.out.println("we're in2");
+                cueBall.setNeedsReposition(true);
             }
         }
     }
 
-    public boolean isFoulDetected() {
-        return foulDetected;
+    /**
+     * Metodo utilizzato per controllare che tutte le biglie del giocatore siano in buca
+     * una volta che viene messa in buca la biglia 8. Vengono controllate le biglie con
+     * id 1-7 per il giocatore con i solidi, viene applicato un offset di +8 per il giocatore
+     * con le biglie striate
+     */
+    private boolean checkWinCondition() {
+        int offset = 8;
+        Player p = getCurrentPlayer();
+        int i = 1, end = 8;
+        if (p.isStripedBalls()) i += offset; end += offset;
+        for(; i < end; i++) {
+            //Se anche solo una biglia non appare nelle pottedBalls, il giocatore ha perso
+            if (!pottedBallsId.contains(i)) return false;
+        }
+        return true;
+    }
+
+    public ArrayList<Ball> getBalls() {
+        return balls;
+    }
+
+    public Stick getStick() {
+        return stick;
+    }
+
+    public Ball getCueBall() {
+        return cueBall;
     }
 }

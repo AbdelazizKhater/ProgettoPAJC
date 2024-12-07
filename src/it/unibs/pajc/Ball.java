@@ -10,6 +10,7 @@ class Ball extends GameFieldObject {
     private final int radius = 15;
     private boolean inPlay;
     private final int number; // Numero sulla pallina
+    private boolean needsReposition;
 
     // Array per memorizzare i colori delle palline in base al loro numero
 
@@ -22,8 +23,8 @@ class Ball extends GameFieldObject {
         this.vy = vy;
         this.number = number;
         this.inPlay = true;
+        if(number == 0) needsReposition = false;
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
-        
     }
 
     public void updatePosition() {
@@ -203,6 +204,12 @@ class Ball extends GameFieldObject {
 
     public boolean isInPlay() {
         return inPlay;
+    }
+
+    public boolean needsReposition() {return needsReposition;}
+
+    public void setNeedsReposition(boolean needsReposition) {
+        this.needsReposition = needsReposition;
     }
 
     public int getRadius() {
