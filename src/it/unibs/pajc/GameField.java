@@ -207,8 +207,8 @@ public class GameField extends BaseModel {
      * se falsa ha perso istantaneamente
      */
     private void evaluateRound() {
-        //Se nessuna pallina è stata messa in buca si cambia giocatore
         evaluationTriggered = true;
+        //Se nessuna pallina è stata messa in buca si cambia giocatore
         if(idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
             swapPlayers();
         } else if(!ballsAssigned && roundCounter > 1) {
@@ -220,7 +220,7 @@ public class GameField extends BaseModel {
     private void checkIf8BallPotted() {
         if(pottedBallsId.contains(8)) {
             status = completed;
-            if(checkWinCondition()) {
+            if(checkWinCondition(getCurrentPlayer())) {
                 System.out.println("Il giocatore " + getCurrentPlayer().getName() + " vince!");
             } else {
                 System.out.println("Il giocatore " + getWaitingPlayer().getName() + " vince!");
@@ -254,7 +254,10 @@ public class GameField extends BaseModel {
     public void evaluateValidHit() {
         if(ballsAssigned && status != cueBallRepositioning) {
             Player p = getCurrentPlayer();
-            if(p.isStripedBalls() && idBallHit < 9) {
+            if(idBallHit == 8 && !checkWinCondition(p)) {
+                cueBall.setNeedsReposition(true);
+            }
+            else if(p.isStripedBalls() && idBallHit < 9) {
                 cueBall.setNeedsReposition(true);
             }
             else if(!p.isStripedBalls() && idBallHit > 7) {
@@ -276,9 +279,8 @@ public class GameField extends BaseModel {
      * id 1-7 per il giocatore con i solidi, viene applicato un offset di +8 per il giocatore
      * con le biglie striate
      */
-    private boolean checkWinCondition() {
+    private boolean checkWinCondition(Player p) {
         int offset = 8;
-        Player p = getCurrentPlayer();
         int i = 1, end = 8;
         if (p.isStripedBalls()) i += offset; end += offset;
         for(; i < end; i++) {
