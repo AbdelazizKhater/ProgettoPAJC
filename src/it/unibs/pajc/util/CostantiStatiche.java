@@ -1,7 +1,6 @@
-package it.unibs.pajc;
+package it.unibs.pajc.util;
 
 import java.awt.*;
-import java.security.PublicKey;
 
 public class CostantiStatiche {
 

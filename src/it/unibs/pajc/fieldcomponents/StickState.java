@@ -1,4 +1,6 @@
-package it.unibs.pajc;
+package it.unibs.pajc.fieldcomponents;
+
+import it.unibs.pajc.GameField;
 
 public interface StickState {
     void handleMouseDragged(Stick stick, double deltaX, double deltaY);

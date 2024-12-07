@@ -2,9 +2,16 @@ package it.unibs.pajc;
 //MODEL
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
-import static it.unibs.pajc.CostantiStatiche.*;
+import it.unibs.pajc.fieldcomponents.Ball;
+import it.unibs.pajc.fieldcomponents.Pocket;
+import it.unibs.pajc.fieldcomponents.Stick;
+import it.unibs.pajc.fieldcomponents.Trapezoid;
+
+import static it.unibs.pajc.util.CostantiStatiche.*;
 import static it.unibs.pajc.GameStatus.*;
 
 /**
@@ -54,6 +61,7 @@ public class GameField extends BaseModel {
             checkPocketCollision(ball);
             checkOtherBallCollision(i, ball);
         }
+
     }
 
     public void addPlayer2(Player p) {
@@ -111,15 +119,42 @@ public class GameField extends BaseModel {
         int startY = TABLE_HEIGHT / 2; // Center of the table
         int rows = 5; // Number of rows in the triangle
 
+        List<Integer> ballNumbers = new ArrayList<>();
+        for (int i = 1; i <= 15; i++) {
+            ballNumbers.add(i);
+        }
+
+        // Shuffle the list, but keep 1 at the first position and 8 in the center
+        ballNumbers.remove((Integer) 1); // Remove 1 temporarily
+        ballNumbers.remove((Integer) 8); // Remove 8 temporarily
+        Collections.shuffle(ballNumbers); // Shuffle the rest of the numbers
+
+        // Insert 1 at the top of the triangle
+        ballNumbers.add(0, 1);
+
+        // Determine the center position (third row, second column)
+        int centerRow = 2; // Row index (starting from 0)
+        int centerCol = 1; // Column index within the row
+        int centerIndex = 0;
+
+        // Calculate the linear index for the center position
+        for (int row = 0; row < centerRow; row++) {
+            centerIndex += row + 1;
+        }
+        centerIndex += centerCol;
+
+        ballNumbers.add(centerIndex, 8); // Place 8-ball in the center
+
         // Add numbered balls in a triangular configuration
-        int number = 1;
+        int numberIndex = 0;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col <= row; col++) {
                 double x = startX + row * (ballRadius * 2 * Math.sqrt(3) / 2);
                 double y = startY - row * ballRadius + col * ballRadius * 2;
-                balls.add(new Ball(x, y, 0, 0, number++));
+                balls.add(new Ball(x, y, 0, 0, ballNumbers.get(numberIndex++)));
             }
         }
+
         stick.setAngleDegrees(180);
     }
 

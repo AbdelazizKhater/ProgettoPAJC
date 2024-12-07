@@ -1,5 +1,9 @@
 package it.unibs.pajc;
 
+import it.unibs.pajc.fieldcomponents.Ball;
+import it.unibs.pajc.fieldcomponents.BallInfo;
+import it.unibs.pajc.fieldcomponents.Stick;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -10,7 +14,7 @@ import java.awt.geom.Ellipse2D;
 
 import javax.swing.*;
 
-import static it.unibs.pajc.CostantiStatiche.*;
+import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class GameView extends JPanel implements MouseMotionListener, MouseListener {
 

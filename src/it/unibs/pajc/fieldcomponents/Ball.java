@@ -1,11 +1,12 @@
-package it.unibs.pajc;
+package it.unibs.pajc.fieldcomponents;
 
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.util.List;
+import java.util.ArrayList;
 
-class Ball extends GameFieldObject {
+
+public class Ball extends GameFieldObject {
     private double vx, vy; // Velocity
     private final int radius = 15;
     private final int number; // Numero sulla pallina
@@ -49,7 +50,7 @@ class Ball extends GameFieldObject {
        return distance <= pocket.getRadius();
     }
 
-    public void checkBounds(List<Trapezoid> trapezoids) {
+    public void checkBounds(ArrayList<Trapezoid> trapezoids) {
         if (trapezoids != null) {
             for (Trapezoid trapezoid : trapezoids) {
                 if (isCollidingWithEdge(trapezoid)) {

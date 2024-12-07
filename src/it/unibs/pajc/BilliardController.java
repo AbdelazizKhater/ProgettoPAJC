@@ -1,5 +1,10 @@
 package it.unibs.pajc;
 
+import it.unibs.pajc.fieldcomponents.Ball;
+import it.unibs.pajc.fieldcomponents.BallInfo;
+import it.unibs.pajc.fieldcomponents.GameFieldObject;
+import it.unibs.pajc.fieldcomponents.Stick;
+
 import java.awt.Rectangle;
 
 import java.awt.geom.AffineTransform;
@@ -8,7 +13,7 @@ import java.util.List;
 
 import java.awt.geom.Point2D;
 
-import static it.unibs.pajc.CostantiStatiche.*;
+import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class BilliardController {
 

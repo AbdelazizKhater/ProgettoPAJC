@@ -4,7 +4,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
-import static it.unibs.pajc.CostantiStatiche.*;
+import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class BilliardGameApp {
 

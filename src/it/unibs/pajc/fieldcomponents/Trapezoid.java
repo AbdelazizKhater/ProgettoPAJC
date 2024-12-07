@@ -1,9 +1,9 @@
-package it.unibs.pajc;
+package it.unibs.pajc.fieldcomponents;
 
 import java.awt.geom.Path2D;
 
 
-class Trapezoid extends GameFieldObject {
+public class Trapezoid extends GameFieldObject {
 
     public Trapezoid(int[] xPoints, int[] yPoints) {
         super();

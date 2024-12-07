@@ -1,4 +1,4 @@
-package it.unibs.pajc;
+package it.unibs.pajc.fieldcomponents;
 
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
