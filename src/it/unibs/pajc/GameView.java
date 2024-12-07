@@ -215,7 +215,11 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
     private void drawStick(Graphics2D g, Ball cueBall, Stick stick) {
         g.setStroke(new BasicStroke(10));
-        g.setColor(Color.BLACK);
+        if (cntrl.getCurrentPlayer().getId() == 1) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.BLUE);
+        }
 
         double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower();
         double stickLength = 300; // Lunghezza totale della stecca
