@@ -137,14 +137,12 @@ public class GameField extends BaseModel {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
                 if (ball.isWhite()) {
-                    ball.setInPlay(false);
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
-                    balls.remove(ball);
-                    balls.addFirst(ball);
+                    //balls.remove(ball);
+                    //balls.addFirst(ball);
                 } else {
                     if (idFirstBallPocketed < 1) idFirstBallPocketed = ball.getBallNumber();
-                    ball.setInPlay(false);
                     pottedBalls.add(ball);
                     pottedBallsId.add(ball.getNumber());
                     balls.remove(ball);
@@ -169,8 +167,6 @@ public class GameField extends BaseModel {
         status = roundStart;
         return true;
     }
-
-
 
     public boolean reduceStickVisualPower(double speed) {
         Stick stick = getStick();
@@ -212,12 +208,16 @@ public class GameField extends BaseModel {
     private void evaluateRound() {
         //Se nessuna pallina è stata messa in buca si cambia giocatore
         evaluationTriggered = true;
-
-        if(idFirstBallPocketed < 1) {
+        if(idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
             swapPlayers();
         } else if(!ballsAssigned && roundCounter > 1) {
             assignBallType();
-        } else if(pottedBallsId.contains(8)) {
+        }
+        checkIf8BallPotted();
+    }
+
+    private void checkIf8BallPotted() {
+        if(pottedBallsId.contains(8)) {
             status = completed;
             if(checkWinCondition()) {
                 System.out.println("Il giocatore " + getCurrentPlayer().getName() + " vince!");
@@ -230,39 +230,41 @@ public class GameField extends BaseModel {
     private void assignBallType() {
         Player p1 = getCurrentPlayer();
         Player p2 = getWaitingPlayer();
-        if (idFirstBallPocketed < 8 && idFirstBallPocketed > 0) {
-            p1.setStripedBalls(false);
-            p2.setStripedBalls(true);
-            System.out.println("Giocatore " + p1.name + " gioca con le biglie piene");
-            System.out.println("Giocatore " + p2.name + " gioca con le biglie striate");
-        } else if(idFirstBallPocketed > 0) {
-            p1.setStripedBalls(true);
-            p2.setStripedBalls(false);
-            System.out.println("Giocatore " + p1.name + " gioca con le biglie striate");
-            System.out.println("Giocatore " + p2.name + " gioca con le biglie piene");
+        if(idFirstBallPocketed > 0) {
+            if (idFirstBallPocketed < 8) {
+                p1.setStripedBalls(false);
+                p2.setStripedBalls(true);
+                System.out.println("Giocatore " + p1.name + " gioca con le biglie piene");
+                System.out.println("Giocatore " + p2.name + " gioca con le biglie striate");
+            } else {
+                p1.setStripedBalls(true);
+                p2.setStripedBalls(false);
+                System.out.println("Giocatore " + p1.name + " gioca con le biglie striate");
+                System.out.println("Giocatore " + p2.name + " gioca con le biglie piene");
+            }
+            ballsAssigned = true;
         }
-        ballsAssigned = true;
     }
 
     /**
      * Se il giocatore colpisce le palline dell'altro o la pallina 8 il prossimo giocatore
      * avrà palla in mano (foul)
      */
-    private void evaluateValidHit() {
-        if(ballsAssigned) {
-            System.out.println(idBallHit);
+    public void evaluateValidHit() {
+        if(ballsAssigned && status != cueBallRepositioning) {
             Player p = getCurrentPlayer();
-            System.out.println(p.name);
-            System.out.println(p.isStripedBalls());
             if(p.isStripedBalls() && idBallHit < 9) {
-                System.out.println("we're in1");
                 cueBall.setNeedsReposition(true);
             }
             else if(!p.isStripedBalls() && idBallHit > 7) {
-                System.out.println("we're in2");
                 cueBall.setNeedsReposition(true);
             }
         }
+    }
+
+
+    private void evaluateIfCueBallHit()  {
+        if(idBallHit < 0) cueBall.setNeedsReposition(true);
     }
 
     /**
@@ -292,6 +294,10 @@ public class GameField extends BaseModel {
     }
 
     public Ball getCueBall() {
-        return cueBall;
+        return balls.getFirst();
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
     }
 }

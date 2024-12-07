@@ -25,7 +25,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        Timer timer = new Timer(1, e -> {
+        Timer timer = new Timer(5, e -> {
             cntrl.stepNext();
             repaint();
         });
@@ -250,7 +250,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (!isHitting) {
+        if (!isHitting && !cntrl.getCueBall().needsReposition()) {
 
             double deltaX = e.getX() - dragStartX;
             double deltaY = e.getY() - dragStartY;
@@ -280,7 +280,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         int mouseY = e.getY();
         if (cntrl.getCueBall().needsReposition() && isWithinBounds(mouseX, mouseY)) {
             cntrl.getCueBall().setPosition(mouseX, mouseY);
-            cntrl.getCueBall().setInPlay(true);
+            cntrl.setStatus(GameStatus.cueBallRepositioning);
             cntrl.getCueBall().setNeedsReposition(false);
             cntrl.resetRound();
 

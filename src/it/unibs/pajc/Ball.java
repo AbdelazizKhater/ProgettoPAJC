@@ -8,7 +8,6 @@ import java.util.List;
 class Ball extends GameFieldObject {
     private double vx, vy; // Velocity
     private final int radius = 15;
-    private boolean inPlay;
     private final int number; // Numero sulla pallina
     private boolean needsReposition;
 
@@ -22,7 +21,6 @@ class Ball extends GameFieldObject {
         this.vx = vx;
         this.vy = vy;
         this.number = number;
-        this.inPlay = true;
         if(number == 0) needsReposition = false;
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
     }
@@ -196,14 +194,6 @@ class Ball extends GameFieldObject {
 
     public boolean isWhite() {
         return this.number == 0;
-    }
-
-    public void setInPlay(boolean inPlay) {
-        this.inPlay = inPlay;
-    }
-
-    public boolean isInPlay() {
-        return inPlay;
     }
 
     public boolean needsReposition() {return needsReposition;}

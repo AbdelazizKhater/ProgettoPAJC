@@ -28,6 +28,10 @@ public class BilliardController {
                 .toList();
     }
 
+    public List<Ball> getBalls() {
+        return model.getBalls();
+    }
+
     public Stick getStick() {
         return model.getStick();
     }
@@ -224,4 +228,7 @@ public class BilliardController {
         return new Point2D.Double(px, py);
     }
 
+    public void setStatus(GameStatus status) {
+        model.setStatus(status);
+    }
 }
