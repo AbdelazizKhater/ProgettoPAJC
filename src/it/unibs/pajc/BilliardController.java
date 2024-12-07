@@ -53,7 +53,7 @@ public class BilliardController {
         return p != null && model.getCurrentPlayer().id == p.getId();
     }
 
-    public GameField.GameStatus getGameStatus() {
+    public GameStatus getGameStatus() {
         return model.getStatus();
     }
 

@@ -1,7 +1,7 @@
 package it.unibs.pajc;
 
 public class Player {
-    private static int lastId;
+    private static int lastId = 0;
     protected int id;
     protected String name;
     private static boolean stripedBalls;

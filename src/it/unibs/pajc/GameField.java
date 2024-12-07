@@ -2,20 +2,15 @@ package it.unibs.pajc;
 //MODEL
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static it.unibs.pajc.CostantiStatiche.*;
+import static it.unibs.pajc.GameStatus.*;
 
 /**
  *
  */
 public class GameField extends BaseModel {
-    public enum GameStatus {
-        waitingPlayer2,
-        playing,
-        completed
-    }
 
     private final ArrayList<Ball> balls;
     private final ArrayList<Ball> pocketedBalls;
@@ -27,9 +22,11 @@ public class GameField extends BaseModel {
     private int currentPlayerIndx;// indx del Player corrente
     private GameStatus status;
     private boolean ballsAssigned = false;
-    private boolean firstShot = true;
     private boolean foulDetected = false;
     private int idBallHit = -1;
+    private int idFirstBallPocketed = -1;
+    private int roundCounter;
+
 
     public GameField(Player p) {
         balls = new ArrayList<>();
@@ -41,24 +38,23 @@ public class GameField extends BaseModel {
         //Inizializzato il primo giocatore con indice 0
         players[0] = p;
         currentPlayerIndx = 0;
+        roundCounter = 0;
 
         // Add billiard balls in initial positions
         setupInitialPositions();
     }
 
     public void addPlayer2(Player p) {
-        if(status != GameStatus.waitingPlayer2)
-            return;
         players[1] = p;
         startNewGame();
     }
 
 
-    private Random rnd = new Random();
+    private final Random rnd = new Random();
     public void startNewGame() {
         //Il primo turno viene assegnato a caso tra i due giocatori
         currentPlayerIndx = rnd.nextInt(2);
-        status = GameStatus.playing;
+        status = playing;
         fireChangeListener();
     }
 
@@ -66,22 +62,17 @@ public class GameField extends BaseModel {
         return players[currentPlayerIndx];
     }
 
+    public Player getWaitingPlayer() {
+        int secondPlayerIndex = currentPlayerIndx == 0 ? 1 : 0;
+        return players[secondPlayerIndex];
+    }
+
     private void swapPlayers() {
         currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
+        System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
         fireChangeListener();
     }
 
-
-    public List<GameFieldObject> getGameFieldObjects() {
-        List<GameFieldObject> gameFieldObjects = new ArrayList<>();
-        // Aggiungi tutte le palline
-        gameFieldObjects.addAll(balls);
-        // Aggiungi tutti i trapezi
-        gameFieldObjects.addAll(trapezoids);
-        // Aggiungi tutte le buche
-        gameFieldObjects.addAll(pockets);
-        return gameFieldObjects;
-    }
 
     private void setupInitialPositions() {
         // Radius of each ball
@@ -121,6 +112,7 @@ public class GameField extends BaseModel {
     }
 
     public void stepNext() {
+        if(!evaluationTriggered && status == roundStart && !foulDetected) resetRound();
         for (int i = 0; i < balls.size(); i++) {
             Ball ball = balls.get(i);
             ball.updatePosition();
@@ -150,6 +142,7 @@ public class GameField extends BaseModel {
                     balls.remove(ball);
                     balls.addFirst(ball);
                 } else {
+                    if (idFirstBallPocketed < 1) idFirstBallPocketed = ball.getBallNumber();
                     ball.setInPlay(false);
                     pocketedBalls.add(ball);
                     balls.remove(ball);
@@ -161,24 +154,18 @@ public class GameField extends BaseModel {
         }
     }
 
+    private boolean evaluationTriggered = false;
+
     public boolean allBallsAreStationary() {
         for (Ball ball : balls) {
             if (!ball.isStationary()) {
-                status = GameStatus.playing;
-                firstShot = false;
+                status = playing;
+                evaluationTriggered = false;
                 return false;
             }
         }
-        status = GameStatus.waitingPlayer2;
+        status = roundStart;
         return true;
-    }
-
-    public boolean ballsHit(int firstBall, int finalBall) {
-        for(int i = firstBall; i < finalBall; i++) {
-            //Se una delle palline controllate si muove, è stata colpita
-            if(!balls.get(i).isStationary()) return true;
-        }
-        return false;
     }
 
     public ArrayList<Ball> getBalls() {
@@ -210,29 +197,44 @@ public class GameField extends BaseModel {
 
     public GameStatus getStatus() { return status; }
 
-    public boolean allBallsInPlay() {
-        return (balls.size() == 16);
-    }
-
     /**
-     * Metodo che aiuta a tener traccia della prima palla colpita, utilizzato per capire se è stato commesso
-     * un foul
+     * Metodo che aiuta a tener traccia della prima pallina colpita e della prima pallina in buca
+     * utilizzato per capire se è stato commesso un foul e per valutare lo switch del player
+     * Chiamato appena le palline si fermano
      */
     public void resetRound() {
+        evaluateRound();
+        evaluateValidHit();
         idBallHit = -1;
+        idFirstBallPocketed = -1;
         foulDetected = false;
+        status = waitingPlayer2;
+        roundCounter++;
     }
 
-    //RULES
+    private void evaluateRound() {
+        //Se nessuna pallina è stata messa in buca si cambia giocatore
+        evaluationTriggered = true;
+        if(idFirstBallPocketed < 1) {
+            swapPlayers();
+        } else if(!ballsAssigned && roundCounter > 1) {
+            Player p1 = getCurrentPlayer();
+            Player p2 = getWaitingPlayer();
+            assignBallType(p1, p2);
+        }
+    }
 
-    public void assignBallType(Player p1, Player p2) {
-        Ball firstPocketedBall = pocketedBalls.getFirst();
-        if (firstPocketedBall.getBallNumber() < 8) {
+    private void assignBallType(Player p1, Player p2) {
+        if (idFirstBallPocketed < 8 && idFirstBallPocketed > 0) {
             p1.setStripedBalls(false);
             p2.setStripedBalls(true);
-        } else if (firstPocketedBall.getBallNumber() > 8) {
+            System.out.println("Giocatore " + p1.id + " gioca con le biglie piene");
+            System.out.println("Giocatore " + p2.id + " gioca con le biglie striate");
+        } else {
             p1.setStripedBalls(true);
             p2.setStripedBalls(false);
+            System.out.println("Giocatore " + p1.id + " gioca con le biglie striate");
+            System.out.println("Giocatore " + p2.id + " gioca con le biglie piene");
         }
         ballsAssigned = true;
     }
@@ -241,13 +243,15 @@ public class GameField extends BaseModel {
      * Se il giocatore colpisce le palline dell'altro o la pallina 8 il prossimo giocatore
      * avrà palla in mano (foul)
      */
-    public void evaluateValidHit() {
-        Player p = getCurrentPlayer();
-        if(p.isStripedBalls() && idBallHit < 9) {
-            foulDetected = true;
-        }
-        else if(!p.isStripedBalls() && idBallHit > 7) {
-            foulDetected = true;
+    private void evaluateValidHit() {
+        if(ballsAssigned) {
+            Player p = getCurrentPlayer();
+            if(p.isStripedBalls() && idBallHit < 9) {
+                foulDetected = true;
+            }
+            else if(!p.isStripedBalls() && idBallHit > 7) {
+                foulDetected = true;
+            }
         }
     }
 
