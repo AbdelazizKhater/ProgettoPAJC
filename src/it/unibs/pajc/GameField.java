@@ -192,6 +192,7 @@ public class GameField extends BaseModel {
      */
     public void resetRound() {
         evaluateValidHit();
+        evaluateIfCueBallHitAnything();
         evaluateRound();
         idBallHit = -1;
         idFirstBallPocketed = -1;
@@ -263,8 +264,10 @@ public class GameField extends BaseModel {
     }
 
 
-    private void evaluateIfCueBallHit()  {
-        if(idBallHit < 0) cueBall.setNeedsReposition(true);
+    private void evaluateIfCueBallHitAnything()  {
+        if(idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning) {
+            cueBall.setNeedsReposition(true);
+        }
     }
 
     /**
