@@ -292,10 +292,10 @@ public class GameField extends BaseModel {
             if(idBallHit == 8 && !checkWinCondition(p)) {
                 cueBall.setNeedsReposition(true);
             }
-            else if(p.isStripedBalls() && idBallHit < 9) {
+            else if(p.isStripedBalls() && idBallHit < 8) {
                 cueBall.setNeedsReposition(true);
             }
-            else if(!p.isStripedBalls() && idBallHit > 7) {
+            else if(!p.isStripedBalls() && idBallHit > 8) {
                 cueBall.setNeedsReposition(true);
             }
         }
@@ -317,7 +317,10 @@ public class GameField extends BaseModel {
     private boolean checkWinCondition(Player p) {
         int offset = 8;
         int i = 1, end = 8;
-        if (p.isStripedBalls()) i += offset; end += offset;
+        if (p.isStripedBalls()) {
+            i += offset;
+            end += offset;
+        }
         for(; i < end; i++) {
             //Se anche solo una biglia non appare nelle pottedBalls, il giocatore ha perso
             if (!pottedBallsId.contains(i)) return false;
