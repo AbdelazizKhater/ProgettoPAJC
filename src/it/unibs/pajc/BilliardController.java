@@ -233,6 +233,20 @@ public class BilliardController {
         return new Point2D.Double(px, py);
     }
 
+    public void resetCueBallPosition(int x, int y) {
+        Ball cueBall = model.getCueBall();
+        if(cueBall.needsReposition()) {
+            cueBall.setPosition(x, y);
+            model.setStatus(GameStatus.cueBallRepositioning);
+            cueBall.setNeedsReposition(false);
+            model.resetRound();
+        }
+    }
+
+    public boolean cueBallNeedsReposition() {
+        return model.getCueBall().needsReposition();
+    }
+
     public void setStatus(GameStatus status) {
         model.setStatus(status);
     }

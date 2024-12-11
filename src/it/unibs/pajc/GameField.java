@@ -74,7 +74,6 @@ public class GameField extends BaseModel {
     public void startNewGame() {
         //Il primo turno viene assegnato a caso tra i due giocatori
         currentPlayerIndx = rnd.nextInt(2);
-        status = playing;
         fireChangeListener();
     }
 

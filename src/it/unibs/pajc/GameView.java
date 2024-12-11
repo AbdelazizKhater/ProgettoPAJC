@@ -82,7 +82,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
             }
 
             //Se non è stato commesso nessun fallo, si procede con il turno regolarmente
-            if (!cntrl.getCueBall().needsReposition()) {
+            if (!cntrl.cueBallNeedsReposition()) {
                 drawStick(g2, cntrl.getCueBall(), cntrl.getStick());
                 drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
@@ -271,7 +271,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void mouseMoved(MouseEvent e) {
 
-        if (cntrl.getCueBall().needsReposition()) {
+        if (cntrl.cueBallNeedsReposition()) {
             mousePoint = getMousePosition();
         } else if (!isHitting && !isCharging) {
             cntrl.updateStickAngle(e.getX(), e.getY());
@@ -286,12 +286,8 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
     public void mouseClicked(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
-        if (cntrl.getCueBall().needsReposition() && isWithinBounds(mouseX, mouseY)) {
-            cntrl.getCueBall().setPosition(mouseX, mouseY);
-            cntrl.setStatus(GameStatus.cueBallRepositioning);
-            cntrl.getCueBall().setNeedsReposition(false);
-            cntrl.resetRound();
-
+        if (isWithinBounds(mouseX, mouseY)) {
+            cntrl.resetCueBallPosition(mouseX, mouseY);
         }
     }
 
