@@ -53,7 +53,7 @@ public class GameField extends BaseModel {
     }
 
     public void stepNext() {
-        if(!evaluationTriggered && status == roundStart) resetRound();
+        if (!evaluationTriggered && status == roundStart) resetRound();
         for (int i = 0; i < balls.size(); i++) {
             Ball ball = balls.get(i);
             ball.updatePosition();
@@ -71,6 +71,7 @@ public class GameField extends BaseModel {
 
 
     private final Random rnd = new Random();
+
     public void startNewGame() {
         //Il primo turno viene assegnato a caso tra i due giocatori
         currentPlayerIndx = rnd.nextInt(2);
@@ -161,8 +162,9 @@ public class GameField extends BaseModel {
         for (int j = i + 1; j < balls.size(); j++) {
             Ball other = balls.get(j);
             if (ball.checkCollision(other) && (!ball.isStationary() || !other.isStationary())) {
-                if(idBallHit < 0) idBallHit = other.getBallNumber();
+                if (idBallHit < 0) idBallHit = other.getBallNumber();
                 ball.resolveCollision(other);
+                SoundControl.BALL_COLLISION.play();
             }
         }
     }
@@ -170,10 +172,11 @@ public class GameField extends BaseModel {
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
+                SoundControl.BALL_POTTED.play();
                 if (ball.isWhite()) {
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
-                    //balls.remove(ball);
+                    balls.remove(ball);
                     //balls.addFirst(ball);
                 } else {
                     if (idFirstBallPocketed < 1) idFirstBallPocketed = ball.getBallNumber();
@@ -217,7 +220,9 @@ public class GameField extends BaseModel {
         stick.setPower(0); // Reset della potenza reale dopo il colpo
     }
 
-    public GameStatus getStatus() { return status; }
+    public GameStatus getStatus() {
+        return status;
+    }
 
     /**
      * Metodo che aiuta a tener traccia della prima pallina colpita e della prima pallina in buca
@@ -243,18 +248,18 @@ public class GameField extends BaseModel {
     private void evaluateRound() {
         evaluationTriggered = true;
         //Se nessuna pallina è stata messa in buca si cambia giocatore
-        if(idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
+        if (idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
             swapPlayers();
-        } else if(!ballsAssigned && roundCounter > 1) {
+        } else if (!ballsAssigned && roundCounter > 1) {
             assignBallType();
         }
         checkIf8BallPotted();
     }
 
     private void checkIf8BallPotted() {
-        if(pottedBallsId.contains(8)) {
+        if (pottedBallsId.contains(8)) {
             status = completed;
-            if(checkWinCondition(getCurrentPlayer())) {
+            if (checkWinCondition(getCurrentPlayer())) {
                 System.out.println("Il giocatore " + getCurrentPlayer().getName() + " vince!");
             } else {
                 System.out.println("Il giocatore " + getWaitingPlayer().getName() + " vince!");
@@ -265,7 +270,7 @@ public class GameField extends BaseModel {
     private void assignBallType() {
         Player p1 = getCurrentPlayer();
         Player p2 = getWaitingPlayer();
-        if(idFirstBallPocketed > 0) {
+        if (idFirstBallPocketed > 0) {
             if (idFirstBallPocketed < 8) {
                 p1.setStripedBalls(false);
                 p2.setStripedBalls(true);
@@ -286,23 +291,21 @@ public class GameField extends BaseModel {
      * avrà palla in mano (foul)
      */
     public void evaluateValidHit() {
-        if(ballsAssigned && status != cueBallRepositioning) {
+        if (ballsAssigned && status != cueBallRepositioning) {
             Player p = getCurrentPlayer();
-            if(idBallHit == 8 && !checkWinCondition(p)) {
+            if (idBallHit == 8 && !checkWinCondition(p)) {
                 cueBall.setNeedsReposition(true);
-            }
-            else if(p.isStripedBalls() && idBallHit < 8) {
+            } else if (p.isStripedBalls() && idBallHit < 8) {
                 cueBall.setNeedsReposition(true);
-            }
-            else if(!p.isStripedBalls() && idBallHit > 8) {
+            } else if (!p.isStripedBalls() && idBallHit > 8) {
                 cueBall.setNeedsReposition(true);
             }
         }
     }
 
 
-    private void evaluateIfCueBallHitAnything()  {
-        if(idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning) {
+    private void evaluateIfCueBallHitAnything() {
+        if (idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning) {
             cueBall.setNeedsReposition(true);
         }
     }
@@ -320,7 +323,7 @@ public class GameField extends BaseModel {
             i += offset;
             end += offset;
         }
-        for(; i < end; i++) {
+        for (; i < end; i++) {
             //Se anche solo una biglia non appare nelle pottedBalls, il giocatore ha perso
             if (!pottedBallsId.contains(i)) return false;
         }

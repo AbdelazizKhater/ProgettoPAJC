@@ -242,6 +242,7 @@ public class GameView extends JPanel implements MouseMotionListener, MouseListen
         if (!cntrl.reduceStickVisualPowerForAnimation()) {
             cntrl.onStickAnimationComplete(); // Notifica che l'animazione è completata
             isHitting = false;
+            SoundControl.CUEBALL_HIT.play();
         }
     }
 

@@ -45,17 +45,9 @@ public class BilliardController {
         return model.getCueBall();
     }
 
-    public void hitWhiteBall() {
-        model.hitBall();
-    }
 
     public Boolean checkAllStationary() {
         return model.allBallsAreStationary();
-    }
-
-    public void placeBall(int x, int y) {
-        // TODO: turni giocatori
-        // model.placeBall(x, y);
     }
 
     public boolean isMyTurn(Player p) {
