@@ -176,8 +176,7 @@ public class GameField extends BaseModel {
                 if (ball.isWhite()) {
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
-                    balls.remove(ball);
-                    //balls.addFirst(ball);
+                    balls.removeFirst();
                 } else {
                     if (idFirstBallPocketed < 1) idFirstBallPocketed = ball.getBallNumber();
                     pottedBalls.add(ball);
@@ -339,7 +338,7 @@ public class GameField extends BaseModel {
     }
 
     public Ball getCueBall() {
-        return balls.getFirst();
+        return cueBall;
     }
 
     public void setStatus(GameStatus status) {
