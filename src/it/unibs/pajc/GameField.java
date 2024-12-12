@@ -293,19 +293,24 @@ public class GameField extends BaseModel {
         if (ballsAssigned && status != cueBallRepositioning) {
             Player p = getCurrentPlayer();
             if (idBallHit == 8 && !checkWinCondition(p)) {
-                cueBall.setNeedsReposition(true);
+                foulDetected();
             } else if (p.isStripedBalls() && idBallHit < 8) {
-                cueBall.setNeedsReposition(true);
+                foulDetected();
             } else if (!p.isStripedBalls() && idBallHit > 8) {
-                cueBall.setNeedsReposition(true);
+                foulDetected();
             }
         }
+    }
+
+    private void foulDetected() {
+        cueBall.setNeedsReposition(true);
+        balls.removeFirst();
     }
 
 
     private void evaluateIfCueBallHitAnything() {
         if (idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning) {
-            cueBall.setNeedsReposition(true);
+            foulDetected();
         }
     }
 
