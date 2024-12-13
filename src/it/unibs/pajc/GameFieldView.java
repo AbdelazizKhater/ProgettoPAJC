@@ -246,9 +246,17 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     public void mousePressed(MouseEvent e) {
-        dragStartX = e.getX();
-        dragStartY = e.getY();
+
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+
+        dragStartX = mouseX;
+        dragStartY = mouseY;
         isCharging = true;
+
+        if (isWithinBounds(mouseX, mouseY)) {
+            cntrl.resetCueBallPosition(mouseX, mouseY);
+        }
     }
 
     @Override
@@ -279,11 +287,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        int mouseX = e.getX();
-        int mouseY = e.getY();
-        if (isWithinBounds(mouseX, mouseY)) {
-            cntrl.resetCueBallPosition(mouseX, mouseY);
-        }
     }
 
     @Override
