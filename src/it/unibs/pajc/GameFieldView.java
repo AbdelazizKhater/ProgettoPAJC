@@ -64,18 +64,18 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             int height = pocket[3];
             g2.fillOval(x, y, width, height);
         }
-        
+
         // Draw each ball
         for (BallInfo ballInfo : cntrl.getBallInfos()) {
             drawBall(g2, ballInfo);
         }
-        
+
         if (cntrl.checkAllStationary()) {
             if (isHitting) {
                 releaseStick();
             }
 
-            //Se non è stato commesso nessun fallo, si procede con il turno regolarmente
+            // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
             if (!cntrl.cueBallNeedsReposition()) {
                 drawStick(g2, cntrl.getCueBall(), cntrl.getStick());
                 drawTrajectory(g2, cntrl.calculateTrajectory());
@@ -104,6 +104,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
                 (int) (trajectoryInfo.startY * scaleFactor),
                 (int) (trajectoryInfo.directionX * scaleFactor),
                 (int) (trajectoryInfo.directionY * scaleFactor));
+
+        g.draw(new Ellipse2D.Double((trajectoryInfo.directionX - BALL_RADIUS)* scaleFactor , (trajectoryInfo.directionY - BALL_RADIUS) * scaleFactor,
+                2 * BALL_RADIUS * scaleFactor, 2 * BALL_RADIUS * scaleFactor));
 
         // Ripristina il contesto grafico originale
         g.setTransform(originalTransform);

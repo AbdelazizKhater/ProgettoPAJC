@@ -5,6 +5,8 @@ import it.unibs.pajc.fieldcomponents.BallInfo;
 import it.unibs.pajc.fieldcomponents.GameFieldObject;
 import it.unibs.pajc.fieldcomponents.Stick;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.awt.geom.AffineTransform;
@@ -27,11 +29,10 @@ public class BilliardController {
         model.stepNext();
     }
 
-    public Player[] getPlayers()
-    {
+    public Player[] getPlayers() {
         return model.getPlayers();
     }
- 
+
     public List<BallInfo> getBallInfos() {
         return model.getBalls().stream()
                 .map(ball -> new BallInfo(ball.getX(), ball.getY(), ball.getRadius(), ball.getNumber()))
@@ -49,7 +50,6 @@ public class BilliardController {
     public Ball getCueBall() {
         return model.getCueBall();
     }
-
 
     public Boolean checkAllStationary() {
         return model.allBallsAreStationary();
@@ -79,16 +79,13 @@ public class BilliardController {
         stick.setPower(Math.min(distance, Stick.MAX_POWER));
     }
 
-
-    public ArrayList<Integer> getPottedBallsId()
-    {
+    public ArrayList<Integer> getPottedBallsId() {
 
         return model.getPottedBallsId();
-        
+
     }
 
-    public boolean isBallsAssigned()
-    {
+    public boolean isBallsAssigned() {
         return model.isBallsAssigned();
     }
 
@@ -120,7 +117,7 @@ public class BilliardController {
     }
 
     public void onStickAnimationComplete() {
-        model.hitBall(); // Esegui il colpo
+        model.hitBall();
     }
 
     public TrajectoryInfo calculateTrajectory() {
@@ -140,7 +137,7 @@ public class BilliardController {
             double t = (INNER_MARGIN - startX) / dx;
             double y = startY + t * dy;
             if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
-                endX = INNER_MARGIN;
+                endX = INNER_MARGIN + BALL_RADIUS;
                 endY = y;
             }
         }
@@ -150,7 +147,7 @@ public class BilliardController {
             double t = (INNER_FIELD_LIMIT_X - startX) / dx;
             double y = startY + t * dy;
             if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
-                endX = INNER_FIELD_LIMIT_X;
+                endX = INNER_FIELD_LIMIT_X - BALL_RADIUS;
                 endY = y;
             }
         }
@@ -161,7 +158,7 @@ public class BilliardController {
             double x = startX + t * dx;
             if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
                 endX = x;
-                endY = INNER_MARGIN ;
+                endY = INNER_MARGIN + BALL_RADIUS;
             }
         }
 
@@ -171,38 +168,38 @@ public class BilliardController {
             double x = startX + t * dx;
             if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
                 endX = x;
-                endY = INNER_FIELD_LIMIT_Y;
+                endY = INNER_FIELD_LIMIT_Y - BALL_RADIUS;
             }
         }
 
         // Crea l'oggetto GameFieldObject rappresentante la traiettoria
         double length = Math.sqrt(Math.pow(startY - endY, 2) + Math.pow(startX - endX, 2));
-        Rectangle rectangle = new Rectangle(0, 0, 2, (int) length);
+        Rectangle rectangle = new Rectangle(0, 0, BALL_RADIUS * 2, (int) length);
         AffineTransform t = new AffineTransform();
-        t.translate(startX, startY);
+
+        t.translate(startX - BALL_RADIUS * Math.sin(angle), startY + BALL_RADIUS * Math.cos(angle));
         t.rotate(angle - Math.toRadians(90));
 
         GameFieldObject trajectory = new GameFieldObject(t.createTransformedShape(rectangle));
 
-        trajectory.setX(0);
-        trajectory.setY(0);
-
         double shortestDistance = Double.MAX_VALUE;
 
         for (Ball ball : model.getBalls()) {
-            if (ball.equals(model.getCueBall())) {
-                continue; // Salta la pallina bianca
-            }
+            if (ball.checkCollision(trajectory)) {
+                if (ball.equals(model.getCueBall())) {
+                    continue; // Salta la pallina bianca
+                }
 
-            Point2D intersection = getLineCircleIntersection(
-                    startX, startY, dx, dy, ball.getX(), ball.getY(), ball.getRadius());
+                Point2D intersection = getCircleCircleIntersection(
+                        startX, startY, dx, dy, ball.getX(), ball.getY(), model.getCueBall().getRadius());
 
-            if (intersection != null) {
-                double distance = intersection.distance(startX, startY);
-                if (distance < shortestDistance) {
-                    shortestDistance = distance;
-                    endX = intersection.getX();
-                    endY = intersection.getY();
+                if (intersection != null) {
+                    double distance = intersection.distance(startX, startY);
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        endX = intersection.getX();
+                        endY = intersection.getY();
+                    }
                 }
             }
         }
@@ -210,42 +207,44 @@ public class BilliardController {
         return new TrajectoryInfo(startX, startY, endX, endY);
     }
 
-    private Point2D getLineCircleIntersection(double x1, double y1, double dx, double dy, double cx, double cy,
-            double r) {
-        // Calcola i coefficienti dell'equazione quadratica
-        double a = dx * dx + dy * dy;
-        double b = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
-        double c = (x1 - cx) * (x1 - cx) + (y1 - cy) * (y1 - cy) - r * r;
+    private Point2D getCircleCircleIntersection(double x1, double y1, double dx, double dy,
+            double cx, double cy, double radius) {
+        // Sposta il sistema di coordinate: il centro della cue ball è l'origine
+        double relX = cx - x1;
+        double relY = cy - y1;
 
-        // Calcola il discriminante
-        double discriminant = b * b - 4 * a * c;
+        // Distanza tra i due centri richiesta per la collisione
+        double collisionDistance = 2 * radius;
 
-        if (discriminant < 0) {
+        // Proiezione del centro della pallina bersaglio sulla traiettoria
+        double projectionLength = (relX * dx + relY * dy) / Math.sqrt(dx * dx + dy * dy);
+
+        // Calcola il punto più vicino sulla traiettoria al centro della pallina
+        // bersaglio
+        double closestX = x1 + projectionLength * dx;
+        double closestY = y1 + projectionLength * dy;
+
+        // Distanza minima tra la traiettoria e il centro della pallina bersaglio
+        double distanceToCenter = Math.sqrt(Math.pow(closestX - cx, 2) + Math.pow(closestY - cy, 2));
+
+        // Verifica che la distanza minima sia compatibile con la collisione
+        if (distanceToCenter > collisionDistance) {
             return null; // Nessuna intersezione
         }
 
-        // Calcola i valori di t per le due intersezioni
-        double t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
-        double t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        // Calcola la distanza lungo la traiettoria al punto di impatto
+        double impactDistance = Math.sqrt(collisionDistance * collisionDistance - distanceToCenter * distanceToCenter);
 
-        // Scegli il t più piccolo positivo
-        double t = Math.min(t1, t2);
-        if (t < 0) {
-            t = Math.max(t1, t2); // Prova l'altro
-        }
-        if (t < 0) {
-            return null; // Entrambi negativi, nessuna intersezione valida
-        }
+        // Calcola il punto di intersezione finale
+        double intersectionX = closestX - impactDistance * dx;
+        double intersectionY = closestY - impactDistance * dy;
 
-        // Calcola il punto di intersezione
-        double px = x1 + t * dx;
-        double py = y1 + t * dy;
-        return new Point2D.Double(px, py);
+        return new Point2D.Double(intersectionX, intersectionY);
     }
 
     public void resetCueBallPosition(int x, int y) {
         Ball cueBall = model.getCueBall();
-        if(cueBall.needsReposition()) {
+        if (cueBall.needsReposition()) {
             cueBall.setPosition(x, y);
             model.setStatus(GameStatus.cueBallRepositioning);
             cueBall.setNeedsReposition(false);
@@ -257,7 +256,6 @@ public class BilliardController {
     public boolean cueBallNeedsReposition() {
         return model.getCueBall().needsReposition();
     }
-
 
     public void setStatus(GameStatus status) {
         model.setStatus(status);
