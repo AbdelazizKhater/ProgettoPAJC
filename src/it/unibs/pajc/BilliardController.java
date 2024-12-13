@@ -8,7 +8,7 @@ import it.unibs.pajc.fieldcomponents.Stick;
 import java.awt.Rectangle;
 
 import java.awt.geom.AffineTransform;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import java.awt.geom.Point2D;
@@ -27,6 +27,11 @@ public class BilliardController {
         model.stepNext();
     }
 
+    public Player[] getPlayers()
+    {
+        return model.getPlayers();
+    }
+ 
     public List<BallInfo> getBallInfos() {
         return model.getBalls().stream()
                 .map(ball -> new BallInfo(ball.getX(), ball.getY(), ball.getRadius(), ball.getNumber()))
@@ -72,6 +77,19 @@ public class BilliardController {
 
         double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         stick.setPower(Math.min(distance, Stick.MAX_POWER));
+    }
+
+
+    public ArrayList<Integer> getPottedBallsId()
+    {
+
+        return model.getPottedBallsId();
+        
+    }
+
+    public boolean isBallsAssigned()
+    {
+        return model.isBallsAssigned();
     }
 
     public void updateStickAngle(int mouseX, int mouseY) {

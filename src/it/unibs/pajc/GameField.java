@@ -33,8 +33,8 @@ public class GameField extends BaseModel {
     private int idBallHit = -1;
     private int idFirstBallPocketed = -1;
     private int roundCounter;
-
-
+    
+    
     public GameField(Player p) {
         balls = new ArrayList<>();
         pottedBalls = new ArrayList<>();
@@ -61,15 +61,15 @@ public class GameField extends BaseModel {
             checkPocketCollision(ball);
             checkOtherBallCollision(i, ball);
         }
-
+        
     }
-
+    
     public void addPlayer2(Player p) {
         players[1] = p;
         startNewGame();
     }
-
-
+    
+    
     private final Random rnd = new Random();
 
     public void startNewGame() {
@@ -77,61 +77,61 @@ public class GameField extends BaseModel {
         currentPlayerIndx = rnd.nextInt(2);
         fireChangeListener();
     }
-
+    
     public Player getCurrentPlayer() {
         return players[currentPlayerIndx];
     }
-
+    
     public Player getWaitingPlayer() {
         int secondPlayerIndex = currentPlayerIndx == 0 ? 1 : 0;
         return players[secondPlayerIndex];
     }
-
+    
     private void swapPlayers() {
         currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
         System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
         fireChangeListener();
     }
-
-
+    
+    
     private void setupInitialPositions() {
         // Radius of each ball
         int ballRadius = 15;
-
+        
         // Definizione area di ogni trapezio
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             trapezoids.add(new Trapezoid(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i]));
         }
-
+        
         // Definizione area di ogni buca
         for (int[] pocketPosition : POCKET_POSITIONS) {
             int x = pocketPosition[0];
             int y = pocketPosition[1];
             int pocketRadius = pocketPosition[2] / 2;
-
+            
             pockets.add(new Pocket(x, y, pocketRadius));
         }
-
+        
         // Position for the white ball
         balls.add(cueBall); // White ball
         // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
         int rows = 5; // Number of rows in the triangle
-
+        
         List<Integer> ballNumbers = new ArrayList<>();
         for (int i = 1; i <= 15; i++) {
             ballNumbers.add(i);
         }
-
+        
         // Shuffle the list, but keep 1 at the first position and 8 in the center
         ballNumbers.remove((Integer) 1); // Remove 1 temporarily
         ballNumbers.remove((Integer) 8); // Remove 8 temporarily
         Collections.shuffle(ballNumbers); // Shuffle the rest of the numbers
-
+        
         // Insert 1 at the top of the triangle
         ballNumbers.add(0, 1);
-
+        
         // Determine the center position (third row, second column)
         int centerRow = 2; // Row index (starting from 0)
         int centerCol = 1; // Column index within the row
@@ -142,9 +142,9 @@ public class GameField extends BaseModel {
             centerIndex += row + 1;
         }
         centerIndex += centerCol;
-
+        
         ballNumbers.add(centerIndex, 8); // Place 8-ball in the center
-
+        
         // Add numbered balls in a triangular configuration
         int numberIndex = 0;
         for (int row = 0; row < rows; row++) {
@@ -168,7 +168,10 @@ public class GameField extends BaseModel {
             }
         }
     }
-
+    
+    public ArrayList<Integer> getPottedBallsId() {
+        return pottedBallsId;
+    }
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
@@ -349,4 +352,15 @@ public class GameField extends BaseModel {
     public void setStatus(GameStatus status) {
         this.status = status;
     }
+
+    public boolean isBallsAssigned() {
+        return ballsAssigned;
+    }
+
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    
+    
 }

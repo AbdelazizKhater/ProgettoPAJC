@@ -37,12 +37,12 @@ public class BilliardGameApp {
         frame = new JFrame("Billiard Game");
         GameView gameView = new GameView(cntrl);
         frame.add(gameView, BorderLayout.CENTER);
-        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39);
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
         frame.setAlwaysOnTop(true);
-        frame.setResizable(false);
+        // frame.setResizable(false);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) (screenSize.getWidth() / 2 - frame.getWidth() / 2);
