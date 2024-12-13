@@ -42,7 +42,8 @@ public class BilliardGameApp {
         frame.setVisible(true);
 
         frame.setAlwaysOnTop(true);
-        // frame.setResizable(false);
+        frame.setResizable(false);
+        
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) (screenSize.getWidth() / 2 - frame.getWidth() / 2);
