@@ -87,7 +87,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     }
 
-    public void drawTrajectory(Graphics2D g, TrajectoryInfo trajectoryInfo) {
+    public void drawTrajectory(Graphics2D g, TrajectoryInfo[] trajectoryInfo) {
 
         AffineTransform originalTransform = g.getTransform();
         double scaleFactor = 1000;
@@ -95,17 +95,21 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         g.scale(1 / scaleFactor, 1 / scaleFactor);
 
         // Disegna con precisione maggiore
-        g.setStroke(new BasicStroke((int) scaleFactor));
+        g.setStroke(new BasicStroke((int) scaleFactor * 2));
         g.setColor(Color.LIGHT_GRAY);
 
-        // Moltiplica manualmente le coordinate per il fattore di scala
-        g.drawLine(
-                (int) (trajectoryInfo.startX * scaleFactor),
-                (int) (trajectoryInfo.startY * scaleFactor),
-                (int) (trajectoryInfo.directionX * scaleFactor),
-                (int) (trajectoryInfo.directionY * scaleFactor));
+        for (int i = 0; i < trajectoryInfo.length; i++) {
 
-        g.draw(new Ellipse2D.Double((trajectoryInfo.directionX - BALL_RADIUS)* scaleFactor , (trajectoryInfo.directionY - BALL_RADIUS) * scaleFactor,
+            g.drawLine(
+                    (int) (trajectoryInfo[i].startX * scaleFactor),
+                    (int) (trajectoryInfo[i].startY * scaleFactor),
+                    (int) (trajectoryInfo[i].directionX * scaleFactor),
+                    (int) (trajectoryInfo[i].directionY * scaleFactor));
+
+        }
+
+        g.draw(new Ellipse2D.Double((trajectoryInfo[0].directionX - BALL_RADIUS) * scaleFactor,
+                (trajectoryInfo[0].directionY - BALL_RADIUS) * scaleFactor,
                 2 * BALL_RADIUS * scaleFactor, 2 * BALL_RADIUS * scaleFactor));
 
         // Ripristina il contesto grafico originale

@@ -5,8 +5,6 @@ import it.unibs.pajc.fieldcomponents.BallInfo;
 import it.unibs.pajc.fieldcomponents.GameFieldObject;
 import it.unibs.pajc.fieldcomponents.Stick;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.awt.geom.AffineTransform;
@@ -120,13 +118,13 @@ public class BilliardController {
         model.hitBall();
     }
 
-    public TrajectoryInfo calculateTrajectory() {
+    public TrajectoryInfo[] calculateTrajectory() {
         double angle = Math.toRadians(model.getStick().getAngleDegrees() + 180);
         double dx = Math.cos(angle);
         double dy = Math.sin(angle);
 
-        double startX = model.getCueBall().getX() + model.getCueBall().getRadius() * dx;
-        double startY = model.getCueBall().getY() + model.getCueBall().getRadius() * dy;
+        double startX = model.getCueBall().getX();
+        double startY = model.getCueBall().getY();
 
         // Inizializza le coordinate finali
         double endX = Double.MAX_VALUE;
@@ -134,9 +132,9 @@ public class BilliardController {
 
         // Bordo sinistro (x = INNER_MARGIN)
         if (dx != 0) {
-            double t = (INNER_MARGIN - startX) / dx;
+            double t = (INNER_MARGIN + BALL_RADIUS - startX) / dx; // Aggiunto il raggio
             double y = startY + t * dy;
-            if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
+            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS) {
                 endX = INNER_MARGIN + BALL_RADIUS;
                 endY = y;
             }
@@ -144,9 +142,9 @@ public class BilliardController {
 
         // Bordo destro (x = INNER_FIELD_LIMIT_X)
         if (dx != 0) {
-            double t = (INNER_FIELD_LIMIT_X - startX) / dx;
+            double t = (INNER_FIELD_LIMIT_X - BALL_RADIUS - startX) / dx; // Tolto il raggio
             double y = startY + t * dy;
-            if (t > 0 && y >= INNER_MARGIN && y <= INNER_FIELD_LIMIT_Y) {
+            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS) {
                 endX = INNER_FIELD_LIMIT_X - BALL_RADIUS;
                 endY = y;
             }
@@ -154,9 +152,9 @@ public class BilliardController {
 
         // Bordo superiore (y = INNER_MARGIN)
         if (dy != 0) {
-            double t = (INNER_MARGIN - startY) / dy;
+            double t = (INNER_MARGIN + BALL_RADIUS - startY) / dy; // Aggiunto il raggio
             double x = startX + t * dx;
-            if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
+            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS) {
                 endX = x;
                 endY = INNER_MARGIN + BALL_RADIUS;
             }
@@ -164,9 +162,9 @@ public class BilliardController {
 
         // Bordo inferiore (y = INNER_FIELD_LIMIT_Y)
         if (dy != 0) {
-            double t = (INNER_FIELD_LIMIT_Y - startY) / dy;
+            double t = (INNER_FIELD_LIMIT_Y - BALL_RADIUS - startY) / dy; // Tolto il raggio
             double x = startX + t * dx;
-            if (t > 0 && x >= INNER_MARGIN && x <= INNER_FIELD_LIMIT_X) {
+            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS) {
                 endX = x;
                 endY = INNER_FIELD_LIMIT_Y - BALL_RADIUS;
             }
@@ -184,6 +182,11 @@ public class BilliardController {
 
         double shortestDistance = Double.MAX_VALUE;
 
+        TrajectoryInfo[] trajectories = new TrajectoryInfo[3];
+
+        trajectories[1] = new TrajectoryInfo(0, 0, 0, 0);
+        trajectories[2] = new TrajectoryInfo(0, 0, 0, 0);
+
         for (Ball ball : model.getBalls()) {
             if (ball.checkCollision(trajectory)) {
                 if (ball.equals(model.getCueBall())) {
@@ -199,12 +202,21 @@ public class BilliardController {
                         shortestDistance = distance;
                         endX = intersection.getX();
                         endY = intersection.getY();
+
+                        TrajectoryInfo[] deflectedTrajectories = calculateCollisionTrajectories(intersection,
+                                getCueBall(), ball, angle);
+
+                        trajectories[1] = deflectedTrajectories[0];
+                        trajectories[2] = deflectedTrajectories[1];
+
                     }
                 }
             }
         }
 
-        return new TrajectoryInfo(startX, startY, endX, endY);
+        trajectories[0] = new TrajectoryInfo(startX, startY, endX, endY);
+
+        return trajectories;
     }
 
     private Point2D getCircleCircleIntersection(double x1, double y1, double dx, double dy,
@@ -240,6 +252,52 @@ public class BilliardController {
         double intersectionY = closestY - impactDistance * dy;
 
         return new Point2D.Double(intersectionX, intersectionY);
+    }
+
+    public TrajectoryInfo[] calculateCollisionTrajectories(Point2D impactPoint, Ball cueBall, Ball targetBall,
+            double trajectoryAngle) {
+        // Calcolo della traiettoria della target ball dopo l'impatto
+        double dx = targetBall.getX() - impactPoint.getX();
+        double dy = targetBall.getY() - impactPoint.getY();
+
+        double angleToTarget = Math.atan2(dy, dx); // Calcolo dell'angolo dalla posizione di impatto
+
+        // Lunghezza variabile della traiettoria in base all'angolo
+        double targetBallDistance = Math.abs(Math.cos(trajectoryAngle - angleToTarget)) * 80;
+
+        double targetEndX = impactPoint.getX() + targetBallDistance * Math.cos(angleToTarget);
+        double targetEndY = impactPoint.getY() + targetBallDistance * Math.sin(angleToTarget);
+
+        // Creazione della traiettoria della pallina colpita
+        TrajectoryInfo targetBallTrajectory = new TrajectoryInfo(
+                impactPoint.getX(),
+                impactPoint.getY(),
+                targetEndX,
+                targetEndY);
+
+        // Calcolo della traiettoria della cue ball dopo l'impatto (scegliendo
+        // dinamicamente +90° o -90°)
+        double cueAngle;
+        double crossProduct = dx * Math.sin(trajectoryAngle) - dy * Math.cos(trajectoryAngle);
+        if (crossProduct > 0) {
+            cueAngle = angleToTarget + Math.PI / 2; // Sfasata di +90°
+        } else {
+            cueAngle = angleToTarget - Math.PI / 2; // Sfasata di -90°
+        }
+
+        // Lunghezza variabile della traiettoria della cue ball in base all'angolo
+        double cueBallDistance = Math.abs(Math.sin(trajectoryAngle - angleToTarget)) * 80;
+        double cueEndX = impactPoint.getX() + cueBallDistance * Math.cos(cueAngle);
+        double cueEndY = impactPoint.getY() + cueBallDistance * Math.sin(cueAngle);
+
+        // Creazione della traiettoria della cue ball
+        TrajectoryInfo cueBallTrajectory = new TrajectoryInfo(
+                impactPoint.getX(),
+                impactPoint.getY(),
+                cueEndX,
+                cueEndY);
+
+        return new TrajectoryInfo[] { cueBallTrajectory, targetBallTrajectory };
     }
 
     public void resetCueBallPosition(int x, int y) {
