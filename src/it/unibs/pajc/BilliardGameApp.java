@@ -15,7 +15,7 @@ public class BilliardGameApp {
     private JFrame frame;
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(()-> {
+        EventQueue.invokeLater(() -> {
             BilliardGameApp window = new BilliardGameApp();
             window.frame.setVisible(true);
         });
@@ -36,16 +36,27 @@ public class BilliardGameApp {
     public void initialize() {
         frame = new JFrame("Billiard Game");
         GameView gameView = new GameView(cntrl);
-        frame.add(gameView);
+        frame.add(gameView, BorderLayout.CENTER);
         frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+
+        frame.setAlwaysOnTop(true);
+        frame.setResizable(false);
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) (screenSize.getWidth() / 2 - frame.getWidth() / 2);
+        int y = (int) (screenSize.getHeight() / 2 - frame.getHeight() / 2);
+
+        frame.setLocation(x, y);
+
     }
 
     private void modelUpdated(ChangeEvent e) {
-        Runnable task = () -> frame.repaint();;
+        Runnable task = () -> frame.repaint();
+        ;
 
-        if(EventQueue.isDispatchThread())
+        if (EventQueue.isDispatchThread())
             task.run();
         else
             SwingUtilities.invokeLater(task);
