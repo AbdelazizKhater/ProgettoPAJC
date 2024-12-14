@@ -311,6 +311,23 @@ public class BilliardController {
         }
     }
 
+    public boolean isAnyBallInSight(int x, int y) {
+
+
+        for (Ball ball : model.getBalls()) {
+            double dx = ball.getX() - x;
+            double dy = ball.getY() - y;
+            double distanceSquared = dx * dx + dy * dy;
+
+            double combinedRadiusSquared = Math.pow(ball.getRadius(), 2) * 4;
+
+            if (distanceSquared <= combinedRadiusSquared) {
+                return true; 
+            }
+        }
+        return false;
+    }
+
     public boolean cueBallNeedsReposition() {
         return model.getCueBall().needsReposition();
     }

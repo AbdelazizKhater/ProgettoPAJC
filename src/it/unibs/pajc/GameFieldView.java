@@ -207,7 +207,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     private void visualizeCueBallReposition(Graphics2D g2) {
         if (mousePoint != null) {
-            if (isWithinBounds(mousePoint.x, mousePoint.y)) {
+            if (isWithinBounds(mousePoint.x, mousePoint.y) && !cntrl.isAnyBallInSight(mousePoint.x, mousePoint.y)) {
                 g2.setColor(Color.WHITE);
             } else {
                 // Pallina out of bounds
@@ -261,7 +261,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         dragStartY = mouseY;
         isCharging = true;
 
-        if (isWithinBounds(mouseX, mouseY)) {
+        if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY)) {
             cntrl.resetCueBallPosition(mouseX, mouseY);
         }
     }
