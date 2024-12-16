@@ -41,21 +41,21 @@ public class CostantiStatiche {
         public static final int[][] X_POINTS_TRAPEZI = {
                         // TRAPEZIO 1
                         { BORDER_WIDTH + BIG_POCKET_RADIUS, TABLE_WIDTH / 2 - POCKET_RADIUS,
-                                        TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 2,
+                                        TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 6,
                                         BORDER_WIDTH + POCKET_RADIUS * 2 },
                         // TRAPEZIO 2
                         { TABLE_WIDTH / 2 + POCKET_RADIUS, TABLE_WIDTH - BIG_POCKET_RADIUS - BORDER_WIDTH,
                                         TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS * 2,
-                                        TABLE_WIDTH / 2 + POCKET_RADIUS + BORDER_WIDTH / 2 },
+                                        TABLE_WIDTH / 2 + POCKET_RADIUS + BORDER_WIDTH / 6 },
                         // TRAPEZIO 3
                         { BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH / 2, BORDER_WIDTH + BORDER_WIDTH / 2,
                                         BORDER_WIDTH },
                         // TRAPEZIO 4
                         { BORDER_WIDTH + POCKET_RADIUS * 2,
-                                        TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 2,
+                                        TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 6,
                                         TABLE_WIDTH / 2 - POCKET_RADIUS, BORDER_WIDTH + BIG_POCKET_RADIUS },
                         // TRAPEZIO 5
-                        { TABLE_WIDTH / 2 + POCKET_RADIUS * 2, TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS * 2,
+                        { TABLE_WIDTH / 2 + POCKET_RADIUS + BORDER_WIDTH / 6, TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS * 2,
                                         TABLE_WIDTH - BIG_POCKET_RADIUS - BORDER_WIDTH,
                                         TABLE_WIDTH / 2 + POCKET_RADIUS },
                         // TRAPEZIO 6
