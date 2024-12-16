@@ -21,14 +21,30 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     public static final int MAX_POWER = 80;
     private Boolean isHitting = false;
     private Point mousePoint;
+    private Image backgroundImage;
 
     private final BilliardController cntrl;
 
     public GameFieldView(BilliardController cntrl) {
         this.cntrl = cntrl;
+        loadImage();
 
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
+    }
+
+    private void loadImage() {
+        // Replace "background.jpg" with your actual image file path
+        backgroundImage = Toolkit.getDefaultToolkit().getImage("resources/background.png");
+
+        // Ensures the image is fully loaded
+        MediaTracker tracker = new MediaTracker(this);
+        tracker.addImage(backgroundImage, 0);
+        try {
+            tracker.waitForAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -37,33 +53,10 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        if (backgroundImage != null) {
+            g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
         // Draw table background
-        g2.setColor(new Color(34, 139, 34));
-        g2.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
-
-        // Draw brown borders
-        g2.setColor(new Color(139, 69, 19));
-        g2.fillRect(0, 0, BORDER_WIDTH, TABLE_HEIGHT);
-        g2.fillRect(TABLE_WIDTH - BORDER_WIDTH, 0, BORDER_WIDTH, TABLE_HEIGHT);
-        g2.fillRect(0, 0, TABLE_WIDTH, BORDER_WIDTH);
-        g2.fillRect(0, TABLE_HEIGHT - BORDER_WIDTH, TABLE_WIDTH, BORDER_WIDTH);
-
-        g2.setColor(new Color(109, 39, 9));
-
-        // Disegno trapezi
-        for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
-            g2.fillPolygon(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i], 4);
-        }
-
-        // Draw pockets
-        g2.setColor(Color.BLACK);
-        for (int[] pocket : POCKET_POSITIONS) {
-            int x = pocket[0];
-            int y = pocket[1];
-            int width = pocket[2];
-            int height = pocket[3];
-            g2.fillOval(x, y, width, height);
-        }
 
         // Draw each ball
         for (BallInfo ballInfo : cntrl.getBallInfos()) {
