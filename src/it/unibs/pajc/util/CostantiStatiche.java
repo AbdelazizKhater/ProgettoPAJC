@@ -51,11 +51,11 @@ public class CostantiStatiche {
                         { BORDER_WIDTH, BORDER_WIDTH + BORDER_WIDTH / 2, BORDER_WIDTH + BORDER_WIDTH / 2,
                                         BORDER_WIDTH },
                         // TRAPEZIO 4
-                        { BORDER_WIDTH + POCKET_RADIUS + BORDER_WIDTH / 2,
+                        { BORDER_WIDTH + POCKET_RADIUS * 2,
                                         TABLE_WIDTH / 2 - POCKET_RADIUS - BORDER_WIDTH / 2,
                                         TABLE_WIDTH / 2 - POCKET_RADIUS, BORDER_WIDTH + BIG_POCKET_RADIUS },
                         // TRAPEZIO 5
-                        { TABLE_WIDTH / 2 + POCKET_RADIUS * 2, TABLE_WIDTH - BIG_POCKET_RADIUS * 2 - BORDER_WIDTH,
+                        { TABLE_WIDTH / 2 + POCKET_RADIUS * 2, TABLE_WIDTH - BORDER_WIDTH - POCKET_RADIUS * 2,
                                         TABLE_WIDTH - BIG_POCKET_RADIUS - BORDER_WIDTH,
                                         TABLE_WIDTH / 2 + POCKET_RADIUS },
                         // TRAPEZIO 6
