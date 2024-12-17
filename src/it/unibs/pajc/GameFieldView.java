@@ -13,6 +13,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
@@ -22,7 +23,8 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     private Boolean isHitting = false;
     private Point mousePoint;
     private Image backgroundImage;
-
+    private Image redStickImage;
+    private Image blueStickImage;
     private final BilliardController cntrl;
 
     public GameFieldView(BilliardController cntrl) {
@@ -36,6 +38,8 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     private void loadImage() {
         // Replace "background.jpg" with your actual image file path
         backgroundImage = Toolkit.getDefaultToolkit().getImage("resources/background.png");
+        redStickImage = Toolkit.getDefaultToolkit().getImage("resources/red_stick.png");
+        blueStickImage = Toolkit.getDefaultToolkit().getImage("resources/blue_stick.png");
 
         // Ensures the image is fully loaded
         MediaTracker tracker = new MediaTracker(this);
@@ -70,7 +74,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
             // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
             if (!cntrl.cueBallNeedsReposition()) {
-                drawStick(g2, cntrl.getCueBall(), cntrl.getStick());
+                drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayer().getId() == 1 ? blueStickImage : redStickImage);
                 drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
                 visualizeCueBallReposition(g2);
@@ -211,25 +215,27 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         }
     }
 
-    private void drawStick(Graphics2D g, Ball cueBall, Stick stick) {
-        g.setStroke(new BasicStroke(10));
-        if (cntrl.getCurrentPlayer().getId() == 1) {
-            g.setColor(Color.RED);
-        } else {
-            g.setColor(Color.BLUE);
-        }
-
+    private void drawStick(Graphics2D g, Ball cueBall, Stick stick, Image stickImage) {
+        // Calculate the stick's position and rotation
         double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower();
-        double stickLength = 300; // Lunghezza totale della stecca
+        double stickAngleRadians = Math.toRadians(stick.getAngleDegrees()) ;
+        double stickX = cueBall.getX() + stickDistance * Math.cos(stickAngleRadians);
+        double stickY = cueBall.getY() + stickDistance * Math.sin(stickAngleRadians);
 
-        double startX = cueBall.getX() + stickDistance * Math.cos(Math.toRadians(stick.getAngleDegrees()));
-        double startY = cueBall.getY() + stickDistance * Math.sin(Math.toRadians(stick.getAngleDegrees()));
-        double endX = cueBall.getX()
-                + (stickDistance + stickLength) * Math.cos(Math.toRadians(stick.getAngleDegrees()));
-        double endY = cueBall.getY()
-                + (stickDistance + stickLength) * Math.sin(Math.toRadians(stick.getAngleDegrees()));
+        // Save the original transform
+        AffineTransform originalTransform = g.getTransform();
 
-        g.drawLine((int) startX, (int) startY, (int) endX, (int) endY);
+        // Move to the stick's position and rotate around its top-left corner
+        g.translate(stickX, stickY);
+        g.rotate(stickAngleRadians + Math.PI/2);
+
+        // Center the stick image relative to its width (13 pixels)
+        int stickWidth = 13;
+        int stickHeight = 421;
+        g.drawImage(stickImage, -stickWidth / 2, -stickHeight, stickWidth, stickHeight, this);
+
+        // Restore the original transform
+        g.setTransform(originalTransform);
     }
 
     public void releaseStick() {

@@ -68,7 +68,6 @@ public class GameField extends BaseModel {
             resetRound();
 
         // Numero di thread = numero di core disponibili
-
         for (int i = 0; i < balls.size(); i++) {
             final int index = i; // Variabile finale per l'uso nel task
             final Ball ball = balls.get(index);
