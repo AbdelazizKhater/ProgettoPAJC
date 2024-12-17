@@ -70,7 +70,6 @@ public class BilliardController {
     }
 
     public void handleMouseDragged(double deltaX, double deltaY) {
-
         Stick stick = model.getStick();
 
         double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
