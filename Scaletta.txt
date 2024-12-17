@@ -1,8 +1,5 @@
-1- Trapezi per le buche
-2- Stick, scelta potenza e vettore
-3- Collisione con le buche
-4- Due player e turni iniziali
-5- Impostazione regole
-6- Connessione server
-7- Grafica migliorata con menu iniziale
- 
+1- Turno iniziale (spostare pallina)
+2- Menu principale e schermata end game
+3- Vari label per avvisi (p1 biglie striate, foul riposizionare pallina)
+4- Sound effect e soundtrack
+5- Connessione server
