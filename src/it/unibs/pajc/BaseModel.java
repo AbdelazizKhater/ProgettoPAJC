@@ -5,14 +5,6 @@ import javax.swing.event.*;
 public class BaseModel {
     protected EventListenerList list = new EventListenerList();
 
-    public void addChangeListener(ChangeListener l) {
-        list.add(ChangeListener.class, l);
-    }
-
-    public void removeChangeListener(ChangeListener l) {
-        list.remove(ChangeListener.class, l);
-    }
-
     protected void fireChangeListener() {
         ChangeEvent e = new ChangeEvent(this);
 

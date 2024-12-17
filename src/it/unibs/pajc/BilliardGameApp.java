@@ -28,8 +28,6 @@ public class BilliardGameApp {
         model.addPlayer2(p2);
         cntrl = new BilliardController(model);
 
-        model.addChangeListener(this::modelUpdated);
-
         initialize();
     }
 
@@ -53,13 +51,5 @@ public class BilliardGameApp {
 
     }
 
-    private void modelUpdated(ChangeEvent e) {
-        Runnable task = () -> frame.repaint();
-        ;
 
-        if (EventQueue.isDispatchThread())
-            task.run();
-        else
-            SwingUtilities.invokeLater(task);
-    }
 }
