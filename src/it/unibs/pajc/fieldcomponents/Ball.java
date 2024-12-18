@@ -36,10 +36,10 @@ public class Ball extends GameFieldObject {
         vy *= friction;
 
         // Stop ball if velocity is very low
-        if (Math.abs(vx) < 0.1)
+        if (Math.abs(vx) < 0.1 && Math.abs(vy) < 0.1) {
             vx = 0;
-        if (Math.abs(vy) < 0.1)
             vy = 0;
+        }
     }
 
     public boolean handleCollisionWithPocket(Pocket pocket) {

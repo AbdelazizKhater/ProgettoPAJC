@@ -20,7 +20,7 @@ import static it.unibs.pajc.GameStatus.*;
 /**
  *
  */
-public class GameField extends BaseModel {
+public class GameField {
 
     private final ArrayList<Ball> balls;
     private final ArrayList<Ball> pottedBalls;
@@ -67,7 +67,6 @@ public class GameField extends BaseModel {
         if (!evaluationTriggered && status == roundStart)
             resetRound();
 
-        // Numero di thread = numero di core disponibili
         for (int i = 0; i < balls.size(); i++) {
             final int index = i; // Variabile finale per l'uso nel task
             final Ball ball = balls.get(index);
@@ -109,7 +108,6 @@ public class GameField extends BaseModel {
     public void startNewGame() {
         // Il primo turno viene assegnato a caso tra i due giocatori
         currentPlayerIndx = rnd.nextInt(2);
-        fireChangeListener();
     }
 
     public Player getCurrentPlayer() {
@@ -124,7 +122,6 @@ public class GameField extends BaseModel {
     private void swapPlayers() {
         currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
         System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
-        fireChangeListener();
     }
 
     private void setupInitialPositions() {
@@ -295,6 +292,7 @@ public class GameField extends BaseModel {
         if (idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
             swapPlayers();
         } else if (!ballsAssigned && roundCounter > 1) {
+            //Si entra nell'if se una pallina è stata messa in buca, e vengono assegnate se non è ancora successo
             assignBallType();
         }
         checkIf8BallPotted();
