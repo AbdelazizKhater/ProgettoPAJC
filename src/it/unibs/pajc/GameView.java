@@ -31,8 +31,6 @@ public class GameView extends JPanel {
 
             long elapsedTime = (System.nanoTime() - startTime) / 1_000_000; // Tempo in ms
 
-            if(elapsedTime > 4) System.out.println(elapsedTime);
-
             // Calcola il tempo rimanente per il prossimo frame
             int delay = Math.max(1, 8 - (int) elapsedTime);
 
