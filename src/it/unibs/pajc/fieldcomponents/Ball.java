@@ -160,6 +160,12 @@ public class Ball extends GameFieldObject {
         other.vy = newV2n * ny + v2t * ty;
     }
 
+    @Override
+    public String toString() {
+        // TODO Auto-generated method stub
+        return "@" + getX() + "@" + getY();
+    }
+
     public void setVx(double vx) {
         this.vx = vx;
     }

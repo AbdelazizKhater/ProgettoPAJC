@@ -205,6 +205,18 @@ public class GameField {
         return pottedBallsId;
     }
 
+    /**
+     * Creazione stringa con posizioni di tutte le palline, che verra in seguito invitato al server
+     * @return String con informazioni sulle coordiante delle palline
+     */
+    public String messaggioPos() {
+        StringBuilder string = new StringBuilder();
+        for (Ball ball : balls) {
+            string.append(ball.toString()).append("\n");
+        }
+        return string.toString();
+    }
+
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {

@@ -1,8 +1,13 @@
 package it.unibs.pajc;
 
+import it.unibs.pajc.clientserver.Client;
+import it.unibs.pajc.clientserver.Server;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.net.UnknownHostException;
 
 import static it.unibs.pajc.util.CostantiStatiche.*;
 
@@ -22,13 +27,76 @@ public class BilliardGameApp {
     }
 
     public BilliardGameApp() {
-        Player p1 = new Player("P1");
-        Player p2 = new Player("P2");
+        startGameMenu();
+    }
+
+    private void startGameMenu() {
+        frame = new JFrame();
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //frame.requestFocus();
+        frame.setResizable(false);
+        centerFrame(frame);
+
+
+        JPanel menuPanel = new JPanel();
+        menuPanel.setBackground(Color.GRAY);
+        frame.getContentPane().add(menuPanel, BorderLayout.CENTER);
+        menuPanel.setLayout(null);
+
+        JLabel lblTitle = new JLabel("Uni Ball Pool");
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Arial Black", Font.PLAIN, 70));
+        lblTitle.setBounds(291, 47, 673, 153);
+        menuPanel.add(lblTitle);
+
+        JButton btnSinglePlayer = new JButton("SINGLE PLAYER");
+        btnSinglePlayer.setFont(new Font("Arial Black", Font.PLAIN, 30));
+        btnSinglePlayer.setBounds(236, 244, 728, 96);
+        menuPanel.add(btnSinglePlayer);
+        btnSinglePlayer.addActionListener(this::startLocalGame);
+
+
+        //TODO
+        JButton btnStartServer = new JButton("START SERVER");
+        btnStartServer.addActionListener(e -> {
+            try {
+                startServer(e);
+            } catch (UnknownHostException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        btnStartServer.setFont(new Font("Arial Black", Font.PLAIN, 30));
+        btnStartServer.setBounds(236, 340, 364, 96);
+        menuPanel.add(btnStartServer);
+
+        JButton btnJoinGame = new JButton("JOIN GAME");
+        btnJoinGame.addActionListener(this::joinGame);
+        btnJoinGame.setFont(new Font("Arial Black", Font.PLAIN, 30));
+        btnJoinGame.setBounds(600, 340, 364, 96);
+        menuPanel.add(btnJoinGame);
+
+    }
+
+    private void startLocalGame(ActionEvent e) {
+        frame.getContentPane().removeAll();
+        frame.setVisible(false);
+        Player p1 = new Player("PLAYER BLUE");
+        Player p2 = new Player("PLAYER RED");
         model = new GameField(p1);
         model.addPlayer2(p2);
         cntrl = new BilliardController(model);
 
         initialize();
+    }
+
+    private void startServer(ActionEvent e) throws UnknownHostException {
+        Server server = new Server();
+        server.start();
+    }
+
+    private void joinGame(ActionEvent e) {
+        Client client = new Client(serverAddress, portNumber, userName)
     }
 
     public void initialize() {
@@ -40,16 +108,17 @@ public class BilliardGameApp {
         frame.setVisible(true);
 
         frame.setAlwaysOnTop(true);
+        centerFrame(frame);
+    }
+
+    public void centerFrame(JFrame frame) {
         frame.setResizable(false);
-        
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) (screenSize.getWidth() / 2 - frame.getWidth() / 2);
         int y = (int) (screenSize.getHeight() / 2 - frame.getHeight() / 2);
 
         frame.setLocation(x, y);
-
     }
-
 
 }

@@ -57,4 +57,6 @@ public class GameFieldObject {
         this.x = x;
         this.y = y;
     }
+
+
 }
