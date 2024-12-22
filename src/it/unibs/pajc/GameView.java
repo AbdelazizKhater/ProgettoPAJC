@@ -2,6 +2,7 @@ package it.unibs.pajc;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.IOException;
 
 import javax.swing.*;
 

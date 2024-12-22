@@ -163,23 +163,7 @@ public class Ball extends GameFieldObject {
     @Override
     public String toString() {
         // TODO Auto-generated method stub
-        return "@" + getX() + "@" + getY();
-    }
-
-    public void setVx(double vx) {
-        this.vx = vx;
-    }
-
-    public void setVy(double vy) {
-        this.vy = vy;
-    }
-
-    public double getVx() {
-        return vx;
-    }
-
-    public double getVy() {
-        return vy;
+        return getX() + "@" + getY();
     }
 
     public void applyVelocity(double[] velocity) {

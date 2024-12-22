@@ -1,13 +1,10 @@
 package it.unibs.pajc;
 
-import it.unibs.pajc.clientserver.Client;
-import it.unibs.pajc.clientserver.Server;
+//import it.unibs.pajc.clientserver.Client;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.net.UnknownHostException;
 
 import static it.unibs.pajc.util.CostantiStatiche.*;
 
@@ -57,23 +54,10 @@ public class BilliardGameApp {
         btnSinglePlayer.addActionListener(this::startLocalGame);
 
 
-        //TODO
-        JButton btnStartServer = new JButton("START SERVER");
-        btnStartServer.addActionListener(e -> {
-            try {
-                startServer(e);
-            } catch (UnknownHostException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        btnStartServer.setFont(new Font("Arial Black", Font.PLAIN, 30));
-        btnStartServer.setBounds(236, 340, 364, 96);
-        menuPanel.add(btnStartServer);
-
         JButton btnJoinGame = new JButton("JOIN GAME");
         btnJoinGame.addActionListener(this::joinGame);
         btnJoinGame.setFont(new Font("Arial Black", Font.PLAIN, 30));
-        btnJoinGame.setBounds(600, 340, 364, 96);
+        btnJoinGame.setBounds(236, 400, 728, 96);
         menuPanel.add(btnJoinGame);
 
     }
@@ -83,20 +67,16 @@ public class BilliardGameApp {
         frame.setVisible(false);
         Player p1 = new Player("PLAYER BLUE");
         Player p2 = new Player("PLAYER RED");
-        model = new GameField(p1);
-        model.addPlayer2(p2);
+        model = new GameField();
+        model.addPlayer(p1);
+        model.addPlayer(p2);
         cntrl = new BilliardController(model);
 
         initialize();
     }
 
-    private void startServer(ActionEvent e) throws UnknownHostException {
-        Server server = new Server();
-        server.start();
-    }
-
     private void joinGame(ActionEvent e) {
-        Client client = new Client(serverAddress, portNumber, userName)
+        //Client client = new Client(serverAddress, portNumber, userName)
     }
 
     public void initialize() {

@@ -7,12 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class HomePage extends JFrame {
-
-    public static final String MSG_NOME = "Inserisci qui il tuo username";
-    public static final String ERRORE_NOME = "INSERIRE IL NOME";
-    public static final String ERRORE_IP = "IP SERVER NON CORRETTO";
 
     private JPanel contentPane;
     private JTextField txtIp;
@@ -52,15 +49,13 @@ public class HomePage extends JFrame {
 
         JButton btnLocal = new JButton("LocalHost");
         btnLocal.setFont(new Font("Arial", Font.BOLD, 14));
-        btnLocal.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (!(txtUser.getText().isEmpty() || txtUser.getText().equals(MSG_NOME) || txtUser.getText().equals(ERRORE_NOME))) {
-                    Client.avvioClient(1500, "localhost", txtUser.getText());
-                    setVisible(false);
-                } else {
-                    txtUser.setText(ERRORE_NOME);
-                    txtUser.setBackground(Color.RED);
-                }
+        btnLocal.addActionListener(e -> {
+            if (!(txtUser.getText().isEmpty() || txtUser.getText().equals(MSG_NOME) || txtUser.getText().equals(ERRORE_NOME))) {
+                Client.avvioClient(PORT, "localhost", txtUser.getText());
+                setVisible(false);
+            } else {
+                txtUser.setText(ERRORE_NOME);
+                txtUser.setBackground(Color.RED);
             }
         });
         btnLocal.setBounds(10, 142, 174, 48);
@@ -85,20 +80,18 @@ public class HomePage extends JFrame {
         btnEsterno = new JButton("Server Esterno");
         btnEsterno.setFont(new Font("Arial", Font.BOLD, 14));
 
-        btnEsterno.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (isValidIp(txtIp.getText()) && !txtUser.getText().isEmpty() && !txtUser.getText().equals(MSG_NOME) && !txtUser.getText().equals(ERRORE_NOME)) {
-                    Client.avvioClient(1500, txtIp.getText(), txtUser.getText());
-                    setVisible(false);
-                } else {
-                    if(!isValidIp(txtIp.getText())){
-                        txtIp.setText(ERRORE_IP);
-                        txtIp.setBackground(Color.RED);
-                    }
-                    else{
-                        txtUser.setText(ERRORE_NOME);
-                        txtUser.setBackground(Color.RED);
-                    }
+        btnEsterno.addActionListener(e -> {
+            if (isValidIp(txtIp.getText()) && !txtUser.getText().isEmpty() && !txtUser.getText().equals(MSG_NOME) && !txtUser.getText().equals(ERRORE_NOME)) {
+                Client.avvioClient(PORT, txtIp.getText(), txtUser.getText());
+                setVisible(false);
+            } else {
+                if(!isValidIp(txtIp.getText())){
+                    txtIp.setText(ERRORE_IP);
+                    txtIp.setBackground(Color.RED);
+                }
+                else{
+                    txtUser.setText(ERRORE_NOME);
+                    txtUser.setBackground(Color.RED);
                 }
             }
         });

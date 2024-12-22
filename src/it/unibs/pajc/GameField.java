@@ -36,8 +36,9 @@ public class GameField {
     private int idBallHit = -1;
     private int idFirstBallPocketed = -1;
     private int roundCounter;
+    private int playerCount;
 
-    public GameField(Player p) {
+    public GameField() {
         balls = new ArrayList<>();
         pottedBalls = new ArrayList<>();
         trapezoids = new ArrayList<>();
@@ -46,10 +47,9 @@ public class GameField {
         stick = new Stick();
         cueBall = new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0);
         // Inizializzato il primo giocatore con indice 0
-        players[0] = p;
         currentPlayerIndx = 0;
         roundCounter = 0;
-
+        playerCount = 0;
         // Registra un hook di shutdown per chiudere l'executor alla chiusura del
         // programma
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -98,9 +98,10 @@ public class GameField {
         }
     }
 
-    public void addPlayer2(Player p) {
-        players[1] = p;
-        startNewGame();
+    public void addPlayer(Player p) {
+        players[playerCount] = p;
+        playerCount++;
+        if (playerCount == 1) startNewGame();
     }
 
     private final Random rnd = new Random();
@@ -125,9 +126,6 @@ public class GameField {
     }
 
     private void setupInitialPositions() {
-        // Radius of each ball
-        int ballRadius = 15;
-
         // Definizione area di ogni trapezio
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
             trapezoids.add(new Trapezoid(X_POINTS_TRAPEZI[i], Y_POINTS_TRAPEZI[i]));
@@ -179,8 +177,8 @@ public class GameField {
         int numberIndex = 0;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col <= row; col++) {
-                double x = startX + row * (ballRadius * 2 * Math.sqrt(3) / 2);
-                double y = startY - row * ballRadius + col * ballRadius * 2;
+                double x = startX + row * (BALL_RADIUS * 2 * Math.sqrt(3) / 2);
+                double y = startY - row * BALL_RADIUS + col * BALL_RADIUS * 2;
                 balls.add(new Ball(x, y, 0, 0, ballNumbers.get(numberIndex++)));
             }
         }

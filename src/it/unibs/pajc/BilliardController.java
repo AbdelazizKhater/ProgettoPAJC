@@ -100,13 +100,16 @@ public class BilliardController {
         stick.setAngleDegrees(angle);
     }
 
-    public void updateStickPower(double deltaX, double deltaY) {
-        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    public void updateStickPower(double distance) {
         model.getStick().setPower(Math.min(distance, Stick.MAX_POWER));
     }
 
     public boolean isStickCharged() {
         return model.getStick().getPower() > 2;
+    }
+
+    public double stickAngleDirection() {
+        return model.getStick().getAngleDegrees();
     }
 
     public boolean reduceStickVisualPowerForAnimation() {
@@ -311,8 +314,6 @@ public class BilliardController {
     }
 
     public boolean isAnyBallInSight(int x, int y) {
-
-
         for (Ball ball : model.getBalls()) {
             double dx = ball.getX() - x;
             double dy = ball.getY() - y;

@@ -16,6 +16,11 @@ public class CostantiStatiche {
         public static final double INNER_MARGIN = BORDER_WIDTH * 1.5;
         public static final double INNER_FIELD_LIMIT_X = TABLE_WIDTH - INNER_MARGIN;
         public static final double INNER_FIELD_LIMIT_Y = TABLE_HEIGHT - INNER_MARGIN;
+        public static final String MSG_NOME = "Inserisci qui il tuo username";
+        public static final String ERRORE_NOME = "INSERIRE IL NOME";
+        public static final String ERRORE_IP = "IP SERVER NON CORRETTO";
+        public static final int PORT = 1234;
+
 
         public static final Color[] BALL_COLORS = {
                         Color.WHITE, // Palla 0 (bianca)

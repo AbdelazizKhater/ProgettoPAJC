@@ -199,7 +199,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     private Color getBallColor(int number) {
         return BALL_COLORS[number];
-
     }
 
     private void visualizeCueBallReposition(Graphics2D g2) {
@@ -268,18 +267,31 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     @Override
     public void mouseDragged(MouseEvent e) {
         if (!isHitting && !cntrl.getCueBall().needsReposition()) {
+            // Get the current drag position
+            double dragX = e.getX();
+            double dragY = e.getY();
 
-            double deltaX = e.getX() - dragStartX;
-            double deltaY = e.getY() - dragStartY;
+            // Direction vector of the cue (convert angle from degrees to radians)
+            double cueAngleDegrees = cntrl.stickAngleDirection(); // Angle in degrees
+            double cueAngleRadians = Math.toRadians(cueAngleDegrees); // Convert to radians
+            double cueDirX = Math.cos(cueAngleRadians);
+            double cueDirY = Math.sin(cueAngleRadians);
 
-            cntrl.updateStickPower(deltaX, deltaY);
+            // Calculate displacement from the drag start
+            double deltaX = dragX - dragStartX;
+            double deltaY = dragY - dragStartY;
+
+            // Project displacement onto the cue's direction
+            double projection = deltaX * cueDirX + deltaY * cueDirY;
+
+            // Update stick power using the projection magnitude
+            cntrl.updateStickPower(projection);
 
         }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-
         if (cntrl.cueBallNeedsReposition()) {
             mousePoint = getMousePosition();
         } else if (!isHitting && !isCharging) {
@@ -297,12 +309,10 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
-        if (cntrl.isStickCharged())
+        if (cntrl.isStickCharged()) {
             isHitting = true;
-
+        }
         isCharging = false;
-
     }
 
     @Override

@@ -33,13 +33,21 @@ public class Server {
     /**
      * Costruttore classe Server
      */
-    public Server() throws UnknownHostException {
-        this.port = 1500;
-        clientThreadList = new ArrayList<ClientThread>();
-        frame = new ViewServer(Inet4Address.getLocalHost().getHostAddress(), port);
+    public Server(int port) throws UnknownHostException {
+        this.port = port;
+        clientThreadList = new ArrayList<>();
+    }
+
+    public static void main(String[] args) throws UnknownHostException {
+        int portNumber = 1234;
+        frame = new ViewServer(Inet4Address.getLocalHost().getHostAddress(), portNumber);
         frame.setVisible(true);
 
-        model = new GameField(new Player("Prova"));
+        model = new GameField();
+
+        //Crea l'oggetto server e lo esegue
+        Server server = new Server(portNumber);
+        server.start();
     }
 
     /**
@@ -67,7 +75,7 @@ public class Server {
                     clientThreadList.add(t);
 
                     frame.repaintPeople(clientThreadList);
-                    //broadcastFerme(clientThreadList.size());
+                    broadcastFerme(clientThreadList.size());
                     t.start();
                 } else {
                     socket.close();
@@ -78,8 +86,7 @@ public class Server {
             // chiusura del server
             try {
                 serverSocket.close();
-                for (int i = 0; i < clientThreadList.size(); ++i) {
-                    ClientThread clientThread = clientThreadList.get(i);
+                for (ClientThread clientThread : clientThreadList) {
                     try {
                         // Chiusura di DataStream
                         clientThread.sInput.close();
@@ -104,49 +111,49 @@ public class Server {
      * @param msg
      */
     private void display(String msg) {
-        String time = msg;
-        System.out.println(time);
+        System.out.println(msg);
     }
 
     //messaggio per il cambio turno (quando tutte le palline sono ferme)
 
-    private boolean broadcastFerme(int connectedClients) {
+    private void broadcastFerme(int connectedClients) {
 
         for (int i = clientThreadList.size(); --i >= 0; ) {
             ClientThread clientThread = clientThreadList.get(i);
-            String team;
+            String player;
             if (i % 2 == 0) {
-                team = "T1";
+                player = "P1";
             } else {
-                team = "T2";
+                player = "P2";
             }
-
             //TODO: figure out the fucking message
-            StringBuilder messageLf = new StringBuilder(model.messaggioPos() + connectedClients + "\n");
+            StringBuilder messageLf = new StringBuilder(model.messaggioPos() + connectedClients +
+                    "@" + player + "@" + model.getCurrentPlayer().getId() + "\n");
+
             sendMessageToAllClients(messageLf, connectedClients, clientThread, i);
         }
 
-        return true;
     }
 
     //messaggio che inviamo a tutti i client conessi in cui aggiorna la posizione, quando sono in movimento
 
-    private boolean broadcast(int connectedClients) {
+    private void broadcast(int connectedClients) {
 
         for (int i = clientThreadList.size(); --i >= 0; ) {
             ClientThread clientThread = clientThreadList.get(i);
-            String team;
+            String player;
             if (i % 2 == 0) {
-                team = "T1";
+                player = "P1";
             } else {
-                team = "T2";
+                player = "P2";
             }
+
             StringBuilder messageLf = new StringBuilder(model.messaggioPos() + connectedClients +
-                    "@" + team + "@null" + "@" + "\n");
+                    "@" + player + "@null" + "@" + "\n");
+
             sendMessageToAllClients(messageLf, connectedClients, clientThread, i);
         }
 
-        return true;
     }
 
     private void sendMessageToAllClients(StringBuilder msg, int connectedClients, ClientThread clientThread, int i) {
@@ -180,7 +187,7 @@ public class Server {
                 break;
             }
         }
-        //broadcast(clientThreadList.size());
+        broadcast(clientThreadList.size());
     }
 
 
@@ -208,12 +215,13 @@ public class Server {
                 sInput = new ObjectInputStream(socket.getInputStream());
                 // Legge il primo messaggio inviato
                 username = (String) sInput.readObject();
-                //broadcast(clientThreadList.size());
+                broadcast(clientThreadList.size());
 
             } catch (IOException e) {
                 display("Exception creating new Input/output Streams: " + e);
                 return;
             } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
             date = new Date().toString() + "\n";
         }
@@ -238,33 +246,28 @@ public class Server {
                     break;
                 }
                 // Prende il messaggio ricevuto dal client
-                String message = this.clientMessage.getMessage();
+                String message = clientMessage.getMessage();
 
-                // Azioni differenti in base all'azione scelta
-                switch (this.clientMessage.getType()) {
-                    case Message.MESSAGE:
-                        //formato messaggio x@y@distance@angle
-                        //dove x e y sono le coordinate del primo oggetto che si muove
-                        if (!message.isEmpty()) {
-                            model.cambioTurno();
-                            System.out.println("MESSAGGIO INVIATO" + message);
-                            String part[] = message.split("@");
-                            FieldObject selezionata = model.pedinaSelezionata(Double.parseDouble(part[0]), Double.parseDouble(part[1]));
-                            if (selezionata != null)
-                                selezionata.start(Integer.parseInt(part[2]), Double.parseDouble(part[3]));
-                        }
-                        timer = new Timer(10, (e) -> {
-                            if (!model.allBallsAreStationary()) {
-                                model.updateGame();
-                                broadcast(clientThreadList.size());
-                            } else {
-                                timer.stop();
-                                broadcastFerme(clientThreadList.size());
-                            }
-                        });
-                        timer.start();
-                        break;
-
+                if (clientMessage.getType() == Message.MESSAGE) {
+                    //formato messaggio switch@x@y@distance@angle dove x e y sono le coordinate della pallina bianca
+                    //Viene fatta la valutazione del round
+//                    if (!message.isEmpty()) {
+//                        System.out.println("MESSAGGIO INVIATO" + message);
+//                        String part[] = message.split("@");
+//                        FieldObject selezionata = model.pedinaSelezionata(Double.parseDouble(part[0]), Double.parseDouble(part[1]));
+//                        if (selezionata != null)
+//                            selezionata.start(Integer.parseInt(part[2]), Double.parseDouble(part[3]));
+//                    }
+//                    timer = new Timer(10, (e) -> {
+//                        if (!model.allBallsAreStationary()) {
+//                            model.updateGame();
+//                            broadcast(clientThreadList.size());
+//                        } else {
+//                            timer.stop();
+//                            broadcastFerme(clientThreadList.size());
+//                        }
+//                    });
+                    timer.start();
                 }
 
             }
