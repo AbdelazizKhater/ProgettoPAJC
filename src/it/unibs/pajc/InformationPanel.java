@@ -26,15 +26,15 @@ public class InformationPanel extends JPanel {
         super();
         this.cntrl = cntrl;
 
-        player1BallsPanel = new BallsPanel(cntrl.getPottedBallsId(), cntrl.getPlayers()[0].getName(),
-        true, false);
+        player1BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
+                cntrl.getPlayers()[0].equals(null) ? "0000" : cntrl.getPlayers()[0].getName(),
+                true, false);
 
-        player2BallsPanel = new BallsPanel(cntrl.getPottedBallsId(), cntrl.getPlayers()[1].getName(),
-        true, false);
-
+        player2BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
+                cntrl.getPlayers()[1].equals(null) ? "0000" : cntrl.getPlayers()[1].getName(),
+                true, false);
 
         this.setLayout(new GridLayout(1, 2)); // Due celle orizzontali
-
 
         JPanel player1Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0)); // Pannello centrato
         player1Panel.setBackground(Color.gray);
@@ -54,7 +54,7 @@ public class InformationPanel extends JPanel {
 
         player1BallsPanel.setStripedBalls(cntrl.getPlayers()[0].isStripedBalls());
         player2BallsPanel.setStripedBalls(cntrl.getPlayers()[1].isStripedBalls());
-    
+
     }
 
     private class BallsPanel extends JPanel {
@@ -79,8 +79,7 @@ public class InformationPanel extends JPanel {
             this.ballsAssigned = value;
         }
 
-        public void setStripedBalls(boolean value)
-        {
+        public void setStripedBalls(boolean value) {
             this.isStripedBalls = value;
         }
 

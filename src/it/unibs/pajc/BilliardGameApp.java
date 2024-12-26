@@ -3,6 +3,9 @@ package it.unibs.pajc;
 //import it.unibs.pajc.clientserver.Client;
 
 import javax.swing.*;
+
+import it.unibs.pajc.clientserver.HomePage;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -31,10 +34,9 @@ public class BilliardGameApp {
         frame = new JFrame();
         frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //frame.requestFocus();
+        // frame.requestFocus();
         frame.setResizable(false);
         centerFrame(frame);
-
 
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(Color.GRAY);
@@ -52,7 +54,6 @@ public class BilliardGameApp {
         btnSinglePlayer.setBounds(236, 244, 728, 96);
         menuPanel.add(btnSinglePlayer);
         btnSinglePlayer.addActionListener(this::startLocalGame);
-
 
         JButton btnJoinGame = new JButton("JOIN GAME");
         btnJoinGame.addActionListener(this::joinGame);
@@ -76,7 +77,11 @@ public class BilliardGameApp {
     }
 
     private void joinGame(ActionEvent e) {
-        //Client client = new Client(serverAddress, portNumber, userName)
+        frame.dispose(); // Chiude la finestra attuale
+        SwingUtilities.invokeLater(() -> {
+            HomePage homePage = new HomePage(); // Crea una nuova istanza di HomePage
+            homePage.setVisible(true); // Mostra la finestra della HomePage
+        });
     }
 
     public void initialize() {

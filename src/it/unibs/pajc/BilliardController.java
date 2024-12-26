@@ -17,7 +17,7 @@ import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class BilliardController {
 
-    private final GameField model;
+    protected final GameField model;
 
     public BilliardController(GameField model) {
         this.model = model;

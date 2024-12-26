@@ -3,11 +3,8 @@ package it.unibs.pajc.clientserver;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import static it.unibs.pajc.util.CostantiStatiche.*;
 
 public class HomePage extends JFrame {
 
@@ -22,14 +19,13 @@ public class HomePage extends JFrame {
     public HomePage() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 450, 287);
-        contentPane = new JPanel();
         ImageIcon img = new ImageIcon("Ball.png");
         this.setIconImage(img.getImage());
         this.setTitle("TikiTaka");
 
+        contentPane = new JPanel();
         contentPane.setBackground(Color.GREEN);
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
@@ -50,12 +46,10 @@ public class HomePage extends JFrame {
         JButton btnLocal = new JButton("LocalHost");
         btnLocal.setFont(new Font("Arial", Font.BOLD, 14));
         btnLocal.addActionListener(e -> {
-            if (!(txtUser.getText().isEmpty() || txtUser.getText().equals(MSG_NOME) || txtUser.getText().equals(ERRORE_NOME))) {
-                Client.avvioClient(PORT, "localhost", txtUser.getText());
-                setVisible(false);
+            if (isValidInput(txtUser.getText())) {
+                startClient("localhost", txtUser.getText());
             } else {
-                txtUser.setText(ERRORE_NOME);
-                txtUser.setBackground(Color.RED);
+                showError(txtUser, "Errore: Nome non valido");
             }
         });
         btnLocal.setBounds(10, 142, 174, 48);
@@ -69,9 +63,8 @@ public class HomePage extends JFrame {
                 txtUser.setBackground(Color.WHITE);
             }
         });
-
         txtUser.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        txtUser.setText(MSG_NOME);
+        txtUser.setText("Inserisci il tuo nome");
         txtUser.setHorizontalAlignment(SwingConstants.LEFT);
         txtUser.setBounds(10, 30, 386, 36);
         contentPane.add(txtUser);
@@ -81,17 +74,13 @@ public class HomePage extends JFrame {
         btnEsterno.setFont(new Font("Arial", Font.BOLD, 14));
 
         btnEsterno.addActionListener(e -> {
-            if (isValidIp(txtIp.getText()) && !txtUser.getText().isEmpty() && !txtUser.getText().equals(MSG_NOME) && !txtUser.getText().equals(ERRORE_NOME)) {
-                Client.avvioClient(PORT, txtIp.getText(), txtUser.getText());
-                setVisible(false);
+            if (isValidInput(txtUser.getText()) && isValidIp(txtIp.getText())) {
+                startClient(txtIp.getText(), txtUser.getText());
             } else {
-                if(!isValidIp(txtIp.getText())){
-                    txtIp.setText(ERRORE_IP);
-                    txtIp.setBackground(Color.RED);
-                }
-                else{
-                    txtUser.setText(ERRORE_NOME);
-                    txtUser.setBackground(Color.RED);
+                if (!isValidIp(txtIp.getText())) {
+                    showError(txtIp, "Errore: IP non valido");
+                } else {
+                    showError(txtUser, "Errore: Nome non valido");
                 }
             }
         });
@@ -100,11 +89,41 @@ public class HomePage extends JFrame {
     }
 
     /**
-     * Metodo che controlla se l'ip inserito è scritto nella forma corretta
-     * @return True se è valido False altrimenti
+     * Avvia il client con i parametri forniti e nasconde la HomePage.
+     */
+    private void startClient(String serverAddress, String username) {
+        int port = 1234; // Porta fissa per ora
+        SwingUtilities.invokeLater(() -> {
+            Client client = new Client(serverAddress, port, username);
+            if (client.start()) {
+                this.dispose(); // Chiude la finestra corrente
+            } else {
+                JOptionPane.showMessageDialog(this, "Errore nella connessione al server!", "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+
+    /**
+     * Mostra un messaggio di errore e colora il campo di rosso.
+     */
+    private void showError(JTextField field, String errorMessage) {
+        field.setText(errorMessage);
+        field.setBackground(Color.RED);
+    }
+
+    /**
+     * Controlla se il nome utente è valido.
+     */
+    private boolean isValidInput(String input) {
+        return input != null && !input.isEmpty() && !input.equals("Inserisci il tuo nome");
+    }
+
+    /**
+     * Metodo che controlla se l'IP inserito è scritto nella forma corretta.
+     *
+     * @return True se è valido, False altrimenti.
      */
     public static boolean isValidIp(final String ip) {
         return ip.matches("^[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}$");
     }
 }
-

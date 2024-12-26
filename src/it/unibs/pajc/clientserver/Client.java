@@ -1,320 +1,205 @@
 package it.unibs.pajc.clientserver;
 
-import it.unibs.pajc.*;
+import it.unibs.pajc.GameField;
+import it.unibs.pajc.GameView;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 import static it.unibs.pajc.util.CostantiStatiche.TABLE_HEIGHT;
 import static it.unibs.pajc.util.CostantiStatiche.TABLE_WIDTH;
 
+import java.awt.*;
+import java.io.*;
+import java.net.Socket;
+
+/**
+ * Classe Client aggiornata con gestione del GameField, GameView e MultiplayerController.
+ */
 public class Client {
+    private String serverAddress;
+    private int port;
+    String username;
+    private ObjectInputStream sInput;
+    private ObjectOutputStream sOutput;
+    private Socket socket;
 
-    //componenti grafiche
-    public static JFrame frame;
-    public static GameFieldView mainFieldView;
-    public static InformationPanel infoPanel;
+    private JFrame frame;
+    private GameField gameField;
+    private GameView gameView;
+    private MultiplayerController controller;
 
-    // variabili gioco
-    protected  String turno;
-    protected String team = null;
-
-    // variabili client
-    protected static boolean close = false;
-    protected ObjectInputStream sInput;        // to read from the socket
-    protected ObjectOutputStream sOutput;        // to write on the socket
-    protected Socket socket;                    // socket object
-    protected String server, username;    // server and username
-    protected int port;
-
-
-    public String getTurno() {
-        return turno;
-    }
-
-    public void setTurno(String turno) {
-        this.turno = turno;
-    }
-
-    public String getTeam() {
-        return team;
-    }
-
-    public void setTeam(String team) {
-        this.team = team;
-    }
-
-    /*
-     *  costruttore
-     *  server: Ip del server
-     *  port: Numero di porta per la connessione
-     *  username: Username
+    /**
+     * Costruttore del Client.
+     *
+     * @param serverAddress Indirizzo IP del server.
+     * @param port          Porta del server.
+     * @param username      Nome del giocatore.
      */
-
-    Client(String server, int port, String username) {
-        this.server = server;
+    public Client(String serverAddress, int port, String username) {
+        this.serverAddress = serverAddress;
         this.port = port;
         this.username = username;
-        HomePage home = new HomePage();
-        home.setVisible(true);
     }
 
     /**
-     * conessione al server
-     *
-     * @return true se la connessione va a buon fine
+     * Avvia la connessione al server.
      */
-
     public boolean start() {
         try {
-            socket = new Socket(server, port);
-        } catch (Exception ec) {
-            display("CONNESIONE NON RIUSCITA, SERVER PIENO");
-            return false;
-        }
-
-        //Creazione Data Stream ( per scambiare messaggi)
-        try {
-            sInput = new ObjectInputStream(socket.getInputStream());
+            socket = new Socket(serverAddress, port);
             sOutput = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException eIO) {
-            display("CONNESIONE NON RIUSCITA, SERVER PIENO");
-            frame.dispose();
-            System.exit(0);
-            return false;
-        }
+            sInput = new ObjectInputStream(socket.getInputStream());
 
-        // creazione thread per ascoltare dal server
-        //new ListenFromServer().start();
-        try {
-            //invio username per giocare
-            sOutput.writeObject(username);
-        } catch (IOException eIO) {
-            display("Exception doing login : " + eIO);
-            disconnect();
-            frame.dispose();
-            System.exit(0);
-            return false;
-        }
-        return true;
-    }
+            // Invia il messaggio di JOIN
+            sendMessage("JOIN@" + username);
 
-    /**
-     * Stampa a video in un pop-up una certa stringa msg
-     *
-     * @param msg
-     */
-    private void display(String msg) {
-        JOptionPane.showMessageDialog(mainFieldView, msg);
-    }
+            // Avvia il listener per i messaggi del server
+            new ServerListener().start();
 
-    /**
-     * Manda un messaggio msg al server
-     *
-     * @param msg
-     */
-    public void sendMessage(Message msg) {
-        try {
-            sOutput.writeObject(msg);
+            // Inizializza l'interfaccia grafica
+            SwingUtilities.invokeLater(this::initGUI);
+
+            return true;
         } catch (IOException e) {
-            display("Eccezione scrittura su server: " + e);
-            frame.dispose();
-            System.exit(0);
+            System.err.println("Errore nella connessione al server: " + e.getMessage());
+            return false;
         }
     }
 
     /**
-     * Quando la connessione salta
-     * Vengono chiusi tutti gli stream di dati
+     * Invia un messaggio al server.
      */
-    private void disconnect() {
+    public void sendMessage(String message) {
         try {
-            if (sInput != null) sInput.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            if (sOutput != null) sOutput.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            if (socket != null) socket.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            sOutput.writeObject(message);
+        } catch (IOException e) {
+            System.err.println("Errore nell'invio del messaggio: " + e.getMessage());
         }
     }
 
     /**
-     * Creazione del pannello grafico per il gioco
+     * Listener per ricevere messaggi dal server.
+     */
+    private class ServerListener extends Thread {
+        public void run() {
+            try {
+                while (true) {
+                    String message = (String) sInput.readObject();
+                    handleServerMessage(message);
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Connessione al server persa: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Gestisce i messaggi ricevuti dal server.
+     */
+    private void handleServerMessage(String message) {
+        if (message.startsWith("START@")) {
+            // Avvia il gioco con i dati ricevuti dal server
+            SwingUtilities.invokeLater(() -> setupGame(message.substring(6)));
+        } else if (message.startsWith("STATE@")) {
+            // Aggiorna lo stato del gioco
+            SwingUtilities.invokeLater(() -> updateGameState(message.substring(6)));
+        } else if (message.startsWith("MESSAGE@")) {
+            // Altri tipi di messaggi (opzionale)
+            System.out.println("Messaggio dal server: " + message.substring(8));
+        }
+    }
+
+    /**
+     * Imposta il gioco con i dati iniziali ricevuti dal server.
      *
-     * @param portNumber
-     * @param serverAddress
-     * @param userName
+     * @param gameData Dati iniziali del gioco.
      */
-    public static void avvioClient(int portNumber, String serverAddress, String userName) {
-        Client client = new Client(serverAddress, portNumber, userName);
-        Player player = new Player(userName);
+    private void setupGame(String gameData) {
+        // Inizializza il GameField e il MultiplayerController
+        gameField = new GameField();
+        controller = new MultiplayerController(gameField, this);
 
-        GameField model = new GameField();
-        model.addPlayer(player);
-        BilliardController controller = new BilliardController(model);
-        mainFieldView = new GameFieldView(controller);
+        // Aggiorna il modello con i dati ricevuti
+        controller.updateModelFromMessage(gameData);
+        controller.addPlayersFromMessage(gameData);
 
-        frame.add(mainFieldView, BorderLayout.CENTER);
-        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        // Avvia il gioco aggiornando la GUI
+        startGame();
+    }
+
+    /**
+     * Aggiorna lo stato del gioco con i dati ricevuti dal server.
+     *
+     * @param gameState Stato aggiornato del gioco.
+     */
+    private void updateGameState(String gameState) {
+        controller.updateModelFromMessage(gameState);
+        if (gameView != null) {
+            gameView.repaint();
+        }
+    }
+
+    /**
+     * Inizializza l'interfaccia grafica.
+     */
+    private void initGUI() {
+        frame = new JFrame("Billiard Multiplayer - " + username);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Imposta le dimensioni corrette prese da BilliardGameApp
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        frame.setLayout(new BorderLayout());
+
+        // Messaggio iniziale di attesa del secondo giocatore
+        JLabel waitingLabel = new JLabel("In attesa del secondo giocatore...", SwingConstants.CENTER);
+        waitingLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        frame.add(waitingLabel, BorderLayout.CENTER);
+
+        // Centro dello schermo
+        centerFrame(frame);
+
+        frame.setResizable(false); // Disabilita il ridimensionamento
         frame.setVisible(true);
+    }
 
-        frame.setAlwaysOnTop(true);
-        frame.setResizable(false);
+    /**
+     * Metodo per avviare il gioco e aggiornare la GUI.
+     */
+    private void startGame() {
+        // Configura la GameView
+        SwingUtilities.invokeLater(() -> {
+            frame.getContentPane().removeAll();
+            gameView = new GameView(controller);
+            frame.add(gameView, BorderLayout.CENTER);
 
+            frame.revalidate(); // Ricostruisce il layout
+            frame.repaint(); // Ridisegna il frame
+        });
+    }
+
+    /**
+     * Centra il frame nello schermo.
+     */
+    private void centerFrame(JFrame frame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) (screenSize.getWidth() / 2 - frame.getWidth() / 2);
         int y = (int) (screenSize.getHeight() / 2 - frame.getHeight() / 2);
-
         frame.setLocation(x, y);
-
-        if (!client.start())
-            return;
-
-        mainFieldView.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                //Dare forma al messaggio x@y@distance@angle che verrà in seguito inviato al server
-                //buildMessage(mainFieldView.getPosValidX() + "@" + mainFieldView.getPosValidY() + "@" + mainFieldView.getDistance() + "@" + mainFieldView.getAngle(), client);
-            }
-        });
-
-        if (close == true) {
-            // Client ha finito il suo lavoro, disconnessione client
-            client.disconnect();
-        }
     }
 
     /**
-     * Richiamo il metodo che ci permette di inviare il messaggio al server
-     * dopo aver costruito il messaggio
+     * Chiude le connessioni al server.
      */
-    private static void buildMessage(String msg, Client client) {
-        if (msg.equalsIgnoreCase("LOGOUT")) {
-            client.sendMessage(new Message(Message.LOGOUT, ""));
-            close = true;
-        } else {
-            client.sendMessage(new Message(Message.MESSAGE, msg));
+    public void disconnect() {
+        try {
+            if (sOutput != null)
+                sOutput.close();
+            if (sInput != null)
+                sInput.close();
+            if (socket != null)
+                socket.close();
+        } catch (IOException e) {
+            System.err.println("Errore durante la disconnessione: " + e.getMessage());
         }
     }
-
-    /**
-     * Classe che resta in ascolto dei messaggi dal server
-     * Ed elabora le informazioni ricevute
-     */
-//    class ListenFromServer extends Thread {
-//
-//        public void run() {
-//            String msg = null;
-//
-//            while (true) {
-//                try {
-//                    //Legge il messaggio inviato dal dataStream
-//                    msg = (String) sInput.readObject();
-//
-//                    mainFieldView.setPos(msg);
-//                    String[] parts = msg.split("\n");
-//
-//                    String[] riga11 = parts[11].split("@");
-//
-//                    Runnable task = ()->{
-//                        if(riga11[5].equals("true")){
-//                            SoundClip collision = new SoundClip("collision");
-//                            collision.startSound();
-//                        }
-//                    };
-//                    task.run();
-//
-//                    Thread thread = new Thread(task);
-//                    thread.start();
-//
-//                    int nUsers = Integer.parseInt(riga11[0]);
-//                    int newScore1 = Integer.parseInt(riga11[3]);
-//                    int newScore2 = Integer.parseInt(riga11[4]);
-//
-//                    setTeam(riga11[1]);
-//                    setTurno(riga11[2]);
-//
-//                    if ((newScore1 != getScore1() && newScore1 < 3) || (newScore2 != getScore2() && newScore2 < 3)) {
-//                        SoundClip gol = new SoundClip("Goal");
-//                        gol.startSound();
-//                    }
-//
-//                    setScore1(newScore1);
-//                    setScore2(newScore2);
-//
-//                    infoPanel.setScore(score1, score2);
-//
-//                    if (nUsers >= 1)
-//                        if (parts[12].equals(username))
-//                            parts[12] += "(you)";
-//
-//                    if (nUsers >= 2)
-//                        if (parts[13].equals(username))
-//                            parts[13] += "(you)";
-//
-//                    if (nUsers == 1) {
-//                        infoPanel.setUsername1(parts[12]);
-//                    } else {
-//                        infoPanel.setUsernames(parts[12], parts[13]);
-//                    }
-//
-//                    checkWinner();
-//
-//                } catch (IOException e) {
-//                    display("La connessione al server è stata interrotta");
-//                    frame.dispose();
-//                    System.exit(0);
-//                    break;
-//                } catch (ClassNotFoundException e2) {
-//                }
-//            }
-//
-//        }
-//    }
-//
-//    /**
-//     * Metodo che controlla se il vincitore
-//     * E stampa a video gif vincitore e perdente
-//     */
-//    public void checkWinner() {
-//        ImageIcon winner = new ImageIcon("winner.gif");
-//        ImageIcon loser = new ImageIcon("loser.gif");
-//        if (score1 == 3) {
-//            if (infoPanel.getTeam2().equals(username + "(you)")) {
-//                SoundClip win = new SoundClip("win");
-//                win.startSound();
-//                JOptionPane.showMessageDialog(null, null, "Hai vinto", JOptionPane.INFORMATION_MESSAGE, winner);
-//            } else {
-//                SoundClip los = new SoundClip("Loser");
-//                los.startSound();
-//                JOptionPane.showMessageDialog(null, null, "Hai perso", JOptionPane.INFORMATION_MESSAGE, loser);
-//            }
-//        } else if (score2 == 3) {
-//            if (infoPanel.getTeam1().equals(username + "(you)")) {
-//                SoundClip win = new SoundClip("win");
-//                win.startSound();
-//                JOptionPane.showMessageDialog(null, null, "Hai vinto", JOptionPane.INFORMATION_MESSAGE, winner);
-//            } else {
-//                SoundClip los = new SoundClip("Loser");
-//                los.startSound();
-//                JOptionPane.showMessageDialog(null, null, "Hai perso", JOptionPane.INFORMATION_MESSAGE, loser);
-//
-//            }
-//        }
-//    }
 }
-

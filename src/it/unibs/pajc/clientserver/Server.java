@@ -1,322 +1,226 @@
 package it.unibs.pajc.clientserver;
 
-
-import it.unibs.pajc.Player;
 import it.unibs.pajc.GameField;
+import it.unibs.pajc.Player;
 
-import javax.swing.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
+import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.Socket; 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Locale;
 
 /**
- * Classe Server
+ * Classe Server aggiornata per gestire un GameField condiviso con gestione corretta dei giocatori e ViewServer.
  */
 public class Server {
     private static int uniqueId;
-    // Lista client connessi
-    private final ArrayList<ClientThread> clientThreadList;
-    // numero porta connessione
+    private final ArrayList<ClientThread> clientThreads;
     private final int port;
-    private final String notif = " *** ";
-    //Model del gioco
-    public static GameField model;
-    //Frame che ci permette di vedere cosa succede sul server
-    public static ViewServer frame;
+    private GameField gameField; // GameField condiviso per la partita corrente
+    private ViewServer viewServer; // Interfaccia grafica per il server
 
-    /**
-     * Costruttore classe Server
-     */
-    public Server(int port) throws UnknownHostException {
+    public Server(int port) {
         this.port = port;
-        clientThreadList = new ArrayList<>();
+        this.clientThreads = new ArrayList<>();
     }
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
         int portNumber = 1234;
-        frame = new ViewServer(Inet4Address.getLocalHost().getHostAddress(), portNumber);
-        frame.setVisible(true);
-
-        model = new GameField();
-
-        //Crea l'oggetto server e lo esegue
         Server server = new Server(portNumber);
         server.start();
     }
 
     /**
-     * Metodo che avvia il server
+     * Avvia il server e gestisce le connessioni.
      */
     public void start() {
-        // attributo che indica se il server è in esecuzione
-        boolean keepGoing = true;
-        //crea il socket e aspetta connessioni dai client
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            // Loop infinito per aspettare connessioni
-            while (keepGoing) {
-                display("Server waiting for Clients on port " + port + ".");
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            // Inizializza la ViewServer
+            viewServer = new ViewServer("127.0.0.1", port);
+            viewServer.setVisible(true);
+            appendLog("Server avviato sulla porta " + port);
 
-                if (!keepGoing) break;
-
-                //Accetto connessione al server se gli utenti connessi sono meno di 2
-                //altrimenti la richiesta di connessione viene rifuitata
+            while (true) {
                 Socket socket = serverSocket.accept();
-                if (clientThreadList.size() < 2) {
+                if (clientThreads.size() < 2) {
+                    ClientThread clientThread = new ClientThread(socket);
+                    clientThreads.add(clientThread);
+                    clientThread.start();
 
-                    // thread client
-                    ClientThread t = new ClientThread(socket);
-                    clientThreadList.add(t);
+                    updateViewServer(); // Aggiorna la lista dei client nella GUI
 
-                    frame.repaintPeople(clientThreadList);
-                    broadcastFerme(clientThreadList.size());
-                    t.start();
+                    if (clientThreads.size() == 2) {
+                        startGame();
+                    }
                 } else {
                     socket.close();
-                    serverSocket.close();
+                    appendLog("Connessione rifiutata: troppi client connessi.");
                 }
-            }
-
-            // chiusura del server
-            try {
-                serverSocket.close();
-                for (ClientThread clientThread : clientThreadList) {
-                    try {
-                        // Chiusura di DataStream
-                        clientThread.sInput.close();
-                        clientThread.sOutput.close();
-                        clientThread.socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } catch (Exception e) {
-                display("Exception closing the server and clients: " + e);
             }
         } catch (IOException e) {
-            String msg = " Exception on new ServerSocket: " + e + "\n";
-            display(msg);
+            e.printStackTrace();
+            appendLog("Errore nel server: " + e.getMessage());
         }
     }
-
 
     /**
-     * Stampa in console messaggi per controllare stato server
-     * @param msg
+     * Avvia una nuova partita creando un GameField condiviso e configurando i giocatori.
      */
-    private void display(String msg) {
-        System.out.println(msg);
-    }
+    private void startGame() {
+        gameField = new GameField(); // Crea un nuovo modello di gioco
 
-    //messaggio per il cambio turno (quando tutte le palline sono ferme)
-
-    private void broadcastFerme(int connectedClients) {
-
-        for (int i = clientThreadList.size(); --i >= 0; ) {
-            ClientThread clientThread = clientThreadList.get(i);
-            String player;
-            if (i % 2 == 0) {
-                player = "P1";
-            } else {
-                player = "P2";
-            }
-            //TODO: figure out the fucking message
-            StringBuilder messageLf = new StringBuilder(model.messaggioPos() + connectedClients +
-                    "@" + player + "@" + model.getCurrentPlayer().getId() + "\n");
-
-            sendMessageToAllClients(messageLf, connectedClients, clientThread, i);
+        // Aggiungi i giocatori al modello
+        for (int i = 0; i < clientThreads.size(); i++) {
+            Player player = new Player(clientThreads.get(i).getPlayerName());
+            gameField.addPlayer(player);
         }
 
+        broadcastMessage("START@" + formatGameState());
+        appendLog("Partita avviata.");
     }
-
-    //messaggio che inviamo a tutti i client conessi in cui aggiorna la posizione, quando sono in movimento
-
-    private void broadcast(int connectedClients) {
-
-        for (int i = clientThreadList.size(); --i >= 0; ) {
-            ClientThread clientThread = clientThreadList.get(i);
-            String player;
-            if (i % 2 == 0) {
-                player = "P1";
-            } else {
-                player = "P2";
-            }
-
-            StringBuilder messageLf = new StringBuilder(model.messaggioPos() + connectedClients +
-                    "@" + player + "@null" + "@" + "\n");
-
-            sendMessageToAllClients(messageLf, connectedClients, clientThread, i);
-        }
-
-    }
-
-    private void sendMessageToAllClients(StringBuilder msg, int connectedClients, ClientThread clientThread, int i) {
-        for (int j = 0; j < connectedClients; j++) {
-            msg.append(clientThreadList.get(j).username).append("\n");
-        }
-
-        // Provo a scrivere al Client, se la procedura fallisce lo elimino dall'array
-        if (!clientThread.writeMsg(msg.toString())) {
-            clientThreadList.remove(i);
-            display("Disconnected Client " + clientThread.username + " removed from list.");
-        }
-    }
-
-
 
     /**
-     * Se il client invia un messaggio di tipo LOGOUT
-     * il client viene elimintao dalla lista al
-     *
-     * @param id
+     * Invia un messaggio a tutti i client connessi.
      */
-    synchronized void remove(int id) {
-
-        String disconnectedClient = "";
-        for (int i = 0; i < clientThreadList.size(); ++i) {
-            ClientThread ct = clientThreadList.get(i);
-            if (ct.id == id) {
-                disconnectedClient = ct.getUsername();
-                clientThreadList.remove(i);
-                break;
-            }
+    private void broadcastMessage(String message) {
+        appendLog("Inviando messaggio a tutti i client: " + message);
+        for (ClientThread client : clientThreads) {
+            client.writeMsg(message);
         }
-        broadcast(clientThreadList.size());
     }
 
+    /**
+     * Formatta lo stato del gioco per essere inviato ai client.
+     */
+    private String formatGameState() {
+        StringBuilder formattedState = new StringBuilder();
+        Locale.setDefault(Locale.US); // Assicura il formato numerico con '.'
+
+        // Aggiungi i giocatori
+        for (var player : gameField.getPlayers()) {
+            formattedState.append(String.format("PLAYER@%s\n", player.getName()));
+        }
+
+        // Aggiungi il turno iniziale
+        Player currentPlayer = gameField.getCurrentPlayer();
+        formattedState.append(String.format("TURN@%s\n", currentPlayer.getName()));
+
+        // Aggiungi le posizioni delle palline
+        for (var ball : gameField.getBalls()) {
+            formattedState.append(String.format("%d,%.2f,%.2f\n",
+                    ball.getNumber(),
+                    ball.getX(),
+                    ball.getY()));
+        }
+        return formattedState.toString();
+    }
 
     /**
-     * Un instanza di questo thread sarà eseguita per ogni client
+     * Aggiunge un messaggio di log alla ViewServer.
      */
-    public class ClientThread extends Thread {
-        // socket ricezione messaggio client
-        Socket socket;
-        ObjectInputStream sInput;
-        ObjectOutputStream sOutput;
-        int id;
-        public String username;
-        Message clientMessage;
-        String date;
-        Timer timer;
+    private void appendLog(String message) {
+        viewServer.appendLog(message);
+    }
 
-        //Costruttore
-        ClientThread(Socket socket) {
-            id = ++uniqueId;
+    /**
+     * Aggiorna la lista dei partecipanti nella ViewServer.
+     */
+    private void updateViewServer() {
+        viewServer.updateParticipants(clientThreads);
+    }
+
+    /**
+     * Classe per gestire i thread dei client.
+     */
+    protected class ClientThread extends Thread {
+        private final Socket socket;
+        private ObjectInputStream sInput;
+        private ObjectOutputStream sOutput;
+        private int id;
+        private String playerName;
+
+        public ClientThread(Socket socket) {
+            this.id = ++uniqueId;
             this.socket = socket;
-
             try {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
-                // Legge il primo messaggio inviato
-                username = (String) sInput.readObject();
-                broadcast(clientThreadList.size());
-
             } catch (IOException e) {
-                display("Exception creating new Input/output Streams: " + e);
-                return;
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
-            date = new Date().toString() + "\n";
         }
 
-        public String getUsername() {
-            return username;
+        public int getClientId() {
+            return this.id;
         }
 
-        /**
-         * Metodo che esegue un loop infinito e prende i messaggi del client
-         * finchè non viene eseguito il messaggio di LOGOUT
-         */
+        public String getPlayerName() {
+            return this.playerName;
+        }
+
         public void run() {
             boolean keepGoing = true;
             while (keepGoing) {
                 try {
-                    clientMessage = (Message) sInput.readObject();
-                } catch (IOException e) {
-                    display(username + " Exception reading Streams: " + e);
-                    break;
-                } catch (ClassNotFoundException e2) {
-                    break;
+                    String message = (String) sInput.readObject();
+                    appendLog("Messaggio ricevuto dal client " + id + ": " + message);
+                    handleClientMessage(message);
+                } catch (IOException | ClassNotFoundException e) {
+                    appendLog("Client " + id + " disconnesso.");
+                    keepGoing = false;
                 }
-                // Prende il messaggio ricevuto dal client
-                String message = clientMessage.getMessage();
-
-                if (clientMessage.getType() == Message.MESSAGE) {
-                    //formato messaggio switch@x@y@distance@angle dove x e y sono le coordinate della pallina bianca
-                    //Viene fatta la valutazione del round
-//                    if (!message.isEmpty()) {
-//                        System.out.println("MESSAGGIO INVIATO" + message);
-//                        String part[] = message.split("@");
-//                        FieldObject selezionata = model.pedinaSelezionata(Double.parseDouble(part[0]), Double.parseDouble(part[1]));
-//                        if (selezionata != null)
-//                            selezionata.start(Integer.parseInt(part[2]), Double.parseDouble(part[3]));
-//                    }
-//                    timer = new Timer(10, (e) -> {
-//                        if (!model.allBallsAreStationary()) {
-//                            model.updateGame();
-//                            broadcast(clientThreadList.size());
-//                        } else {
-//                            timer.stop();
-//                            broadcastFerme(clientThreadList.size());
-//                        }
-//                    });
-                    timer.start();
-                }
-
             }
-            remove(id);
-
             close();
-            frame.repaintPeople(clientThreadList);
+            updateViewServer();
         }
 
         /**
-         * Chiude tutto
+         * Gestisce i messaggi ricevuti dai client.
+         */
+        private void handleClientMessage(String message) {
+            if (message.startsWith("JOIN@")) {
+                // Estrai il nome del giocatore
+                this.playerName = message.split("@")[1];
+                appendLog("Giocatore " + playerName + " connesso.");
+            } else if (message.startsWith("SHOT@")) {
+                String[] parts = message.split("@");
+                double angle = Double.parseDouble(parts[1]);
+                double power = Double.parseDouble(parts[2]);
+
+                // Configura il colpo sul modello condiviso
+                gameField.getStick().setAngleDegrees(angle);
+                gameField.getStick().setPower(power);
+                gameField.hitBall();
+
+                // Invia lo stato aggiornato a tutti i client
+                broadcastMessage("STATE@" + formatGameState());
+            }
+        }
+
+        /**
+         * Scrive un messaggio al client.
+         */
+        private boolean writeMsg(String msg) {
+            try {
+                sOutput.writeObject(msg);
+                return true;
+            } catch (IOException e) {
+                appendLog("Errore invio messaggio al client " + id);
+                return false;
+            }
+        }
+
+        /**
+         * Chiude le connessioni.
          */
         private void close() {
             try {
                 if (sOutput != null) sOutput.close();
-            } catch (Exception e) {
-            }
-            try {
                 if (sInput != null) sInput.close();
-            } catch (Exception e) {
-            }
-            ;
-            try {
                 if (socket != null) socket.close();
-            } catch (Exception e) {
-            }
-        }
-
-        /**
-         * Metodo che ci permette di scrivere il messaggio al client
-         * @param msg
-         * @return
-         */
-        private boolean writeMsg(String msg) {
-            //invia il messaggio se il client è ancora connesso
-            if (!socket.isConnected()) {
-                close();
-                return false;
-            }
-            try {
-                sOutput.writeObject(msg);
-
             } catch (IOException e) {
-                display(notif + "Error sending message to " + username + notif);
-                display(e.toString());
+                e.printStackTrace();
             }
-            return true;
         }
     }
-
 }
-

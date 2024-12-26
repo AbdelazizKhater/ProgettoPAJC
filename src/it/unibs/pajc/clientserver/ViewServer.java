@@ -1,77 +1,94 @@
 package it.unibs.pajc.clientserver;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import java.awt.Color;
-import java.awt.Font;
-import java.util.ArrayList;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
+import java.awt.*;
+import java.util.List;
 
 public class ViewServer extends JFrame {
 
     private JPanel contentPane;
-    private JTextArea testo;
-    public JTextArea people;
-    private JScrollPane scrollPane;
+    private JTextArea logTextArea;
+    private JTextArea participantsTextArea;
+    private JScrollPane logScrollPane;
 
     /**
-     * Creo il frame dove posso visualizzare a video i  nomi dei giocatori connessi
+     * Costruttore per creare la finestra del server.
+     *
+     * @param ip      Indirizzo IP del server.
+     * @param pNumber Porta del server.
      */
-    public ViewServer(String ip,int pNumber) {
+    public ViewServer(String ip, int pNumber) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 501, 363);
+        setTitle("Server - Billiard Multiplayer");
+        setBounds(100, 100, 600, 400);
+
         contentPane = new JPanel();
-        contentPane.setBackground(Color.GRAY);
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        contentPane.setBackground(new Color(240, 240, 240));
+        contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+        contentPane.setLayout(new BorderLayout(10, 10));
         setContentPane(contentPane);
-        contentPane.setLayout(null);
 
-        scrollPane = new JScrollPane();
-        scrollPane.setBounds(19, 49, 267, 242);
-        contentPane.add(scrollPane);
+        // Titolo del server
+        JLabel titleLabel = new JLabel("Console Server", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.DARK_GRAY);
+        contentPane.add(titleLabel, BorderLayout.NORTH);
 
-        testo = new JTextArea();
-        scrollPane.setViewportView(testo);
-        testo.setEditable(false);
-        testo.setBackground(Color.RED);
-        testo.setColumns(10);
+        // Pannello centrale per log e partecipanti
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new GridLayout(1, 2, 10, 10));
 
-        JLabel title = new JLabel("Console Server");
-        title.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setBounds(127, 6, 224, 33);
-        contentPane.add(title);
+        // Log del server
+        logTextArea = new JTextArea();
+        logTextArea.setEditable(false);
+        logTextArea.setBackground(Color.WHITE);
+        logTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
 
-        people = new JTextArea("Partecipanti:\n");
-        people.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-        people.setEditable(false);
-        people.setColumns(10);
-        people.setBackground(Color.WHITE);
-        people.setBounds(322, 49, 151, 242);
-        contentPane.add(people);
+        logScrollPane = new JScrollPane(logTextArea);
+        logScrollPane.setBorder(BorderFactory.createTitledBorder("Log del Server"));
+        centerPanel.add(logScrollPane);
 
-        JTextPane info = new JTextPane();
-        info.setEditable(false);
-        info.setText("Ip server: " + ip + " Porta: "+pNumber);
-        info.setBounds(103, 302, 254, 16);
-        contentPane.add(info);
+        // Partecipanti
+        participantsTextArea = new JTextArea();
+        participantsTextArea.setEditable(false);
+        participantsTextArea.setBackground(Color.WHITE);
+        participantsTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JScrollPane participantsScrollPane = new JScrollPane(participantsTextArea);
+        participantsScrollPane.setBorder(BorderFactory.createTitledBorder("Partecipanti"));
+        centerPanel.add(participantsScrollPane);
+
+        contentPane.add(centerPanel, BorderLayout.CENTER);
+
+        // Informazioni sul server
+        JLabel serverInfoLabel = new JLabel("IP: " + ip + " | Porta: " + pNumber, SwingConstants.CENTER);
+        serverInfoLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        serverInfoLabel.setForeground(Color.GRAY);
+        contentPane.add(serverInfoLabel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Aggiorna la lista dei partecipanti con i dati forniti.
+     *
+     * @param clientThreadsList Lista dei client connessi.
+     */
+    public void updateParticipants(List<Server.ClientThread> clientThreadsList) {
+        StringBuilder participants = new StringBuilder("Partecipanti:\n");
+        for (Server.ClientThread client : clientThreadsList) {
+            participants.append("ID: ").append(client.getClientId())
+                        .append(" - Nome: ").append(client.getPlayerName() != null ? client.getPlayerName() : "Sconosciuto")
+                        .append("\n");
+        }
+        participantsTextArea.setText(participants.toString());
+    }
 
     /**
-     * Metodo che stampa sul pannello i nomi dei giocatori
-     * @param clientThreadsList
+     * Aggiunge una riga di log al pannello del server.
+     *
+     * @param message Messaggio da aggiungere al log.
      */
-    public void repaintPeople(ArrayList<Server.ClientThread> clientThreadsList) {
-        String string = "Partecipanti:\n";
-        for (Server.ClientThread c : clientThreadsList) {
-            string += c.username + "\n";
-        }
-        people.setText(string);
+    public void appendLog(String message) {
+        logTextArea.append(message + "\n");
     }
 }
