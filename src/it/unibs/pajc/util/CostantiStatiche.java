@@ -12,6 +12,7 @@ public class CostantiStatiche {
         public static final int BIG_POCKET_RADIUS = 35;
         public static final double MIN_BOUND = BORDER_WIDTH * 1.5 + BALL_RADIUS;
         public static final double MAX_BOUND_X = TABLE_WIDTH - MIN_BOUND;
+        public static final double MAX_BOUND_X_FIRST_ROUND = TABLE_WIDTH/4 + 33;
         public static final double MAX_BOUND_Y = TABLE_HEIGHT - MIN_BOUND;
         public static final double INNER_MARGIN = BORDER_WIDTH * 1.5;
         public static final double INNER_FIELD_LIMIT_X = TABLE_WIDTH - INNER_MARGIN;

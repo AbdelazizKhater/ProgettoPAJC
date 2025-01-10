@@ -48,7 +48,7 @@ public class GameField {
         cueBall = new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0);
         // Inizializzato il primo giocatore con indice 0
         currentPlayerIndx = 0;
-        roundCounter = 0;
+        roundCounter = -1;
         playerCount = 0;
         // Registra un hook di shutdown per chiudere l'executor alla chiusura del
         // programma
@@ -100,6 +100,7 @@ public class GameField {
 
     public void addPlayer(Player p) {
         players[playerCount] = p;
+        p.setId(playerCount);
         playerCount++;
         if (playerCount == 1) startNewGame();
     }
@@ -109,6 +110,7 @@ public class GameField {
     public void startNewGame() {
         // Il primo turno viene assegnato a caso tra i due giocatori
         currentPlayerIndx = rnd.nextInt(2);
+        status = gameStart;
     }
 
     public Player getCurrentPlayer() {
@@ -121,8 +123,10 @@ public class GameField {
     }
 
     private void swapPlayers() {
-        currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
-        System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
+        if(roundCounter > 0) {
+            currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
+            System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
+        }
     }
 
     private void setupInitialPositions() {
@@ -247,6 +251,7 @@ public class GameField {
                 return false;
             }
         }
+        if(status == gameStart) foulDetected();
         status = roundStart;
         return true;
     }
@@ -413,6 +418,14 @@ public class GameField {
 
     public Player[] getPlayers() {
         return players;
+    }
+
+    public int getRoundNumber() {
+        return roundCounter;
+    }
+
+    public int getCurrentPlayerIndx() {
+        return currentPlayerIndx;
     }
 
 }

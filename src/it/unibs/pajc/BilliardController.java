@@ -69,6 +69,10 @@ public class BilliardController {
         return model.getCurrentPlayer();
     }
 
+    public int getCurrentPlayerIndex() {
+        return model.getCurrentPlayerIndx();
+    }
+
     public void handleMouseDragged(double deltaX, double deltaY) {
         Stick stick = model.getStick();
 
@@ -334,5 +338,9 @@ public class BilliardController {
 
     public void setStatus(GameStatus status) {
         model.setStatus(status);
+    }
+
+    public int getRoundNumber() {
+        return model.getRoundNumber();
     }
 }

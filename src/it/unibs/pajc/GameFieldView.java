@@ -74,7 +74,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
             // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
             if (!cntrl.cueBallNeedsReposition()) {
-                drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayer().getId() == 1 ? blueStickImage : redStickImage);
+                drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayerIndex() == 0 ? blueStickImage : redStickImage);
                 drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {
                 visualizeCueBallReposition(g2);
@@ -102,7 +102,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
                     (int) (trajectoryInfo[i].startY * scaleFactor),
                     (int) (trajectoryInfo[i].directionX * scaleFactor),
                     (int) (trajectoryInfo[i].directionY * scaleFactor));
-
         }
 
         g.draw(new Ellipse2D.Double((trajectoryInfo[0].directionX - BALL_RADIUS) * scaleFactor,
@@ -115,7 +114,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     }
 
     public void drawBall(Graphics2D g, BallInfo ballInfo) {
-
         AffineTransform originalTransform = g.getTransform();
         double scaleFactor = 1000;
 
@@ -286,7 +284,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
             // Update stick power using the projection magnitude
             cntrl.updateStickPower(projection);
-
         }
     }
 
@@ -300,7 +297,8 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     }
 
     public boolean isWithinBounds(int x, int y) {
-        return x > MIN_BOUND && x < MAX_BOUND_X && y > MIN_BOUND && y < MAX_BOUND_Y;
+        double maxBoundX = (cntrl.getRoundNumber() == 0) ? MAX_BOUND_X_FIRST_ROUND : MAX_BOUND_X;
+        return x > MIN_BOUND && x < maxBoundX && y > MIN_BOUND && y < MAX_BOUND_Y;
     }
 
     @Override
@@ -318,13 +316,11 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     @Override
     public void mouseEntered(MouseEvent e) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
         // TODO Auto-generated method stub
-
     }
 
 }

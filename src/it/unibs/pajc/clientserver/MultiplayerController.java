@@ -45,12 +45,14 @@ public class MultiplayerController extends BilliardController {
         // Ottieni angolo e potenza dal bastone
         double angle = model.getStick().getAngleDegrees();
         double power = model.getStick().getPower();
+        double xCueBall = model.getCueBall().getX();
+        double yCueBall = model.getCueBall().getY();
 
         // Log per debug
         System.out.printf("Inviando SHOT: Angolo=%.2f, Potenza=%.2f%n", angle, power);
 
         // Invia il comando al server
-        client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
+        client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f@.2f@.2f", angle, power, xCueBall, yCueBall));
     }
 
     /**
@@ -73,25 +75,43 @@ public class MultiplayerController extends BilliardController {
                 System.out.println("Turno del giocatore: " + currentPlayerName);
             } else {
                 // Gestione delle palline
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    try {
-                        int id = Integer.parseInt(parts[0]);
-                        double x = Double.parseDouble(parts[1]);
-                        double y = Double.parseDouble(parts[2]);
-
-                        for (Ball ball : model.getBalls()) {
-                            if (ball.getNumber() == id) {
-                                ball.setPosition(x, y);
-                                break;
-                            }
-                        }
-                    } catch (NumberFormatException e) {
-                        System.err.println("Errore nel parsing dei dati della pallina: " + line);
-                    }
-                } else {
-                    System.err.println("Formato del messaggio non valido: " + line);
+                //TODO: gestione della pallina bianca
+                System.out.println("TESTSTART");
+                System.out.println(line + " hello\n");
+                String[] parts = line.split("@");
+                for (String part : parts) {
+                    System.out.println(part + "\n");
                 }
+                System.out.println("TESTEND");
+
+//                double angle = Double.parseDouble(parts[1]);
+//                double power = Double.parseDouble(parts[2]);
+//                double xCueBall = Double.parseDouble(parts[3]);
+//                double yCueBall = Double.parseDouble(parts[4]);
+//
+//                model.getStick().setAngleDegrees(angle);
+//                model.getStick().setPower(power);
+//                model.getCueBall().setPosition(xCueBall, yCueBall);
+//                model.hitBall();
+//                String[] parts = line.split(",");
+//                if (parts.length == 3) {
+//                    try {
+//                        int id = Integer.parseInt(parts[0]);
+//                        double x = Double.parseDouble(parts[1]);
+//                        double y = Double.parseDouble(parts[2]);
+//
+//                        for (Ball ball : model.getBalls()) {
+//                            if (ball.getNumber() == id) {
+//                                ball.setPosition(x, y);
+//                                break;
+//                            }
+//                        }
+//                    } catch (NumberFormatException e) {
+//                        System.err.println("Errore nel parsing dei dati della pallina: " + line);
+//                    }
+//                } else {
+//                    System.err.println("Formato del messaggio non valido: " + line);
+//                }
             }
         }
     }

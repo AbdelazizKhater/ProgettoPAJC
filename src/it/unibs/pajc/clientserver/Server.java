@@ -75,7 +75,7 @@ public class Server {
             gameField.addPlayer(player);
         }
 
-        broadcastMessage("START@" + formatGameState());
+        broadcastMessage("START@" + formatGameState(""));
         appendLog("Partita avviata.");
     }
 
@@ -92,7 +92,7 @@ public class Server {
     /**
      * Formatta lo stato del gioco per essere inviato ai client.
      */
-    private String formatGameState() {
+    private String formatGameState(String shotMessage) {
         StringBuilder formattedState = new StringBuilder();
         Locale.setDefault(Locale.US); // Assicura il formato numerico con '.'
 
@@ -105,13 +105,8 @@ public class Server {
         Player currentPlayer = gameField.getCurrentPlayer();
         formattedState.append(String.format("TURN@%s\n", currentPlayer.getName()));
 
-        // Aggiungi le posizioni delle palline
-        for (var ball : gameField.getBalls()) {
-            formattedState.append(String.format("%d,%.2f,%.2f\n",
-                    ball.getNumber(),
-                    ball.getX(),
-                    ball.getY()));
-        }
+        // Manda informazioni sul colpo tirato
+        formattedState.append(String.format("%s\n", shotMessage));
         return formattedState.toString();
     }
 
@@ -167,6 +162,7 @@ public class Server {
                     handleClientMessage(message);
                 } catch (IOException | ClassNotFoundException e) {
                     appendLog("Client " + id + " disconnesso.");
+                    clientThreads.remove(this);
                     keepGoing = false;
                 }
             }
@@ -186,14 +182,17 @@ public class Server {
                 String[] parts = message.split("@");
                 double angle = Double.parseDouble(parts[1]);
                 double power = Double.parseDouble(parts[2]);
+                double xCueBall = Double.parseDouble(parts[3]);
+                double yCueBall = Double.parseDouble(parts[4]);
 
                 // Configura il colpo sul modello condiviso
                 gameField.getStick().setAngleDegrees(angle);
                 gameField.getStick().setPower(power);
+                gameField.getCueBall().setPosition(xCueBall, yCueBall);
                 gameField.hitBall();
 
                 // Invia lo stato aggiornato a tutti i client
-                broadcastMessage("STATE@" + formatGameState());
+                broadcastMessage("STATE@" + formatGameState(message));
             }
         }
 
