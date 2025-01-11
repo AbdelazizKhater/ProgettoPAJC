@@ -4,6 +4,7 @@ import it.unibs.pajc.GameField;
 import it.unibs.pajc.Player;
 
 import java.io.*;
+import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket; 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class Server {
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             // Inizializza la ViewServer
-            viewServer = new ViewServer("127.0.0.1", port);
+            viewServer = new ViewServer(Inet4Address.getLocalHost().getHostAddress(), port);
             viewServer.setVisible(true);
             appendLog("Server avviato sulla porta " + port);
 

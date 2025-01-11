@@ -21,7 +21,7 @@ public class ViewServer extends JFrame {
     public ViewServer(String ip, int pNumber) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Server - Billiard Multiplayer");
-        setBounds(100, 100, 600, 400);
+        setBounds(100, 100, 1000, 500);
 
         contentPane = new JPanel();
         contentPane.setBackground(new Color(240, 240, 240));

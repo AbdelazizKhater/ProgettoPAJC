@@ -3,6 +3,7 @@ package it.unibs.pajc.fieldcomponents;
 
 public class Stick {
     private double angleDegrees; // Angolo in gradi
+    private double lastPower; // L'ultima misura di power, da mandare al server
     private double power; // Potenza reale per colpire la pallina
     private double visualPower; // Potenza visiva per l'animazione
 
@@ -22,7 +23,14 @@ public class Stick {
 
     public void setPower(double power) {
         this.power = Math.min(Math.max(power, 0), MAX_POWER);
-        this.visualPower = this.power; // Sincronizza la potenza visiva iniziale
+        // Sincronizza la potenza visiva iniziale
+        this.visualPower = this.power;
+        //Tiene memoria dell'ultima potenza, questa non viene resettata
+        if (this.power > 0) this.lastPower = this.power;
+    }
+
+    public double getLastPower() {
+        return lastPower;
     }
 
     public double getVisualPower() {
