@@ -1,7 +1,9 @@
 package it.unibs.pajc.clientserver;
 
 import it.unibs.pajc.GameField;
+import it.unibs.pajc.GameStatus;
 import it.unibs.pajc.Player;
+import it.unibs.pajc.fieldcomponents.Ball;
 
 import java.io.*;
 import java.net.Inet4Address;
@@ -183,17 +185,28 @@ public class Server {
                 String[] parts = message.split("@");
                 double angle = Double.parseDouble(parts[1]);
                 double power = Double.parseDouble(parts[2]);
-                double xCueBall = Double.parseDouble(parts[3]);
-                double yCueBall = Double.parseDouble(parts[4]);
 
                 // Configura il colpo sul modello condiviso
                 gameField.getStick().setAngleDegrees(angle);
                 gameField.getStick().setPower(power);
-                gameField.getCueBall().setPosition(xCueBall, yCueBall);
                 gameField.hitBall();
 
                 // Invia lo stato aggiornato a tutti i client
                 broadcastMessage("STATE@" + formatGameState(message));
+            } else if (message.startsWith("POSITION@")) {
+                String[] parts = message.split("@");
+                double xCueBall = Double.parseDouble(parts[1]);
+                double yCueBall = Double.parseDouble(parts[2]);
+
+                Ball cueBall = gameField.getCueBall();
+
+                cueBall.setPosition(xCueBall, yCueBall);
+                gameField.setStatus(GameStatus.cueBallRepositioning);
+                cueBall.setNeedsReposition(false);
+                gameField.getBalls().addFirst(cueBall);
+                gameField.resetRound();
+                broadcastMessage("STATE@" + formatGameState(message));
+
             }
         }
 

@@ -90,15 +90,7 @@ public class GameField {
         players[playerCount] = p;
         p.setId(playerCount);
         playerCount++;
-        if (playerCount == 1) startNewGame();
-    }
-
-    private final Random rnd = new Random();
-
-    public void startNewGame() {
-        // Il primo turno viene assegnato a caso tra i due giocatori
-        currentPlayerIndx = rnd.nextInt(2);
-        status = gameStart;
+        if (playerCount == 1) status = gameStart;
     }
 
     public Player getCurrentPlayer() {

@@ -2,6 +2,7 @@ package it.unibs.pajc.clientserver;
 
 import it.unibs.pajc.BilliardController;
 import it.unibs.pajc.GameField;
+import it.unibs.pajc.GameStatus;
 import it.unibs.pajc.Player;
 import it.unibs.pajc.fieldcomponents.Ball;
 
@@ -55,6 +56,22 @@ public class MultiplayerController extends BilliardController {
         client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f@%.2f@%.2f", angle, power, xCueBall, yCueBall));
     }
 
+    @Override
+    public void resetCueBallPosition(int x, int y) {
+        Ball cueBall = model.getCueBall();
+        if (cueBall.needsReposition()) {
+            cueBall.setPosition(x, y);
+            model.setStatus(GameStatus.cueBallRepositioning);
+            cueBall.setNeedsReposition(false);
+            model.getBalls().addFirst(cueBall);
+            model.resetRound();
+
+            System.out.printf("Inviando POSITION: X=%d, Y=%d%n", x, y);
+
+            client.sendMessage(String.format("POSITION@%d@%d", x, y));
+        }
+    }
+
     /**
      * Aggiorna lo stato del gioco con i dati ricevuti dal server.
      *
@@ -73,19 +90,16 @@ public class MultiplayerController extends BilliardController {
             } else if (line.startsWith("TURN@")) {
                 String currentPlayerName = line.substring(5);
                 System.out.println("Turno del giocatore: " + currentPlayerName);
-            } else {
+            } else if (line.startsWith("SHOT@")){
                 // Gestione delle palline
                 //TODO: gestione della pallina bianca
                 String[] parts = line.split("@");
 
                 double angle = Double.parseDouble(parts[1]);
                 double power = Double.parseDouble(parts[2]);
-                double xCueBall = Double.parseDouble(parts[3]);
-                double yCueBall = Double.parseDouble(parts[4]);
 
                 model.getStick().setAngleDegrees(angle);
                 model.getStick().setPower(power);
-                model.getCueBall().setPosition(xCueBall, yCueBall);
                 model.hitBall();
 //                String[] parts = line.split(",");
 //                if (parts.length == 3) {
@@ -106,6 +120,19 @@ public class MultiplayerController extends BilliardController {
 //                } else {
 //                    System.err.println("Formato del messaggio non valido: " + line);
 //                }
+            } else if (line.startsWith("POSITION@")) {
+                String[] parts = line.split("@");
+                double xCueBall = Double.parseDouble(parts[1]);
+                double yCueBall = Double.parseDouble(parts[2]);
+
+                Ball cueBall = model.getCueBall();
+                if (cueBall.needsReposition()) {
+                    cueBall.setPosition(xCueBall, yCueBall);
+                    model.setStatus(GameStatus.cueBallRepositioning);
+                    cueBall.setNeedsReposition(false);
+                    model.getBalls().addFirst(cueBall);
+                    model.resetRound();
+                }
             }
         }
     }
