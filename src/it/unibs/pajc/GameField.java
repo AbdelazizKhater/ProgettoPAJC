@@ -52,9 +52,9 @@ public class GameField {
         playerCount = 0;
         // Registra un hook di shutdown per chiudere l'executor alla chiusura del
         // programma
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            shutdownExecutor();
-        }));
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            shutdownExecutor();
+//        }));
 
         // Add billiard balls in initial positions
         setupInitialPositions();
@@ -71,7 +71,7 @@ public class GameField {
             final int index = i; // Variabile finale per l'uso nel task
             final Ball ball = balls.get(index);
 
-            executor.submit(() -> {
+//            executor.submit(() -> {
                 // Aggiorna la posizione e controlla i limiti
                 ball.updatePosition();
                 ball.checkBounds(trapezoids);
@@ -81,21 +81,9 @@ public class GameField {
 
                 // Controlla collisioni con altre palline
                 checkOtherBallCollision(index, ball);
-            });
+            //});
         }
 
-    }
-
-    public void shutdownExecutor() {
-        executor.shutdown();
-        try {
-            if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
-            }
-        } catch (InterruptedException ex) {
-            executor.shutdownNow();
-            ex.printStackTrace();
-        }
     }
 
     public void addPlayer(Player p) {
@@ -145,37 +133,17 @@ public class GameField {
         }
 
         // Position for the white ball
-        balls.add(cueBall); // White ball
+        balls.add(cueBall); // Add the white cue ball
         // Pyramid starting position for numbered balls
         int startX = 800; // Base X position of the triangle
         int startY = TABLE_HEIGHT / 2; // Center of the table
         int rows = 5; // Number of rows in the triangle
 
+        // Sequential list of ball numbers from 1 to 15
         List<Integer> ballNumbers = new ArrayList<>();
         for (int i = 1; i <= 15; i++) {
             ballNumbers.add(i);
         }
-
-        // Shuffle the list, but keep 1 at the first position and 8 in the center
-        ballNumbers.remove((Integer) 1); // Remove 1 temporarily
-        ballNumbers.remove((Integer) 8); // Remove 8 temporarily
-        Collections.shuffle(ballNumbers); // Shuffle the rest of the numbers
-
-        // Insert 1 at the top of the triangle
-        ballNumbers.add(0, 1);
-
-        // Determine the center position (third row, second column)
-        int centerRow = 2; // Row index (starting from 0)
-        int centerCol = 1; // Column index within the row
-        int centerIndex = 0;
-
-        // Calculate the linear index for the center position
-        for (int row = 0; row < centerRow; row++) {
-            centerIndex += row + 1;
-        }
-        centerIndex += centerCol;
-
-        ballNumbers.add(centerIndex, 8); // Place 8-ball in the center
 
         // Add numbered balls in a triangular configuration
         int numberIndex = 0;

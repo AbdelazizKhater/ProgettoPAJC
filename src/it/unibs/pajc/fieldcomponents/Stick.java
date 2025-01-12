@@ -7,7 +7,7 @@ public class Stick {
     private double power; // Potenza reale per colpire la pallina
     private double visualPower; // Potenza visiva per l'animazione
 
-    public static final int MAX_POWER = 30;
+    public static final int MAX_POWER = 20;
 
     public double getAngleDegrees() {
         return angleDegrees;

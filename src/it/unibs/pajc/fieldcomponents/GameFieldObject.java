@@ -29,11 +29,17 @@ public class GameFieldObject {
     }
 
     public boolean checkCollision(GameFieldObject o) {
+        Rectangle aabb1 = this.getShape().getBounds();
+        Rectangle aabb2 = o.getShape().getBounds();
+
+        if (!aabb1.intersects(aabb2)) {
+            return false; // No collision if AABBs don't intersect
+        }
+
+        // Proceed with precise shape check
         Area a = new Area(this.getShape());
         Area objArea = new Area(o.getShape());
-
         a.intersect(objArea);
-
         return !a.isEmpty();
     }
 
