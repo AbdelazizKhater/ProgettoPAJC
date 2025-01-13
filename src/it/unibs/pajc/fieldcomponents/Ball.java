@@ -31,7 +31,7 @@ public class Ball extends GameFieldObject {
         y += vy;
 
         // Apply friction
-        double friction = 0.98; // Increased friction for more realistic slowdown
+        double friction = 0.99; // Increased friction for more realistic slowdown
         vx *= friction;
         vy *= friction;
 

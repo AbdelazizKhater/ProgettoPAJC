@@ -36,21 +36,32 @@ public class GameView extends JPanel {
         startTimer(cntrl, infoPanel);
     }
 
+    private long previousTime;
+    private long lag;
+
     private void startTimer(BilliardController cntrl, InformationPanel infoPanel) {
+        final long timeStep = 16_666_667; // Fixed timestep: ~16.67ms (60 updates per second)
+        final long maxLag = timeStep * 60; // Avoid excessive lag buildup
+
         Timer timer = new Timer(0, e -> {
-            long startTime = System.nanoTime();
+            long currentTime = System.nanoTime();
+            long elapsedTime = currentTime - previousTime;
+            previousTime = currentTime;
 
-            cntrl.stepNext();
-            infoPanel.update();
-            repaint();
+            lag += elapsedTime;
+            lag = Math.min(lag, maxLag); // Cap lag to avoid spiral of death
 
-            long elapsedTime = (System.nanoTime() - startTime) / 1_000_000; // Tempo in ms
+            while (lag >= timeStep) {
+                cntrl.stepNext(); // Fixed physics update
+                lag -= timeStep;
+            }
 
-            // Calcola il tempo rimanente per il prossimo frame
-            int delay = Math.max(1, 8 - (int) elapsedTime);
-
-            ((Timer) e.getSource()).setDelay(delay);
+            infoPanel.update(); // Update UI (can be decoupled if necessary)
+            repaint(); // Render the frame
         });
+
+        previousTime = System.nanoTime();
+        lag = 0;
         timer.start();
     }
 

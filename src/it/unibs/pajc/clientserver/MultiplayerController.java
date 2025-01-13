@@ -40,9 +40,6 @@ public class MultiplayerController extends BilliardController {
             return;
         }
 
-        // Simula il colpo nel modello
-        super.onStickAnimationComplete();
-
         // Ottieni angolo e potenza dal bastone
         double angle = model.getStick().getAngleDegrees();
         double power = model.getStick().getLastPower();
