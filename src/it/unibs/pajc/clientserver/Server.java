@@ -53,6 +53,11 @@ public class Server {
                     updateViewServer(); // Aggiorna la lista dei client nella GUI
 
                     if (clientThreads.size() == 2) {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         startGame();
                     }
                 } else {
