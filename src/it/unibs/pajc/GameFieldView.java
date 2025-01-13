@@ -19,18 +19,18 @@ import javax.swing.JPanel;
 
 public class GameFieldView extends JPanel implements MouseMotionListener, MouseListener {
 
-    public static final int MAX_POWER = 80;
     private Boolean isHitting = false;
     private Point mousePoint;
     private Image backgroundImage;
     private Image redStickImage;
     private Image blueStickImage;
-    private final BilliardController cntrl;
+    public final BilliardController cntrl;
+    public boolean isMyTurn;
 
     public GameFieldView(BilliardController cntrl) {
         this.cntrl = cntrl;
         loadImage();
-
+        isMyTurn = true;
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
     }
@@ -73,7 +73,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             }
 
             // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
-            if (!cntrl.cueBallNeedsReposition()) {
+            if (!cntrl.cueBallNeedsReposition() && isMyTurn) {
                 drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayerIndex() == 0 ? blueStickImage : redStickImage);
                 drawTrajectory(g2, cntrl.calculateTrajectory());
             } else {

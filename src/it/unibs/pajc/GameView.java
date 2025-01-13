@@ -23,19 +23,10 @@ public class GameView extends JPanel {
         this.add(infoPanel, BorderLayout.NORTH);
         this.add(gameFieldPanel, BorderLayout.CENTER);
 
-        Timer timer = new Timer(0, e -> {
-            long startTime = System.nanoTime();
-
+        Timer timer = new Timer(10, e -> {
             cntrl.stepNext();
             infoPanel.update();
             repaint();
-
-            long elapsedTime = (System.nanoTime() - startTime) / 1_000_000; // Tempo in ms
-
-            // Calcola il tempo rimanente per il prossimo frame
-            int delay = Math.max(1, 8 - (int) elapsedTime);
-
-            ((Timer) e.getSource()).setDelay(delay);
         });
 
         timer.start();

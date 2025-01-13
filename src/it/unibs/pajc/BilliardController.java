@@ -57,27 +57,12 @@ public class BilliardController {
         return p != null && model.getCurrentPlayer().id == p.getId();
     }
 
-    public GameStatus getGameStatus() {
-        return model.getStatus();
-    }
-
-    public void resetRound() {
-        model.resetRound();
-    }
-
     public Player getCurrentPlayer() {
         return model.getCurrentPlayer();
     }
 
     public int getCurrentPlayerIndex() {
         return model.getCurrentPlayerIndx();
-    }
-
-    public void handleMouseDragged(double deltaX, double deltaY) {
-        Stick stick = model.getStick();
-
-        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        stick.setPower(Math.min(distance, Stick.MAX_POWER));
     }
 
     public ArrayList<Integer> getPottedBallsId() {
@@ -313,6 +298,7 @@ public class BilliardController {
             model.setStatus(GameStatus.cueBallRepositioning);
             cueBall.setNeedsReposition(false);
             model.getBalls().addFirst(cueBall);
+            model.setFoulHandled();
             model.resetRound();
         }
     }

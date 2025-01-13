@@ -1,16 +1,20 @@
 package it.unibs.pajc.clientserver;
 
-import it.unibs.pajc.GameField;
-import it.unibs.pajc.GameStatus;
-import it.unibs.pajc.Player;
+import it.unibs.pajc.*;
 import it.unibs.pajc.fieldcomponents.Ball;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket; 
 import java.util.ArrayList;
 import java.util.Locale;
+
+import static it.unibs.pajc.GameStatus.roundStart;
+import static it.unibs.pajc.util.CostantiStatiche.TABLE_HEIGHT;
+import static it.unibs.pajc.util.CostantiStatiche.TABLE_WIDTH;
 
 /**
  * Classe Server aggiornata per gestire un GameField condiviso con gestione corretta dei giocatori e ViewServer.
@@ -21,6 +25,8 @@ public class Server {
     private final int port;
     private GameField gameField; // GameField condiviso per la partita corrente
     private ViewServer viewServer; // Interfaccia grafica per il server
+    private BilliardController cntrl;
+    private GameView gameView;
 
     public Server(int port) {
         this.port = port;
@@ -76,7 +82,20 @@ public class Server {
         for (int i = 0; i < clientThreads.size(); i++) {
             Player player = new Player(clientThreads.get(i).getPlayerName());
             gameField.addPlayer(player);
-        }
+                    }
+        cntrl = new BilliardController(gameField);
+        gameView = new GameView(cntrl);
+        JFrame frame = new JFrame("server view");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Imposta le dimensioni corrette prese da BilliardGameApp
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        frame.setLayout(new BorderLayout());
+        frame.add(gameView, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        frame.revalidate(); // Ricostruisce il layout
+        frame.repaint();
 
         broadcastMessage("START@" + formatGameState(""));
         appendLog("Partita avviata.");
@@ -189,6 +208,8 @@ public class Server {
                 // Configura il colpo sul modello condiviso
                 gameField.getStick().setAngleDegrees(angle);
                 gameField.getStick().setPower(power);
+                System.out.println("id: " + gameField.getCurrentPlayerIndx() + " " +
+                        gameField.getCurrentPlayer().getName());
                 gameField.hitBall();
 
                 // Invia lo stato aggiornato a tutti i client
@@ -200,11 +221,14 @@ public class Server {
 
                 Ball cueBall = gameField.getCueBall();
 
-                cueBall.setPosition(xCueBall, yCueBall);
-                gameField.setStatus(GameStatus.cueBallRepositioning);
-                cueBall.setNeedsReposition(false);
-                gameField.getBalls().addFirst(cueBall);
-                gameField.resetRound();
+                if(cueBall.needsReposition()) {
+                    cueBall.setPosition(xCueBall, yCueBall);
+                    gameField.setStatus(GameStatus.cueBallRepositioning);
+                    cueBall.setNeedsReposition(false);
+                    gameField.getBalls().addFirst(cueBall);
+                    gameField.setFoulHandled();
+                    gameField.resetRound();
+                }
                 broadcastMessage("STATE@" + formatGameState(message));
 
             }

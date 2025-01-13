@@ -64,6 +64,7 @@ public class MultiplayerController extends BilliardController {
             model.setStatus(GameStatus.cueBallRepositioning);
             cueBall.setNeedsReposition(false);
             model.getBalls().addFirst(cueBall);
+            model.setFoulHandled();
             model.resetRound();
 
             System.out.printf("Inviando POSITION: X=%d, Y=%d%n", x, y);
@@ -131,6 +132,7 @@ public class MultiplayerController extends BilliardController {
                     model.setStatus(GameStatus.cueBallRepositioning);
                     cueBall.setNeedsReposition(false);
                     model.getBalls().addFirst(cueBall);
+                    model.setFoulHandled();
                     model.resetRound();
                 }
             }

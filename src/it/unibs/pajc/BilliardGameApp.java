@@ -15,7 +15,6 @@ public class BilliardGameApp {
 
     private BilliardController cntrl;
     private GameField model;
-    Player localPlayer;
 
     private JFrame frame;
 
