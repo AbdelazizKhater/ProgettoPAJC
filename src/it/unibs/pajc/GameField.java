@@ -2,13 +2,7 @@ package it.unibs.pajc;
 //MODEL
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import it.unibs.pajc.fieldcomponents.Ball;
 import it.unibs.pajc.fieldcomponents.Pocket;
 import it.unibs.pajc.fieldcomponents.Stick;
@@ -37,6 +31,7 @@ public class GameField {
     private int idFirstBallPocketed = -1;
     private int roundCounter;
     private int playerCount;
+    private boolean done;
 
     public GameField() {
         balls = new ArrayList<>();
@@ -50,20 +45,14 @@ public class GameField {
         currentPlayerIndx = 0;
         roundCounter = -1;
         playerCount = 0;
-        // Registra un hook di shutdown per chiudere l'executor alla chiusura del
-        // programma
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//            shutdownExecutor();
-//        }));
 
         // Add billiard balls in initial positions
         setupInitialPositions();
     }
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(
-            Runtime.getRuntime().availableProcessors() > 2 ? Runtime.getRuntime().availableProcessors() / 2 : 1);
 
     public void stepNext() {
+        done = false;
         if (!evaluationTriggered && status == roundStart)
             resetRound();
 
@@ -71,19 +60,18 @@ public class GameField {
             final int index = i; // Variabile finale per l'uso nel task
             final Ball ball = balls.get(index);
 
-//            executor.submit(() -> {
-                // Aggiorna la posizione e controlla i limiti
-                ball.updatePosition();
-                ball.checkBounds(trapezoids);
+            // Aggiorna la posizione e controlla i limiti
+            ball.updatePosition();
+            ball.checkBounds(trapezoids);
 
-                // Controlla collisione con le buche
-                checkPocketCollision(ball);
+            // Controlla collisione con le buche
+            checkPocketCollision(ball);
 
-                // Controlla collisioni con altre palline
-                checkOtherBallCollision(index, ball);
+            // Controlla collisioni con altre palline
+            checkOtherBallCollision(index, ball);
             //});
         }
-
+        done = true;
     }
 
     public void addPlayer(Player p) {
@@ -386,6 +374,10 @@ public class GameField {
 
     public int getCurrentPlayerIndx() {
         return currentPlayerIndx;
+    }
+
+    public boolean isDone() {
+        return done;
     }
 
 }

@@ -30,6 +30,9 @@ public class GameView extends JPanel {
             infoPanel.update();
             repaint();
 
+            while(!cntrl.isDone()) {
+
+            }
             long elapsedTime = (System.nanoTime() - startTime) / 1_000_000; // Tempo in ms
 
             // Calcola il tempo rimanente per il prossimo frame

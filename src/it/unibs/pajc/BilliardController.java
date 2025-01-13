@@ -226,7 +226,7 @@ public class BilliardController {
     }
 
     private Point2D getCircleCircleIntersection(double x1, double y1, double dx, double dy,
-            double cx, double cy, double radius) {
+                                                double cx, double cy, double radius) {
         // Sposta il sistema di coordinate: il centro della cue ball è l'origine
         double relX = cx - x1;
         double relY = cy - y1;
@@ -261,7 +261,7 @@ public class BilliardController {
     }
 
     public TrajectoryInfo[] calculateCollisionTrajectories(Point2D impactPoint, Ball cueBall, Ball targetBall,
-            double trajectoryAngle) {
+                                                           double trajectoryAngle) {
         // Calcolo della traiettoria della target ball dopo l'impatto
         double dx = targetBall.getX() - impactPoint.getX();
         double dy = targetBall.getY() - impactPoint.getY();
@@ -326,7 +326,7 @@ public class BilliardController {
             double combinedRadiusSquared = Math.pow(ball.getRadius(), 2) * 4;
 
             if (distanceSquared <= combinedRadiusSquared) {
-                return true; 
+                return true;
             }
         }
         return false;
@@ -338,6 +338,10 @@ public class BilliardController {
 
     public void setStatus(GameStatus status) {
         model.setStatus(status);
+    }
+
+    public boolean isDone() {
+        return model.isDone();
     }
 
     public int getRoundNumber() {
