@@ -1,5 +1,8 @@
 package it.unibs.pajc;
 
+import it.unibs.pajc.clientserver.Client;
+import it.unibs.pajc.clientserver.MultiplayerClientView;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.IOException;
@@ -10,19 +13,30 @@ public class GameView extends JPanel {
 
     private final BilliardController cntrl;
 
-    public GameView(BilliardController cntrl) {
 
+    public GameView(BilliardController cntrl) {
         super(new BorderLayout(0, 10));
         this.setBackground(Color.gray);
-
         this.cntrl = cntrl;
-
         GameFieldView gameFieldPanel = new GameFieldView(cntrl);
         InformationPanel infoPanel = new InformationPanel(cntrl);
-
         this.add(infoPanel, BorderLayout.NORTH);
         this.add(gameFieldPanel, BorderLayout.CENTER);
+        startTimer(cntrl, infoPanel);
+    }
 
+    public GameView(BilliardController cntrl, Client client) {
+        super(new BorderLayout(0, 10));
+        this.setBackground(Color.gray);
+        this.cntrl = cntrl;
+        MultiplayerClientView gameFieldPanel = new MultiplayerClientView(cntrl, client);
+        InformationPanel infoPanel = new InformationPanel(cntrl);
+        this.add(infoPanel, BorderLayout.NORTH);
+        this.add(gameFieldPanel, BorderLayout.CENTER);
+        startTimer(cntrl, infoPanel);
+    }
+
+    private void startTimer(BilliardController cntrl, InformationPanel infoPanel) {
         Timer timer = new Timer(0, e -> {
             long startTime = System.nanoTime();
 
@@ -30,9 +44,6 @@ public class GameView extends JPanel {
             infoPanel.update();
             repaint();
 
-            while(!cntrl.isDone()) {
-
-            }
             long elapsedTime = (System.nanoTime() - startTime) / 1_000_000; // Tempo in ms
 
             // Calcola il tempo rimanente per il prossimo frame
@@ -40,9 +51,7 @@ public class GameView extends JPanel {
 
             ((Timer) e.getSource()).setDelay(delay);
         });
-
         timer.start();
-
     }
 
 }

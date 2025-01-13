@@ -46,14 +46,13 @@ public class MultiplayerController extends BilliardController {
         // Ottieni angolo e potenza dal bastone
         double angle = model.getStick().getAngleDegrees();
         double power = model.getStick().getLastPower();
-        double xCueBall = model.getCueBall().getX();
-        double yCueBall = model.getCueBall().getY();
+
 
         // Log per debug
-        System.out.printf("Inviando SHOT: Angolo=%.2f, Potenza=%.2f, Posizione=%.2f,%.2f%n", angle, power, xCueBall, yCueBall);
+        System.out.printf("Inviando SHOT: Angolo=%.2f, Potenza=%.2f%n", angle, power);
 
         // Invia il comando al server
-        client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f@%.2f@%.2f", angle, power, xCueBall, yCueBall));
+        client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
     }
 
     @Override
@@ -64,6 +63,7 @@ public class MultiplayerController extends BilliardController {
             model.setStatus(GameStatus.cueBallRepositioning);
             cueBall.setNeedsReposition(false);
             model.getBalls().addFirst(cueBall);
+            model.setFoulHandled();
             model.resetRound();
 
             System.out.printf("Inviando POSITION: X=%d, Y=%d%n", x, y);
@@ -88,7 +88,7 @@ public class MultiplayerController extends BilliardController {
                     model.addPlayer(new Player(playerName));
                 }
             } else if (line.startsWith("TURN@")) {
-                String currentPlayerName = line.substring(5);
+                String currentPlayerName = model.getCurrentPlayer() == null ? "" : model.getCurrentPlayer().getName();
                 System.out.println("Turno del giocatore: " + currentPlayerName);
             } else if (line.startsWith("SHOT@")){
                 // Gestione delle palline
@@ -131,6 +131,7 @@ public class MultiplayerController extends BilliardController {
                     model.setStatus(GameStatus.cueBallRepositioning);
                     cueBall.setNeedsReposition(false);
                     model.getBalls().addFirst(cueBall);
+                    model.setFoulHandled();
                     model.resetRound();
                 }
             }

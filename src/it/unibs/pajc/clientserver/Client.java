@@ -169,7 +169,7 @@ public class Client {
         // Configura la GameView
         SwingUtilities.invokeLater(() -> {
             frame.getContentPane().removeAll();
-            gameView = new GameView(controller);
+            gameView = new GameView(controller, this);
             frame.add(gameView, BorderLayout.CENTER);
 
             frame.revalidate(); // Ricostruisce il layout

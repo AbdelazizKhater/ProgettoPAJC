@@ -22,15 +22,16 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     public static final int MAX_POWER = 80;
     private Boolean isHitting = false;
     private Point mousePoint;
-    private Image backgroundImage;
-    private Image redStickImage;
-    private Image blueStickImage;
-    private final BilliardController cntrl;
+    protected Image backgroundImage;
+    protected Image redStickImage;
+    protected Image blueStickImage;
+    protected final BilliardController cntrl;
+    protected boolean isMyTurn;
 
     public GameFieldView(BilliardController cntrl) {
         this.cntrl = cntrl;
         loadImage();
-
+        isMyTurn = true;
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
     }
@@ -53,6 +54,10 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     protected void paintComponent(Graphics g) {
+        paintComponentLogic(g);
+    }
+
+    protected void paintComponentLogic(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -72,16 +77,16 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
                 releaseStick();
             }
 
-            // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
-            if (!cntrl.cueBallNeedsReposition()) {
-                drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayerIndex() == 0 ? blueStickImage : redStickImage);
-                drawTrajectory(g2, cntrl.calculateTrajectory());
-            } else {
-                visualizeCueBallReposition(g2);
+            if(isMyTurn) {
+                if (!cntrl.cueBallNeedsReposition()) {
+                    drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayerIndex() == 0 ? blueStickImage : redStickImage);
+                    drawTrajectory(g2, cntrl.calculateTrajectory());
+                } else {
+                    visualizeCueBallReposition(g2);
+                }
             }
-
+            // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
         }
-
     }
 
     public void drawTrajectory(Graphics2D g, TrajectoryInfo[] trajectoryInfo) {
@@ -200,7 +205,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     }
 
     private void visualizeCueBallReposition(Graphics2D g2) {
-        if (mousePoint != null) {
+        if (mousePoint != null && isMyTurn) {
             if (isWithinBounds(mousePoint.x, mousePoint.y) && !cntrl.isAnyBallInSight(mousePoint.x, mousePoint.y)) {
                 g2.setColor(Color.WHITE);
             } else {
@@ -257,14 +262,14 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         dragStartY = mouseY;
         isCharging = true;
 
-        if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY)) {
+        if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY) && isMyTurn) {
             cntrl.resetCueBallPosition(mouseX, mouseY);
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (!isHitting && !cntrl.getCueBall().needsReposition()) {
+        if (!isHitting && !cntrl.getCueBall().needsReposition() && isMyTurn) {
             // Get the current drag position
             double dragX = e.getX();
             double dragY = e.getY();

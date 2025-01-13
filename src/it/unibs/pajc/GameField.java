@@ -32,6 +32,7 @@ public class GameField {
     private int roundCounter;
     private int playerCount;
     private boolean done;
+    private boolean foulHandled;
 
     public GameField() {
         balls = new ArrayList<>();
@@ -155,18 +156,6 @@ public class GameField {
         return pottedBallsId;
     }
 
-    /**
-     * Creazione stringa con posizioni di tutte le palline, che verra in seguito invitato al server
-     * @return String con informazioni sulle coordiante delle palline
-     */
-    public String messaggioPos() {
-        StringBuilder string = new StringBuilder();
-        for (Ball ball : balls) {
-            string.append(ball.toString()).append("\n");
-        }
-        return string.toString();
-    }
-
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
@@ -252,12 +241,13 @@ public class GameField {
     private void evaluateRound() {
         evaluationTriggered = true;
         // Se nessuna pallina è stata messa in buca si cambia giocatore
-        if (idFirstBallPocketed < 1 && !cueBall.needsReposition()) {
+        if (idFirstBallPocketed < 1 && !cueBall.needsReposition() && !foulHandled) {
             swapPlayers();
         } else if (!ballsAssigned && roundCounter > 1) {
             //Si entra nell'if se una pallina è stata messa in buca, e vengono assegnate se non è ancora successo
             assignBallType();
         }
+        foulHandled = false;
         checkIf8BallPotted();
     }
 
@@ -311,11 +301,13 @@ public class GameField {
 
     private void foulDetected() {
         cueBall.setNeedsReposition(true);
+        swapPlayers();
+        foulHandled = true;
         balls.remove(cueBall);
     }
 
     private void evaluateIfCueBallHitAnything() {
-        if (idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning) {
+        if (idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning && !foulHandled) {
             foulDetected();
         }
     }
@@ -374,6 +366,10 @@ public class GameField {
 
     public int getCurrentPlayerIndx() {
         return currentPlayerIndx;
+    }
+
+    public void setFoulHandled() {
+        this.foulHandled = true;
     }
 
     public boolean isDone() {

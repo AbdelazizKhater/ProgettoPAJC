@@ -313,6 +313,7 @@ public class BilliardController {
             model.setStatus(GameStatus.cueBallRepositioning);
             cueBall.setNeedsReposition(false);
             model.getBalls().addFirst(cueBall);
+            model.setFoulHandled();
             model.resetRound();
         }
     }
