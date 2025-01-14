@@ -13,7 +13,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 

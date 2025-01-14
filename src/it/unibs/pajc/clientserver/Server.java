@@ -8,7 +8,7 @@ import it.unibs.pajc.fieldcomponents.Ball;
 import java.io.*;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
-import java.net.Socket; 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -212,6 +212,10 @@ public class Server {
                 gameField.resetRound();
                 broadcastMessage("STATE@" + formatGameState(message));
 
+            } else if (message.startsWith("SYN@")) {
+                // Gestione del messaggio di sincronizzazione
+                appendLog("Ricevuto messaggio di sincronizzazione dal client " + id);
+                broadcastMessage(message); // Inoltra il messaggio di sincronizzazione agli altri client
             }
         }
 
