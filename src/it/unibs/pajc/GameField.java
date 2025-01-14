@@ -17,10 +17,10 @@ import static it.unibs.pajc.GameStatus.*;
 public class GameField {
 
     private final ArrayList<Ball> balls;
-    private final ArrayList<Ball> pottedBalls;
     private final ArrayList<Trapezoid> trapezoids;
     private final ArrayList<Pocket> pockets;
     private final ArrayList<Integer> pottedBallsId;
+    private final ArrayList<Integer> pottedBallsIdLastRound;
     private final Stick stick;
     private final Ball cueBall;
     private final Player[] players = new Player[2]; // id: 1
@@ -36,10 +36,10 @@ public class GameField {
 
     public GameField() {
         balls = new ArrayList<>();
-        pottedBalls = new ArrayList<>();
         trapezoids = new ArrayList<>();
         pockets = new ArrayList<>();
         pottedBallsId = new ArrayList<>();
+        pottedBallsIdLastRound = new ArrayList<>();
         stick = new Stick();
         cueBall = new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0);
         // Inizializzato il primo giocatore con indice 0
@@ -54,6 +54,7 @@ public class GameField {
 
     public void stepNext() {
         done = false;
+        System.out.println(currentPlayerIndx);
         if (!evaluationTriggered && status == roundStart)
             resetRound();
 
@@ -163,14 +164,16 @@ public class GameField {
                 if (ball.isWhite()) {
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
+                    pottedBallsIdLastRound.add(0);
+                    idFirstBallPocketed = 0;
                     balls.remove(ball);
                 } else {
-                    if (idFirstBallPocketed < 1)
+                    if (idFirstBallPocketed < 1) {
                         idFirstBallPocketed = ball.getBallNumber();
-                    pottedBalls.add(ball);
-                    pottedBallsId.add(ball.getNumber());
-                    balls.remove(ball);
-                    // TODO: aggiungere le palline in un panel view
+                        pottedBallsId.add(ball.getNumber());
+                        pottedBallsIdLastRound.add(ball.getNumber());
+                        balls.remove(ball);
+                    }
                 }
                 // Una volta che la pallina entra in buca, non vengono fatti altri controlli
                 break;
@@ -222,7 +225,9 @@ public class GameField {
     public void resetRound() {
         evaluateValidHit();
         evaluateIfCueBallHitAnything();
+        evaluateBallsPotted();
         evaluateRound();
+        pottedBallsIdLastRound.clear();
         idBallHit = -1;
         idFirstBallPocketed = -1;
         status = waitingPlayer2;
@@ -241,7 +246,7 @@ public class GameField {
     private void evaluateRound() {
         evaluationTriggered = true;
         // Se nessuna pallina è stata messa in buca si cambia giocatore
-        if (idFirstBallPocketed < 1 && !cueBall.needsReposition() && !foulHandled) {
+        if (idFirstBallPocketed < 0 && !cueBall.needsReposition() && !foulHandled) {
             swapPlayers();
         } else if (!ballsAssigned && roundCounter > 1) {
             //Si entra nell'if se una pallina è stata messa in buca, e vengono assegnate se non è ancora successo
@@ -299,11 +304,25 @@ public class GameField {
         }
     }
 
+    private void evaluateBallsPotted() {
+        if(ballsAssigned) {
+            for (int id : pottedBallsIdLastRound) {
+                if (getCurrentPlayer().isStripedBalls() && id < 8) {
+                    foulDetected();
+                } else if (!getCurrentPlayer().isStripedBalls() && (id > 8 || id == 0)) {
+                    foulDetected();
+                }
+            }
+        }
+    }
+
     private void foulDetected() {
-        cueBall.setNeedsReposition(true);
-        swapPlayers();
-        foulHandled = true;
-        balls.remove(cueBall);
+        if (!foulHandled) {
+            cueBall.setNeedsReposition(true);
+            swapPlayers();
+            foulHandled = true;
+            balls.remove(cueBall);
+        }
     }
 
     private void evaluateIfCueBallHitAnything() {
