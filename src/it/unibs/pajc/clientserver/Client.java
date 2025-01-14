@@ -147,7 +147,7 @@ public class Client {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Imposta le dimensioni corrette prese da BilliardGameApp
-        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 130);
         frame.setLayout(new BorderLayout());
 
         // Messaggio iniziale di attesa del secondo giocatore

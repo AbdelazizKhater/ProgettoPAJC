@@ -17,34 +17,59 @@ import java.util.List;
 
 public class InformationPanel extends JPanel {
 
-    private BallsPanel player1BallsPanel;
-    private BallsPanel player2BallsPanel;
+    private final BallsPanel player1BallsPanel;
+    private final BallsPanel player2BallsPanel;
+    private Image panelImage;
 
     private final BilliardController cntrl;
 
     public InformationPanel(BilliardController cntrl) {
         super();
         this.cntrl = cntrl;
+        loadImage();
 
+        // Ensure the InformationPanel itself does not overwrite the background
+        this.setOpaque(false);
+
+        // Create player1BallsPanel
         player1BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
-                cntrl.getPlayers()[0].equals(null) ? "0000" : cntrl.getPlayers()[0].getName(),
+                cntrl.getPlayers()[0] == null ? "0000" : cntrl.getPlayers()[0].getName(),
                 true, false);
+        player1BallsPanel.setOpaque(false);
 
-        player2BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
-                cntrl.getPlayers()[1].equals(null) ? "0000" : cntrl.getPlayers()[1].getName(),
-                true, false);
-
-        this.setLayout(new GridLayout(1, 2)); // Due celle orizzontali
-
-        JPanel player1Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0)); // Pannello centrato
-        player1Panel.setBackground(Color.gray);
+        // Wrap player1BallsPanel in a transparent parent container
+        JPanel player1Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        player1Panel.setOpaque(false);
         player1Panel.add(player1BallsPanel);
         add(player1Panel);
 
-        JPanel player2Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0)); // Pannello centrato
-        player2Panel.setBackground(Color.gray);
+        // Create player2BallsPanel
+        player2BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
+                cntrl.getPlayers()[1] == null ? "0000" : cntrl.getPlayers()[1].getName(),
+                true, false);
+        player2BallsPanel.setOpaque(false);
+
+        // Wrap player2BallsPanel in a transparent parent container
+        JPanel player2Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        player2Panel.setOpaque(false);
         player2Panel.add(player2BallsPanel);
         add(player2Panel);
+
+        this.setLayout(new GridLayout(1, 2)); // Keep GridLayout
+    }
+
+    private void loadImage() {
+        // Replace "background.jpg" with your actual image file path
+        panelImage = Toolkit.getDefaultToolkit().getImage("resources/panel.png");
+
+        // Ensures the image is fully loaded
+        MediaTracker tracker = new MediaTracker(this);
+        tracker.addImage(panelImage, 0);
+        try {
+            tracker.waitForAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void update() {
@@ -57,11 +82,23 @@ public class InformationPanel extends JPanel {
 
     }
 
-    private class BallsPanel extends JPanel {
-        private List<Integer> pottedBallsId;
-        private String playerName;
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (panelImage != null) {
+            // Draw the image to fit the panel's size
+            g.drawImage(panelImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+
+    private static class BallsPanel extends JPanel {
+        private final List<Integer> pottedBallsId;
+        private final String playerName;
         private boolean isStripedBalls;
         private boolean ballsAssigned;
+        private final int spacing = 5;
+
 
         public BallsPanel(ArrayList<Integer> pottedBallsId, String playerName, boolean isStripedBalls,
                 boolean ballsAssigned) {
@@ -69,10 +106,10 @@ public class InformationPanel extends JPanel {
             this.pottedBallsId = pottedBallsId;
             this.playerName = playerName;
             this.isStripedBalls = isStripedBalls;
-            this.setPreferredSize(new Dimension(BALL_RADIUS * 7 * 2, 60));
+            this.setPreferredSize(new Dimension((BALL_RADIUS * 2 + spacing) * 7, 130));
             this.ballsAssigned = ballsAssigned;
 
-            this.setBackground(Color.GRAY);
+            this.setOpaque(false);
         }
 
         public void setBallsAssigned(boolean value) {
@@ -85,30 +122,27 @@ public class InformationPanel extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+            if (isOpaque()) {
+                super.paintComponent(g); // This is optional if transparency is required
+            }
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             // Disegna il nome del giocatore in alto
-            g2.setFont(new Font("SansSerif", Font.BOLD, 14));
-            g2.setColor(Color.BLACK);
-            g2.drawString(playerName, 50, 20);
+            g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+            g2.setColor(Color.WHITE);
+            g2.drawString(playerName, 50, 50);
 
             int firstId = isStripedBalls ? 9 : 1;
             int lastId = isStripedBalls ? 15 : 7;
 
+
             for (int i = firstId; i <= lastId; i++) {
 
-                int ballx = (i - firstId) * 2 * BALL_RADIUS + BALL_RADIUS;
-                int bally = this.getHeight() / 1 - BALL_RADIUS;
+                int ballx = (i - firstId) * (2 * BALL_RADIUS + spacing) + BALL_RADIUS;
+                int bally = this.getHeight() - BALL_RADIUS * 2 - 10;
 
-                if (pottedBallsId.contains(i) || !ballsAssigned) {
-
-                    g2.setColor(Color.DARK_GRAY);
-                    g2.fill(new Ellipse2D.Double(ballx - BALL_RADIUS, bally - BALL_RADIUS, BALL_RADIUS * 2,
-                            BALL_RADIUS * 2));
-
-                } else {
+                if (!pottedBallsId.contains(i) && ballsAssigned) {
                     BallInfo ballInfo = new BallInfo(ballx, bally, BALL_RADIUS, i);
                     drawBall(g2, ballInfo);
                 }

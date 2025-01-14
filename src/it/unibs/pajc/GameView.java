@@ -15,9 +15,9 @@ public class GameView extends JPanel {
 
 
     public GameView(BilliardController cntrl) {
-        super(new BorderLayout(0, 10));
-        this.setBackground(Color.gray);
+        super(new BorderLayout(0, 0));
         this.cntrl = cntrl;
+        this.setOpaque(false);
         GameFieldView gameFieldPanel = new GameFieldView(cntrl);
         InformationPanel infoPanel = new InformationPanel(cntrl);
         this.add(infoPanel, BorderLayout.NORTH);
@@ -26,15 +26,16 @@ public class GameView extends JPanel {
     }
 
     public GameView(BilliardController cntrl, Client client) {
-        super(new BorderLayout(0, 10));
-        this.setBackground(Color.gray);
+        super(new BorderLayout(0, 0));
         this.cntrl = cntrl;
+        this.setOpaque(false);
         MultiplayerClientView gameFieldPanel = new MultiplayerClientView(cntrl, client);
         InformationPanel infoPanel = new InformationPanel(cntrl);
         this.add(infoPanel, BorderLayout.NORTH);
         this.add(gameFieldPanel, BorderLayout.CENTER);
         startTimer(cntrl, infoPanel);
     }
+
 
     private long previousTime;
     private long lag;
