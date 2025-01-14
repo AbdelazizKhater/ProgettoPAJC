@@ -39,6 +39,7 @@ public class MultiplayerController extends BilliardController {
         if (isBallsMoving && checkAllStationary() && !cueBallNeedsReposition()) {
             sendSynchronizationMessage();
             isBallsMoving = false;
+            myShot = false;
         }
     }
 

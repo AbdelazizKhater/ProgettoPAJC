@@ -30,7 +30,6 @@ public class BilliardGameApp {
         frame = new JFrame();
         frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // frame.requestFocus();
         frame.setResizable(false);
         centerFrame(frame);
 

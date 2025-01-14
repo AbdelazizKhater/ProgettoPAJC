@@ -218,7 +218,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     private void drawStick(Graphics2D g, Ball cueBall, Stick stick, Image stickImage) {
         // Calculate the stick's position and rotation
-        double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower();
+        double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower()*3;
         double stickAngleRadians = Math.toRadians(stick.getAngleDegrees()) ;
         double stickX = cueBall.getX() + stickDistance * Math.cos(stickAngleRadians);
         double stickY = cueBall.getY() + stickDistance * Math.sin(stickAngleRadians);
