@@ -9,12 +9,13 @@ import it.unibs.pajc.fieldcomponents.Ball;
 import java.util.Locale;
 
 /**
- * MultiplayerController estende BilliardController per supportare il gioco multiplayer.
+ * MultiplayerController estende BilliardController per supportare il gioco
+ * multiplayer.
  */
 public class MultiplayerController extends BilliardController {
 
     private final Client client;
-    private boolean isBallsMoving =false;
+    private boolean isBallsMoving = false;
 
     /**
      * Costruttore del MultiplayerController.
@@ -27,15 +28,14 @@ public class MultiplayerController extends BilliardController {
         this.client = client;
     }
 
-
     @Override
     public void stepNext() {
 
         super.stepNext();
-        
-        //Appena tutte le palline si fermano viene inviato il messaggio di sincronizzazione
-        if(isBallsMoving && checkAllStationary() && !cueBallNeedsReposition())
-        {
+
+        // Appena tutte le palline si fermano viene inviato il messaggio di
+        // sincronizzazione
+        if (isBallsMoving && checkAllStationary() && !cueBallNeedsReposition()) {
             sendSynchronizationMessage();
             isBallsMoving = false;
         }
@@ -64,16 +64,19 @@ public class MultiplayerController extends BilliardController {
         // Invia il comando al server
         client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
 
-        isBallsMoving = true;
+        
     }
 
     /**
-     * Invia un messaggio di sincronizzazione (SYN) al server con le posizioni delle palline.
+     * Invia un messaggio di sincronizzazione (SYN) al server con le posizioni delle
+     * palline.
      */
     public void sendSynchronizationMessage() {
         StringBuilder positions = new StringBuilder("SYN");
-        for (Ball ball : model.getBalls()) {
-            positions.append(String.format(Locale.US, "@%d,%.2f,%.2f", ball.getNumber(), ball.getX(), ball.getY()));
+        for (int i = 0; i < model.getBalls().size(); i++) {
+            Ball ball = model.getBalls().get(i);
+            positions.append(
+                    String.format(Locale.US, "@%d,%d,%.2f,%.2f", i, ball.getNumber(), ball.getX(), ball.getY()));
         }
         client.sendMessage(positions.toString());
         System.out.println("Inviato messaggio di sincronizzazione: " + positions);
@@ -103,7 +106,7 @@ public class MultiplayerController extends BilliardController {
      */
     public void updateModelFromMessage(String gameState) {
         String[] lines = gameState.split("\n");
-        
+
         for (String line : lines) {
             if (line.startsWith("PLAYER@")) {
                 String playerName = line.substring(7);
@@ -123,6 +126,9 @@ public class MultiplayerController extends BilliardController {
                 model.getStick().setAngleDegrees(angle);
                 model.getStick().setPower(power);
                 model.hitBall();
+                isBallsMoving = true;
+
+                
             } else if (line.startsWith("POSITION@")) {
                 String[] parts = line.split("@");
                 double xCueBall = Double.parseDouble(parts[1]);
@@ -141,20 +147,27 @@ public class MultiplayerController extends BilliardController {
                 String[] ballData = line.substring(4).split("@");
                 for (String data : ballData) {
                     String[] parts = data.split(",");
-                    int id = Integer.parseInt(parts[0]);
-                    double x = Double.parseDouble(parts[1]);
-                    double y = Double.parseDouble(parts[2]);
+                    int index = Integer.parseInt(parts[0]); // Indice della pallina
+                    int id = Integer.parseInt(parts[1]); // Numero della pallina
+                    double x = Double.parseDouble(parts[2]);
+                    double y = Double.parseDouble(parts[3]);
 
-                    for (Ball ball : model.getBalls()) {
-
-                        if (ball.getNumber() == id) {
+                    if (index < model.getBalls().size()) {
+                        Ball ball = model.getBalls().get(index);
+                        if (ball.getNumber() == id) { // Verifica che l'ID corrisponda
                             ball.setPosition(x, y);
-                            break;
+                        } else {
+                            System.err.printf("Mismatch: indice %d, ID ricevuto %d, ID atteso %d\n",
+                                    index, id, ball.getNumber());
                         }
+                    } else {
+                        System.err.printf("Indice %d non valido. Esistono %d palline nel modello.\n",
+                                index, model.getBalls().size());
                     }
                 }
                 System.out.println("Modello sincronizzato con i dati ricevuti dal server.");
             }
+
         }
     }
 

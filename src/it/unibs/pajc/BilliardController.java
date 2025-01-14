@@ -25,6 +25,7 @@ public class BilliardController {
 
     public void stepNext() {
         model.stepNext();
+
     }
 
     public Player[] getPlayers() {

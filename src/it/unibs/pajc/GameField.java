@@ -54,7 +54,6 @@ public class GameField {
 
     public void stepNext() {
         done = false;
-        System.out.println(currentPlayerIndx);
         if (!evaluationTriggered && status == roundStart)
             resetRound();
 

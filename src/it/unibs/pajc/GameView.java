@@ -4,15 +4,13 @@ import it.unibs.pajc.clientserver.Client;
 import it.unibs.pajc.clientserver.MultiplayerClientView;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.io.IOException;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.swing.*;
 
 public class GameView extends JPanel {
 
     private final BilliardController cntrl;
-
 
     public GameView(BilliardController cntrl) {
         super(new BorderLayout(0, 0));
@@ -37,33 +35,46 @@ public class GameView extends JPanel {
     }
 
 
-    private long previousTime;
-    private long lag;
+    
 
     private void startTimer(BilliardController cntrl, InformationPanel infoPanel) {
-        final long timeStep = 16_666_667; // Fixed timestep: ~16.67ms (60 updates per second)
-        final long maxLag = timeStep * 60; // Avoid excessive lag buildup
-
-        Timer timer = new Timer(0, e -> {
-            long currentTime = System.nanoTime();
-            long elapsedTime = currentTime - previousTime;
-            previousTime = currentTime;
-
-            lag += elapsedTime;
-            lag = Math.min(lag, maxLag); // Cap lag to avoid spiral of death
-
-            while (lag >= timeStep) {
-                cntrl.stepNext(); // Fixed physics update
-                lag -= timeStep;
+        final long timeStep = 16_666_667; // ~16.67ms per 60 FPS
+        final long[] nextUpdateTime = { System.nanoTime() }; // Variabile mutabile per il tempo del prossimo aggiornamento
+    
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.execute(() -> {
+            while (true) {
+                long currentTime = System.nanoTime();
+    
+                if (currentTime >= nextUpdateTime[0]) {
+                    long drift = currentTime - nextUpdateTime[0];
+    
+                    // Esegui stepNext e repaint
+                    cntrl.stepNext();
+                    repaint();
+    
+                    // Aggiorna la UI
+                    infoPanel.update();
+    
+                    // Calcola il prossimo aggiornamento
+                    nextUpdateTime[0] += timeStep;
+    
+                    // Correggi la sincronizzazione se il drift è troppo elevato
+                    if (Math.abs(drift) > timeStep * 2) {
+                        nextUpdateTime[0] = System.nanoTime() + timeStep;
+                    }
+                }
+    
+                // Evita loop inutili (riduce il carico della CPU)
+                try {
+                    Thread.sleep(1); // Riposa per 1 millisecondo
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
             }
-
-            infoPanel.update(); // Update UI (can be decoupled if necessary)
-            repaint(); // Render the frame
         });
-
-        previousTime = System.nanoTime();
-        lag = 0;
-        timer.start();
     }
+    
 
 }
