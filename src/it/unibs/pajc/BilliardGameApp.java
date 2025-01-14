@@ -1,11 +1,7 @@
 package it.unibs.pajc;
 
-//import it.unibs.pajc.clientserver.Client;
-
 import javax.swing.*;
-
-import it.unibs.pajc.clientserver.HomePage;
-
+import it.unibs.pajc.clientserver.IpMenuFrame;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -79,8 +75,8 @@ public class BilliardGameApp {
     private void joinGame(ActionEvent e) {
         frame.dispose(); // Chiude la finestra attuale
         SwingUtilities.invokeLater(() -> {
-            HomePage homePage = new HomePage(); // Crea una nuova istanza di HomePage
-            homePage.setVisible(true); // Mostra la finestra della HomePage
+            IpMenuFrame ipMenuFrame = new IpMenuFrame(); // Crea una nuova istanza di IpMenuFrame
+            ipMenuFrame.setVisible(true); // Mostra la finestra della IpMenuFrame
         });
     }
 
