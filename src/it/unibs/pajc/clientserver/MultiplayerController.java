@@ -16,6 +16,7 @@ public class MultiplayerController extends BilliardController {
 
     private final Client client;
     private boolean isBallsMoving = false;
+    private boolean myShot =false;
 
     /**
      * Costruttore del MultiplayerController.
@@ -64,6 +65,7 @@ public class MultiplayerController extends BilliardController {
         // Invia il comando al server
         client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
 
+        myShot = true;
         
     }
 
@@ -126,7 +128,8 @@ public class MultiplayerController extends BilliardController {
                 model.getStick().setAngleDegrees(angle);
                 model.getStick().setPower(power);
                 model.hitBall();
-                isBallsMoving = true;
+
+                isBallsMoving = myShot;
 
                 
             } else if (line.startsWith("POSITION@")) {

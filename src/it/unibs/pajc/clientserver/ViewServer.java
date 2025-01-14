@@ -4,12 +4,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ViewServer extends JFrame {
 
     private JPanel contentPane;
     private JTextArea logTextArea;
     private JTextArea participantsTextArea;
+    private JTextArea sessionsTextArea;
     private JScrollPane logScrollPane;
 
     /**
@@ -21,7 +24,7 @@ public class ViewServer extends JFrame {
     public ViewServer(String ip, int pNumber) {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Server - Billiard Multiplayer");
-        setBounds(100, 100, 1000, 500);
+        setBounds(100, 100, 1200, 600);
 
         contentPane = new JPanel();
         contentPane.setBackground(new Color(240, 240, 240));
@@ -35,9 +38,9 @@ public class ViewServer extends JFrame {
         titleLabel.setForeground(Color.DARK_GRAY);
         contentPane.add(titleLabel, BorderLayout.NORTH);
 
-        // Pannello centrale per log e partecipanti
+        // Pannello centrale per log, partecipanti e sessioni
         JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(1, 2, 10, 10));
+        centerPanel.setLayout(new GridLayout(1, 3, 10, 10));
 
         // Log del server
         logTextArea = new JTextArea();
@@ -56,8 +59,18 @@ public class ViewServer extends JFrame {
         participantsTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JScrollPane participantsScrollPane = new JScrollPane(participantsTextArea);
-        participantsScrollPane.setBorder(BorderFactory.createTitledBorder("Partecipanti"));
+        participantsScrollPane.setBorder(BorderFactory.createTitledBorder("Partecipanti Connessi"));
         centerPanel.add(participantsScrollPane);
+
+        // Sessioni di gioco
+        sessionsTextArea = new JTextArea();
+        sessionsTextArea.setEditable(false);
+        sessionsTextArea.setBackground(Color.WHITE);
+        sessionsTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        JScrollPane sessionsScrollPane = new JScrollPane(sessionsTextArea);
+        sessionsScrollPane.setBorder(BorderFactory.createTitledBorder("Sessioni di Gioco"));
+        centerPanel.add(sessionsScrollPane);
 
         contentPane.add(centerPanel, BorderLayout.CENTER);
 
@@ -74,13 +87,31 @@ public class ViewServer extends JFrame {
      * @param clientThreadsList Lista dei client connessi.
      */
     public void updateParticipants(List<Server.ClientThread> clientThreadsList) {
-        StringBuilder participants = new StringBuilder("Partecipanti:\n");
+        StringBuilder participants = new StringBuilder("Partecipanti Connessi:\n");
         for (Server.ClientThread client : clientThreadsList) {
             participants.append("ID: ").append(client.getClientId())
                         .append(" - Nome: ").append(client.getPlayerName() != null ? client.getPlayerName() : "Sconosciuto")
                         .append("\n");
         }
         participantsTextArea.setText(participants.toString());
+    }
+
+    /**
+     * Aggiorna la lista delle sessioni di gioco con i dati forniti.
+     *
+     * @param gameSessions Mappa delle sessioni di gioco, con ID e lista di giocatori.
+     */
+    public void updateGameSessions(Map<Integer, List<Server.ClientThread>> gameSessions) {
+        StringBuilder sessions = new StringBuilder("Sessioni di Gioco Attive:\n");
+        for (Map.Entry<Integer, List<Server.ClientThread>> entry : gameSessions.entrySet()) {
+            int sessionId = entry.getKey();
+            List<Server.ClientThread> clients = entry.getValue();
+            String players = clients.stream()
+                    .map(client -> client.getPlayerName() != null ? client.getPlayerName() : "Sconosciuto")
+                    .collect(Collectors.joining(", "));
+            sessions.append("Sessione ID: ").append(sessionId).append(" - Giocatori: ").append(players).append("\n");
+        }
+        sessionsTextArea.setText(sessions.toString());
     }
 
     /**
