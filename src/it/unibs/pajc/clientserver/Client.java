@@ -103,9 +103,9 @@ public class Client {
         } else if (message.startsWith("STATE@")) {
             // Aggiorna lo stato del gioco
             SwingUtilities.invokeLater(() -> updateGameState(message.substring(6)));
-        } else if (message.startsWith("SYN@")) {
-            // Gestione del messaggio di sincronizzazione
-            SwingUtilities.invokeLater(() -> controller.updateModelFromMessage(message.substring(0)));
+//        } else if (message.startsWith("SYN@")) {
+//            // Gestione del messaggio di sincronizzazione
+//            SwingUtilities.invokeLater(() -> controller.updateModelFromMessage(message.substring(0)));
         } else if (message.startsWith("MESSAGE@")) {
             // Altri tipi di messaggi (opzionale)
             System.out.println("Messaggio dal server: " + message.substring(8));

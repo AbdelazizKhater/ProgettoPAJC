@@ -51,10 +51,12 @@ public class GameField {
         setupInitialPositions();
     }
 
-
+    private int count = 0;
     public void stepNext() {
         if (!evaluationTriggered && status == roundStart)
             resetRound();
+
+        System.out.println(count++ + ": " + balls.get(12).x + " " + balls.get(12).y);
 
         for (int i = 0; i < balls.size(); i++) {
             final Ball ball = balls.get(i);
