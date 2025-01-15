@@ -22,7 +22,7 @@ public class Server {
     private final List<GameSession> gameSessions; // Tutte le sessioni di gioco
     private final List<ClientThread> waitingClients; // Client che hanno completato il processo di JOIN@
     private final int port;
-    private ViewServer viewServer;
+    protected static ViewServer viewServer;
 
     public Server(int port) {
         this.port = port;
@@ -291,6 +291,9 @@ public class Server {
         private void broadcastMessage(String message) {
             player1.writeMsg(message);
             player2.writeMsg(message);
+
+            viewServer.appendLog(String.format("Messaggio inviato ai client %d, %d: %s", player1.getClientId(),
+                    player2.getClientId(), message));
         }
 
         public void removeClient(ClientThread client) {
