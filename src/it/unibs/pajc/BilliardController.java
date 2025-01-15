@@ -125,6 +125,10 @@ public class BilliardController {
         model.hitBall();
     }
 
+    /**
+     * Calcolo della traiettoria tramite l'angolo della stecca, la posizione della biglia bianca e la posizione
+     * di ogni biglia che interseca la linea creata dal punto finale della stecca al bordo del tavolo di gioco.
+     */
     public TrajectoryInfo[] calculateTrajectory() {
         double angle = Math.toRadians(model.getStick().getAngleDegrees() + 180);
         double dx = Math.cos(angle);
@@ -226,6 +230,9 @@ public class BilliardController {
         return trajectories;
     }
 
+    /**
+     * Calcola la potenziale collisione con una biglia
+     */
     private Point2D getCircleCircleIntersection(double x1, double y1, double dx, double dy,
             double cx, double cy, double radius) {
         // Sposta il sistema di coordinate: il centro della cue ball è l'origine
@@ -307,6 +314,9 @@ public class BilliardController {
         return new TrajectoryInfo[] { cueBallTrajectory, targetBallTrajectory };
     }
 
+    /**
+     * Gestione del riposizionamento della biglia bianca quando viene commesso un foul.
+     */
     public void resetCueBallPosition(int x, int y) {
         Ball cueBall = model.getCueBall();
         if (cueBall.needsReposition()) {
@@ -336,14 +346,6 @@ public class BilliardController {
 
     public boolean cueBallNeedsReposition() {
         return model.getCueBall().needsReposition();
-    }
-
-    public void setStatus(GameStatus status) {
-        model.setStatus(status);
-    }
-
-    public boolean isDone() {
-        return model.isDone();
     }
 
     public int getRoundNumber() {

@@ -36,6 +36,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         this.addMouseListener(this);
     }
 
+    /**
+     * Carica le immagini utilizzate per il campo e le stecche.
+     */
     private void loadImage() {
         // Replace "background.jpg" with your actual image file path
         backgroundImage = Toolkit.getDefaultToolkit().getImage("resources/background.png");
@@ -89,6 +92,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     }
 
 
+    /**
+     * Disegna la linea di collisione con le altre biglie.
+     */
     public void drawTrajectory(Graphics2D g, TrajectoryInfo[] trajectoryInfo) {
 
         AffineTransform originalTransform = g.getTransform();
@@ -118,6 +124,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     }
 
+    /**
+     * Metodo principale che gestisce la grafica di ogni biglia, a seconda del proprio id.
+     */
     public void drawBall(Graphics2D g, BallInfo ballInfo) {
         AffineTransform originalTransform = g.getTransform();
         double scaleFactor = 1000;
@@ -204,6 +213,10 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         return BALL_COLORS[number];
     }
 
+    /**
+     * Visualizza la biglia bianca quando si può riposizionare, rossa se si sta provando a riposizionare
+     * sul bordo o su altre biglie.
+     */
     private void visualizeCueBallReposition(Graphics2D g2) {
         if (mousePoint != null && isMyTurn) {
             if (isWithinBounds(mousePoint.x, mousePoint.y) && !cntrl.isAnyBallInSight(mousePoint.x, mousePoint.y)) {
@@ -217,6 +230,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         }
     }
 
+    /**
+     * Metodo principale per il disegno della stecca.
+     */
     private void drawStick(Graphics2D g, Ball cueBall, Stick stick, Image stickImage) {
         // Calculate the stick's position and rotation
         double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower()*3;
@@ -240,6 +256,9 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         g.setTransform(originalTransform);
     }
 
+    /**
+     * Una volta rilasciato il mouse, viene utilizzato questo metodo per gestire l'animazione del colpo.
+     */
     public void releaseStick() {
         if (!cntrl.reduceStickVisualPowerForAnimation()) {
             cntrl.onStickAnimationComplete(); // Notifica che l'animazione è completata

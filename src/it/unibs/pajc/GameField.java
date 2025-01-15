@@ -43,24 +43,19 @@ public class GameField {
         pottedBallsIdLastRound = new ArrayList<>();
         stick = new Stick();
         cueBall = new Ball(200, TABLE_HEIGHT / 2.0, 0, 0, 0);
-        // Inizializzato il primo giocatore con indice 0
         currentPlayerIndx = 0;
         roundCounter = -1;
         playerCount = 0;
-
-        // Add billiard balls in initial positions
         setupInitialPositions();
     }
 
 
     public void stepNext() {
-        done = false;
         if (!evaluationTriggered && status == roundStart)
             resetRound();
 
         for (int i = 0; i < balls.size(); i++) {
-            final int index = i; // Variabile finale per l'uso nel task
-            final Ball ball = balls.get(index);
+            final Ball ball = balls.get(i);
 
             // Aggiorna la posizione e controlla i limiti
             ball.updatePosition();
@@ -70,10 +65,9 @@ public class GameField {
             checkPocketCollision(ball);
 
             // Controlla collisioni con altre palline
-            checkOtherBallCollision(index, ball);
-            //});
+            checkOtherBallCollision(i, ball);
+
         }
-        done = true;
     }
 
     public void addPlayer(Player p) {
@@ -99,6 +93,10 @@ public class GameField {
         }
     }
 
+    /**
+     * metodo statico che viene chiamato all'inizio della partita, dispone le biglie nella loro posizione
+     * triangolare.
+     */
     private void setupInitialPositions() {
         // Definizione area di ogni trapezio
         for (int i = 0; i < X_POINTS_TRAPEZI.length; i++) {
@@ -114,20 +112,18 @@ public class GameField {
             pockets.add(new Pocket(x, y, pocketRadius));
         }
 
-        // Position for the white ball
-        balls.add(cueBall); // Add the white cue ball
-        // Pyramid starting position for numbered balls
-        int startX = 800; // Base X position of the triangle
-        int startY = TABLE_HEIGHT / 2; // Center of the table
-        int rows = 5; // Number of rows in the triangle
+        balls.add(cueBall);
+        //Posizione di partenza della piramide
+        int startX = 800;
+        int startY = TABLE_HEIGHT / 2;
+        int rows = 5;
 
-        // Sequential list of ball numbers from 1 to 15
         List<Integer> ballNumbers = new ArrayList<>();
         for (int i = 1; i <= 15; i++) {
             ballNumbers.add(i);
         }
 
-        // Add numbered balls in a triangular configuration
+        // Aggiunge le biglie in una disposizione piramidale.
         int numberIndex = 0;
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col <= row; col++) {
@@ -140,6 +136,9 @@ public class GameField {
         stick.setAngleDegrees(180);
     }
 
+    /**
+     * Gestione dei check delle collisioni per ogni pallina in gioco
+     */
     private void checkOtherBallCollision(int i, Ball ball) {
 
         for (int j = i + 1; j < balls.size(); j++) {
@@ -157,10 +156,15 @@ public class GameField {
         return pottedBallsId;
     }
 
+    /**
+     * Viene controllata la collisione con ogni buca, non appena il centro della biglia tocca la buca,
+     * la biglia viene tolta dal gioco. Gestione separata della biglia bianca.
+     */
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
                 SoundControl.BALL_POTTED.play();
+                //Per la biglia bianca, viene settato il boolean di riposizionamento.
                 if (ball.isWhite()) {
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
@@ -175,7 +179,7 @@ public class GameField {
                         balls.remove(ball);
                     }
                 }
-                // Una volta che la pallina entra in buca, non vengono fatti altri controlli
+                // Una volta che la biglia entra in una delle buche, non vengono fatti altri controlli
                 break;
             }
         }
@@ -183,6 +187,9 @@ public class GameField {
 
     private boolean evaluationTriggered = false;
 
+    /**
+     * Ritorna true quando tutte le biglie sono ferme, utilizzato per gestire i turni e l'assegnamento di falli
+     */
     public boolean allBallsAreStationary() {
         for (Ball ball : balls) {
             if (!ball.isStationary()) {
@@ -200,15 +207,18 @@ public class GameField {
         Stick stick = getStick();
         if (stick.getVisualPower() > 0) {
             stick.setVisualPower(stick.getVisualPower() - speed);
-            return true; // Animazione in corso
+            return true;
         }
-        return false; // Animazione completata
+        return false;
     }
 
+    /**
+     * Applica la velocità alla biglia bianca dopo il tiro
+     */
     public void hitBall() {
         double[] velocity = stick.calculateBallVelocity();
         cueBall.applyVelocity(velocity);
-        stick.setPower(0); // Reset della potenza reale dopo il colpo
+        stick.setPower(0);
     }
 
     public GameStatus getStatus() {
@@ -256,6 +266,11 @@ public class GameField {
         checkIf8BallPotted();
     }
 
+    /**
+     * Una volta che la biglia 8 entra in buca, viene dichiarato un vincitore. Se le condizioni di vittoria
+     * sono soddisfatte, il giocatore vince, altrimenti vince l'avversario.
+     * La partita è conclusa.
+     */
     private void checkIf8BallPotted() {
         if (pottedBallsId.contains(8)) {
             status = completed;
@@ -269,6 +284,10 @@ public class GameField {
         }
     }
 
+    /**
+     * Dopo il break, non appena una biglia viene messa in buca viene assegnato il suo tipo al giocatore corrente,
+     * l'altro tipo viene automaticamente assegnato al secondo giocatore.
+     */
     private void assignBallType() {
         Player p1 = getCurrentPlayer();
         Player p2 = getWaitingPlayer();
@@ -306,6 +325,10 @@ public class GameField {
         }
     }
 
+    /**
+     * Viene controllato ogni turno che le biglie messe in buca siano quelle del giocatore corrente. Se
+     * il giocatore mette in buca una biglia non sua (o la biglia bianca), viene commesso un fallo.
+     */
     private void evaluateBallsPotted() {
         if(ballsAssigned) {
             for (int id : pottedBallsIdLastRound) {
@@ -318,6 +341,9 @@ public class GameField {
         }
     }
 
+    /**
+     * Gestione dei falli, riposizionamento della biglia bianca e cambio turno.
+     */
     private void foulDetected() {
         if (!foulHandled) {
             cueBall.setNeedsReposition(true);
@@ -327,6 +353,10 @@ public class GameField {
         }
     }
 
+    /**
+     * Controllo dei tiri a vuoto, se nessuna pallina viene colpita, l'idballhit sarà a -1, quindi viene
+     * dichiarato fallo.
+     */
     private void evaluateIfCueBallHitAnything() {
         if (idBallHit < 0 && roundCounter > 1 && status != cueBallRepositioning && !foulHandled) {
             foulDetected();
@@ -391,10 +421,6 @@ public class GameField {
 
     public void setFoulHandled() {
         this.foulHandled = true;
-    }
-
-    public boolean isDone() {
-        return done;
     }
 
     public String getWinningPlayer() {

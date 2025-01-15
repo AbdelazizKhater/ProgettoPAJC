@@ -35,8 +35,6 @@ public class GameView extends JPanel {
     }
 
 
-    
-
     private void startTimer(BilliardController cntrl, InformationPanel infoPanel) {
         final long timeStep = 16_666_667; // ~16.67ms per 60 FPS
         final long[] nextUpdateTime = { System.nanoTime() }; // Variabile mutabile per il tempo del prossimo aggiornamento

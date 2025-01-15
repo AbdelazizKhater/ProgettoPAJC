@@ -26,22 +26,30 @@ public class Ball extends GameFieldObject {
         this.shape = new Area(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
     }
 
+    /**
+     * Attraverso la velocità, viene riposizionata la biglia. Tramite un fattore 0.99 di attrito,
+     * la pallina viene rallentata in modo realistico.
+     */
     public void updatePosition() {
         x += vx;
         y += vy;
 
-        // Apply friction
-        double friction = 0.99; // Increased friction for more realistic slowdown
+        // Attrito
+        double friction = 0.99;
         vx *= friction;
         vy *= friction;
 
-        // Stop ball if velocity is very low
+        // La biglia viene fermata quando è troppo lenta, per evitare attese inutili
         if (Math.abs(vx) < 0.1 && Math.abs(vy) < 0.1) {
             vx = 0;
             vy = 0;
         }
     }
 
+    /**
+     * Calcolo della distanza del centro della biglia dalla buca, una volta che il centro della biglia
+     * tocca la buca, viene considerata fuori gioco.
+     */
     public boolean handleCollisionWithPocket(Pocket pocket) {
         double dx = this.x - pocket.x - pocket.getRadius();
         double dy = this.y - pocket.y - pocket.getRadius();
@@ -50,26 +58,30 @@ public class Ball extends GameFieldObject {
        return distance <= pocket.getRadius();
     }
 
+    /**
+     * Calcolo della collisione con i bordi, composti da 6 trapezi.
+     */
     public void checkBounds(ArrayList<Trapezoid> trapezoids) {
         if (trapezoids != null) {
             for (Trapezoid trapezoid : trapezoids) {
-                if (isCollidingWithEdge(trapezoid)) {
+                if (this.checkCollision(trapezoid)) {
                     handleCollisionWithShape(trapezoid);
                 }
             }
         }
     }
 
-    private boolean isCollidingWithEdge(Trapezoid trapezoid) {
-        // Check collision with the edge itself
-        return this.checkCollision(trapezoid);
-    }
-
+    /**
+     * Imposta la velocità a 0, utilizzato nella collisione con buche per evitare errori di clipping.
+     */
     public void resetSpeed(){
         this.vx = 0;
         this.vy = 0;
     }
 
+    /**
+     * Metodo generico di check di collisione tramite intersezione di aree con altri oggetti del campo di gioco.
+     */
     private void handleCollisionWithShape(GameFieldObject object) {
         // Crea oggetti Area per la pallina e l'oggetto
         Area ballArea = new Area(this.getShape());
@@ -113,6 +125,9 @@ public class Ball extends GameFieldObject {
         }
     }
 
+    /**
+     * Risoluzione delle collisioni tramite calcolo fisico degli urti.
+     */
     public void resolveCollision(Ball other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
@@ -162,7 +177,6 @@ public class Ball extends GameFieldObject {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return getX() + "@" + getY();
     }
 

@@ -16,10 +16,6 @@ public class Player {
         this.stripedBalls = stripedBalls;
     }
 
-    /**
-     * 
-     * @return true if the player has striped balls, false otherwise
-     */
     public boolean isStripedBalls() {
         return stripedBalls;
     }

@@ -28,15 +28,19 @@ public class GameFieldObject {
         return t.createTransformedShape(shape);
     }
 
+    /**
+     * Prima di creare aree complesse, viene controllata la collisione tramite rettangoli.
+     * Se gli oggetti sono distanti l'uno dall'altro, risparmia calcoli di aree inutili.
+     */
     public boolean checkCollision(GameFieldObject o) {
         Rectangle aabb1 = this.getShape().getBounds();
         Rectangle aabb2 = o.getShape().getBounds();
 
         if (!aabb1.intersects(aabb2)) {
-            return false; // No collision if AABBs don't intersect
+            return false;
         }
 
-        // Proceed with precise shape check
+        //Se collidono i rettangoli, si passa al check vero di collisione.
         Area a = new Area(this.getShape());
         Area objArea = new Area(o.getShape());
         a.intersect(objArea);
