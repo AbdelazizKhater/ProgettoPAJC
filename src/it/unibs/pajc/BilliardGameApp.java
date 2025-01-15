@@ -7,11 +7,11 @@ import java.awt.event.ActionEvent;
 
 import static it.unibs.pajc.util.CostantiStatiche.*;
 
-public class BilliardGameApp {
+public class BilliardGameApp extends JPanel {
 
     private BilliardController cntrl;
     private GameField model;
-    Player localPlayer;
+    private Image mainTitleImage;
 
     private JFrame frame;
 
@@ -27,38 +27,40 @@ public class BilliardGameApp {
     }
 
 
-    
+
 
     private void startGameMenu() {
+        loadImage();
         frame = new JFrame();
-        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 84);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         centerFrame(frame);
 
-        JPanel menuPanel = new JPanel();
-        menuPanel.setBackground(Color.GRAY);
+        // Use the custom BackgroundPanel
+        JPanel menuPanel = new BackgroundPanel();
         frame.getContentPane().add(menuPanel, BorderLayout.CENTER);
         menuPanel.setLayout(null);
 
-        JLabel lblTitle = new JLabel("Uni Ball Pool");
-        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Arial Black", Font.PLAIN, 70));
-        lblTitle.setBounds(291, 47, 673, 153);
-        menuPanel.add(lblTitle);
-
         JButton btnSinglePlayer = new JButton("SINGLE PLAYER");
         btnSinglePlayer.setFont(new Font("Arial Black", Font.PLAIN, 30));
-        btnSinglePlayer.setBounds(236, 244, 728, 96);
+        btnSinglePlayer.setFocusPainted(false);
+        btnSinglePlayer.setForeground(Color.WHITE);
+        btnSinglePlayer.setBackground(new Color(32, 32, 32, 255));
+        btnSinglePlayer.setBounds(358, 400, 500, 60);
         menuPanel.add(btnSinglePlayer);
         btnSinglePlayer.addActionListener(this::startLocalGame);
 
         JButton btnJoinGame = new JButton("JOIN GAME");
         btnJoinGame.addActionListener(this::joinGame);
+        btnJoinGame.setFocusPainted(false);
+        btnJoinGame.setForeground(Color.WHITE);
+        btnJoinGame.setBackground(new Color(32, 32, 32, 255));
         btnJoinGame.setFont(new Font("Arial Black", Font.PLAIN, 30));
-        btnJoinGame.setBounds(236, 400, 728, 96);
+        btnJoinGame.setBounds(358, 500, 500, 60);
         menuPanel.add(btnJoinGame);
 
+        frame.setVisible(true);
     }
 
     private void startLocalGame(ActionEvent e) {
@@ -104,4 +106,27 @@ public class BilliardGameApp {
         frame.setLocation(x, y);
     }
 
+    private void loadImage() {
+        // Replace "background.jpg" with your actual image file path
+        mainTitleImage = Toolkit.getDefaultToolkit().getImage("resources/title_screen.png");
+
+        // Ensures the image is fully loaded
+        MediaTracker tracker = new MediaTracker(this);
+        tracker.addImage(mainTitleImage, 0);
+        try {
+            tracker.waitForAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class BackgroundPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (mainTitleImage != null) {
+                g.drawImage(mainTitleImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        }
+    }
 }

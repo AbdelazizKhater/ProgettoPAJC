@@ -51,15 +51,14 @@ public class GameView extends JPanel {
     
                     // Esegui stepNext e repaint
                     cntrl.stepNext();
+                    repaint();
 
                     if(cntrl.getGameStatus() == GameStatus.completed ) {
                         JOptionPane.showMessageDialog(this, "Il giocatore " + cntrl.winningPlayer() + " vince!", "Vincitore", JOptionPane.INFORMATION_MESSAGE);
                         //gameFinished = true;
                         scheduler.close();
                     }
-                    repaint();
 
-    
                     // Aggiorna la UI
                     infoPanel.update();
     
