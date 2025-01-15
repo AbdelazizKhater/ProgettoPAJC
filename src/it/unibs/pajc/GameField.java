@@ -18,7 +18,6 @@ import static it.unibs.pajc.GameStatus.*;
  */
 public class GameField {
 
-    public AtomicBoolean done = new AtomicBoolean(false);
     private final ArrayList<Ball> balls;
     private final ArrayList<Trapezoid> trapezoids;
     private final ArrayList<Pocket> pockets;
@@ -70,7 +69,6 @@ public class GameField {
             checkOtherBallCollision(i, ball);
         }
 
-        done.set(true);
     }
 
     public void addPlayer(Player p) {

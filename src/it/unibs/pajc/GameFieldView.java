@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 
 public class GameFieldView extends JPanel implements MouseMotionListener, MouseListener {
 
-    public static final int MAX_POWER = 80;
     private Boolean isHitting = false;
     private Point mousePoint;
     protected Image backgroundImage;

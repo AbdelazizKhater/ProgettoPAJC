@@ -55,19 +55,7 @@ public class GameView extends JPanel {
                     long drift = currentTime - nextUpdateTime[0];
 
                     // Esegui stepNext e repaint
-                    cntrl.isCalculationDone().set(false);
-
                     cntrl.stepNext();
-
-                    // wait
-                    while(!cntrl.isCalculationDone().get()) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
                     repaint();
 
                     if (cntrl.getGameStatus() == GameStatus.completed) {

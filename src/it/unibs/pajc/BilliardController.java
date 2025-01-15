@@ -64,9 +64,6 @@ public class BilliardController {
         return model.getCurrentPlayerIndx();
     }
 
-    public AtomicBoolean isCalculationDone() {
-        return model.done;
-    }
     public ArrayList<Integer> getPottedBallsId() {
         return model.getPottedBallsId();
     }
