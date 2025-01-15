@@ -16,7 +16,7 @@ public class MultiplayerController extends BilliardController {
 
     private final Client client;
     private boolean isBallsMoving = false;
-    private boolean myShot =false;
+    private boolean myShot = false;
 
     /**
      * Costruttore del MultiplayerController.
@@ -67,7 +67,7 @@ public class MultiplayerController extends BilliardController {
         client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
 
         myShot = true;
-        
+
     }
 
     /**
@@ -132,7 +132,6 @@ public class MultiplayerController extends BilliardController {
 
                 isBallsMoving = myShot;
 
-                
             } else if (line.startsWith("POSITION@")) {
                 String[] parts = line.split("@");
                 double xCueBall = Double.parseDouble(parts[1]);
@@ -159,6 +158,8 @@ public class MultiplayerController extends BilliardController {
                     if (index < model.getBalls().size()) {
                         Ball ball = model.getBalls().get(index);
                         if (ball.getNumber() == id) { // Verifica che l'ID corrisponda
+
+                            System.out.println("pallina sincronizzata: " + ball.getBallNumber());
                             ball.setPosition(x, y);
                         } else {
                             System.err.printf("Mismatch: indice %d, ID ricevuto %d, ID atteso %d\n",

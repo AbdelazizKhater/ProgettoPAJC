@@ -141,7 +141,7 @@ public class BilliardController {
         if (dx != 0) {
             double t = (INNER_MARGIN + BALL_RADIUS - startX) / dx; // Aggiunto il raggio
             double y = startY + t * dy;
-            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS) {
+            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS + 1 && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS - 1) {
                 endX = INNER_MARGIN + BALL_RADIUS;
                 endY = y;
             }
@@ -151,7 +151,7 @@ public class BilliardController {
         if (dx != 0) {
             double t = (INNER_FIELD_LIMIT_X - BALL_RADIUS - startX) / dx; // Tolto il raggio
             double y = startY + t * dy;
-            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS) {
+            if (t > 0 && y >= INNER_MARGIN + BALL_RADIUS + 1 && y <= INNER_FIELD_LIMIT_Y - BALL_RADIUS - 1) {
                 endX = INNER_FIELD_LIMIT_X - BALL_RADIUS;
                 endY = y;
             }
@@ -161,7 +161,7 @@ public class BilliardController {
         if (dy != 0) {
             double t = (INNER_MARGIN + BALL_RADIUS - startY) / dy; // Aggiunto il raggio
             double x = startX + t * dx;
-            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS) {
+            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS + 1 && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS - 1) {
                 endX = x;
                 endY = INNER_MARGIN + BALL_RADIUS;
             }
@@ -171,7 +171,7 @@ public class BilliardController {
         if (dy != 0) {
             double t = (INNER_FIELD_LIMIT_Y - BALL_RADIUS - startY) / dy; // Tolto il raggio
             double x = startX + t * dx;
-            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS) {
+            if (t > 0 && x >= INNER_MARGIN + BALL_RADIUS + 1 && x <= INNER_FIELD_LIMIT_X - BALL_RADIUS - 1) {
                 endX = x;
                 endY = INNER_FIELD_LIMIT_Y - BALL_RADIUS;
             }
@@ -227,7 +227,7 @@ public class BilliardController {
     }
 
     private Point2D getCircleCircleIntersection(double x1, double y1, double dx, double dy,
-                                                double cx, double cy, double radius) {
+            double cx, double cy, double radius) {
         // Sposta il sistema di coordinate: il centro della cue ball è l'origine
         double relX = cx - x1;
         double relY = cy - y1;
@@ -262,7 +262,7 @@ public class BilliardController {
     }
 
     public TrajectoryInfo[] calculateCollisionTrajectories(Point2D impactPoint, Ball cueBall, Ball targetBall,
-                                                           double trajectoryAngle) {
+            double trajectoryAngle) {
         // Calcolo della traiettoria della target ball dopo l'impatto
         double dx = targetBall.getX() - impactPoint.getX();
         double dy = targetBall.getY() - impactPoint.getY();
