@@ -121,8 +121,8 @@ public class Ball extends GameFieldObject {
             // Corregge la posizione per evitare sovrapposizioni
             double overlap = radius - length; 
             if (overlap > 0) {
-                x += nx * overlap * 0.5; 
-                y += ny * overlap * 0.5;
+                x += nx * (overlap + 0.01) * 0.5; // Correzione meno aggressiva (solo metà dell'overlap)
+                y += ny * (overlap + 0.01) * 0.5;
             }
         }
     }

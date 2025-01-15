@@ -3,6 +3,8 @@ package it.unibs.pajc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import it.unibs.pajc.fieldcomponents.Ball;
 import it.unibs.pajc.fieldcomponents.Pocket;
 import it.unibs.pajc.fieldcomponents.Stick;
@@ -16,6 +18,7 @@ import static it.unibs.pajc.GameStatus.*;
  */
 public class GameField {
 
+    public AtomicBoolean done = new AtomicBoolean(false);
     private final ArrayList<Ball> balls;
     private final ArrayList<Trapezoid> trapezoids;
     private final ArrayList<Pocket> pockets;
@@ -64,8 +67,9 @@ public class GameField {
 
             // Controlla collisioni con altre palline
             checkOtherBallCollision(i, ball);
-
         }
+
+        done.set(true);
     }
 
     public void addPlayer(Player p) {
@@ -180,9 +184,8 @@ public class GameField {
                         balls.remove(ball);
                     }
                 }
-                // Una volta che la biglia entra in una delle buche, non vengono fatti altri
-                // controlli
-                break;
+                // Una volta che la biglia entra in una delle buche, non vengono fatti altri controlli
+                //break;
             }
         }
     }
