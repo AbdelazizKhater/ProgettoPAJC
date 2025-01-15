@@ -233,6 +233,7 @@ public class GameField {
      * Chiamato appena le palline si fermano
      */
     public void resetRound() {
+        checkIf8BallPotted();
         evaluateValidHit();
         evaluateIfCueBallHitAnything();
         evaluateBallsPotted();
@@ -263,7 +264,6 @@ public class GameField {
             assignBallType();
         }
         foulHandled = false;
-        checkIf8BallPotted();
     }
 
     /**
