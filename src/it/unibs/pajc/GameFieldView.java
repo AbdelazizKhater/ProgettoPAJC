@@ -14,7 +14,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class GameFieldView extends JPanel implements MouseMotionListener, MouseListener {
@@ -87,7 +86,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
                     visualizeCueBallReposition(g2);
                 }
             }
-            // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
         }
     }
 
@@ -153,8 +151,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         if (ballInfo.getNumber() >= 9) {
             // Crea un'area di clipping limitata al cerchio della pallina
             Shape clippingArea = transformedShape;
-
-            int bandHeight = (int) (scaledRadius / 3); // Altezza delle bande
+            int bandHeight = (int) (scaledRadius / 3); 
 
             // Banda superiore (clipping limitato)
             Rectangle bandTop = new Rectangle(
@@ -177,7 +174,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
             g.setColor(Color.WHITE);
 
-            // Disegna le bande come componenti grafici
             g.fill(bandBottomClipped);
             g.fill(bandTopClipped);
         }
@@ -234,16 +230,14 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
      * Metodo principale per il disegno della stecca.
      */
     private void drawStick(Graphics2D g, Ball cueBall, Stick stick, Image stickImage) {
-        // Calculate the stick's position and rotation
+
         double stickDistance = cueBall.getBallRadius() + 10 + stick.getVisualPower()*3;
         double stickAngleRadians = Math.toRadians(stick.getAngleDegrees()) ;
         double stickX = cueBall.getX() + stickDistance * Math.cos(stickAngleRadians);
         double stickY = cueBall.getY() + stickDistance * Math.sin(stickAngleRadians);
 
-        // Save the original transform
         AffineTransform originalTransform = g.getTransform();
 
-        // Move to the stick's position and rotate around its top-left corner
         g.translate(stickX, stickY);
         g.rotate(stickAngleRadians + Math.PI/2);
 
@@ -252,7 +246,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         int stickHeight = 421;
         g.drawImage(stickImage, -stickWidth / 2, -stickHeight, stickWidth, stickHeight, this);
 
-        // Restore the original transform
         g.setTransform(originalTransform);
     }
 
@@ -281,6 +274,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         dragStartY = mouseY;
         isCharging = true;
 
+        // Riposiziona la biglia bianca se la posizione è valida
         if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY) && isMyTurn && cntrl.getGameStatus() != GameStatus.completed) {
             cntrl.resetCueBallPosition(mouseX, mouseY);
         }
@@ -288,25 +282,23 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     public void mouseDragged(MouseEvent e) {
+
         if (!isHitting && !cntrl.getCueBall().needsReposition() && isMyTurn  && cntrl.getGameStatus() != GameStatus.completed) {
-            // Get the current drag position
+
             double dragX = e.getX();
             double dragY = e.getY();
 
-            // end vector of the cue (convert angle from degrees to radians)
-            double cueAngleDegrees = cntrl.stickAngleDirection(); // Angle in degrees
-            double cueAngleRadians = Math.toRadians(cueAngleDegrees); // Convert to radians
+            double cueAngleDegrees = cntrl.stickAngleDirection(); 
+            double cueAngleRadians = Math.toRadians(cueAngleDegrees); 
             double cueDirX = Math.cos(cueAngleRadians);
             double cueDirY = Math.sin(cueAngleRadians);
 
-            // Calculate displacement from the drag start
+            // Calcola la differenza tra la posizione iniziale e quella attuale
             double deltaX = dragX - dragStartX;
             double deltaY = dragY - dragStartY;
 
-            // Project displacement onto the cue's end
+            // Proiezione del vettore di trascinamento sulla direzione della stecca
             double projection = deltaX * cueDirX + deltaY * cueDirY;
-
-            // Update stick power using the projection magnitude
             cntrl.updateStickPower(projection);
         }
     }
@@ -339,12 +331,12 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+       
     }
 
 }

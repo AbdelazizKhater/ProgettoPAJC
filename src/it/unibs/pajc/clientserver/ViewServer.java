@@ -32,7 +32,6 @@ public class ViewServer extends JFrame {
         contentPane.setLayout(new BorderLayout(10, 10));
         setContentPane(contentPane);
 
-        // Titolo del server
         JLabel titleLabel = new JLabel("Console Server", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setForeground(Color.DARK_GRAY);
@@ -114,11 +113,6 @@ public class ViewServer extends JFrame {
         sessionsTextArea.setText(sessions.toString());
     }
 
-    /**
-     * Aggiunge una riga di log al pannello del server.
-     *
-     * @param message Messaggio da aggiungere al log.
-     */
     public void appendLog(String message) {
         logTextArea.append(message + "\n");
     }

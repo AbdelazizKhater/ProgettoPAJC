@@ -1,6 +1,9 @@
 package it.unibs.pajc.fieldcomponents;
 
-
+/**
+ * Classe che rappresenta le informazioni di una pallina.
+ * Questa classe è stata creata per evitare di passare informazioni inutili alla view.
+ */
 public class BallInfo {
     private final double x;
     private final double y;

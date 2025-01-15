@@ -6,7 +6,7 @@ import java.awt.geom.Area;
 
 public class GameFieldObject {
 
-    public double x, y; // Position
+    public double x, y; 
 
     protected Shape shape;
 

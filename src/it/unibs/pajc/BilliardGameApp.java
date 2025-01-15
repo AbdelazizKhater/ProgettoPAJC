@@ -26,9 +26,9 @@ public class BilliardGameApp extends JPanel {
         startGameMenu();
     }
 
-
-
-
+    /**
+     * menu principale del gioco
+     */
     private void startGameMenu() {
         loadImage();
         frame = new JFrame();
@@ -63,6 +63,9 @@ public class BilliardGameApp extends JPanel {
         frame.setVisible(true);
     }
 
+    /**
+     * Avvia una nuova partita locale
+     */
     private void startLocalGame(ActionEvent e) {
         frame.getContentPane().removeAll();
         frame.setVisible(false);
@@ -76,6 +79,9 @@ public class BilliardGameApp extends JPanel {
         initialize();
     }
 
+    /**
+     * Apre la finestra per la connessione ad una partita remota
+     */
     private void joinGame(ActionEvent e) {
         frame.dispose(); // Chiude la finestra attuale
         SwingUtilities.invokeLater(() -> {
@@ -84,11 +90,14 @@ public class BilliardGameApp extends JPanel {
         });
     }
 
+    /**
+     * Inizializza la finestra di gioco per il gioco locale
+     */
     public void initialize() {
         frame = new JFrame("Billiard Game");
         GameView gameView = new GameView(cntrl);
         frame.add(gameView, BorderLayout.CENTER);
-                frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 130);
+        frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 130);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
@@ -96,6 +105,7 @@ public class BilliardGameApp extends JPanel {
         centerFrame(frame);
     }
 
+    
     public void centerFrame(JFrame frame) {
         frame.setResizable(false);
 
@@ -107,10 +117,9 @@ public class BilliardGameApp extends JPanel {
     }
 
     private void loadImage() {
-        // Replace "background.jpg" with your actual image file path
-        mainTitleImage = Toolkit.getDefaultToolkit().getImage("resources/title_screen.png");
 
-        // Ensures the image is fully loaded
+
+        mainTitleImage = Toolkit.getDefaultToolkit().getImage("resources/title_screen.png");
         MediaTracker tracker = new MediaTracker(this);
         tracker.addImage(mainTitleImage, 0);
         try {
