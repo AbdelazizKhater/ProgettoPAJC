@@ -18,7 +18,7 @@ import static it.unibs.pajc.GameStatus.*;
  */
 public class GameField {
 
-    public AtomicBoolean done;
+    public AtomicBoolean done = new AtomicBoolean(false);
     private final ArrayList<Ball> balls;
     private final ArrayList<Trapezoid> trapezoids;
     private final ArrayList<Pocket> pockets;
