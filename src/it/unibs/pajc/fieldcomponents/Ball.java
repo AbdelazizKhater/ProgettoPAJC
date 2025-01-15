@@ -90,7 +90,7 @@ public class Ball extends GameFieldObject {
         // Interseca le aree per rilevare la sovrapposizione
         ballArea.intersect(objectArea);
     
-        if (!ballArea.isEmpty()) { // Collisione rilevata
+        if (!ballArea.isEmpty()) { 
             // Ottieni il bounding box dell'area di intersezione
             Rectangle bounds = ballArea.getBounds();
             double intersectionCenterX = bounds.getCenterX();
@@ -101,25 +101,27 @@ public class Ball extends GameFieldObject {
             double ny = y - intersectionCenterY;
             double length = Math.sqrt(nx * nx + ny * ny);
     
+            // Evita la divisione per zero
             if (length < 1e-6) {
-                nx = 1; // Evita la divisione per zero
+                nx = 1; 
                 ny = 0;
                 length = 1;
             }
     
-            nx /= length; // Normalizza il vettore normale
+            // Normalizza il vettore normale
+            nx /= length; 
             ny /= length;
     
             // Riflette la velocità lungo la normale con un fattore di smorzamento
-            double elasticity = 0.8; // Coefficiente di restituzione (0 = inelastic, 1 = elastic)
+            double elasticity = 0.8; // Coefficiente di elasticità
             double dotProduct = vx * nx + vy * ny;
             vx -= (1 + elasticity) * dotProduct * nx;
             vy -= (1 + elasticity) * dotProduct * ny;
     
             // Corregge la posizione per evitare sovrapposizioni
-            double overlap = radius - length; // Correzione basata sulla distanza effettiva
+            double overlap = radius - length; 
             if (overlap > 0) {
-                x += nx * overlap * 0.5; // Correzione meno aggressiva (solo metà dell'overlap)
+                x += nx * overlap * 0.5; 
                 y += ny * overlap * 0.5;
             }
         }
@@ -133,9 +135,9 @@ public class Ball extends GameFieldObject {
         double dy = other.y - this.y;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Evita divisioni per zero o instabilità numerica
+        // Evita divisioni per zero
         if (distance < 1e-6) {
-            distance = 1e-6; // Distanza minima per evitare errore
+            distance = 1e-6;
         }
 
         // Correggi il sovrapposizionamento
@@ -164,7 +166,7 @@ public class Ball extends GameFieldObject {
         double v2n = other.vx * nx + other.vy * ny;
         double v2t = other.vx * tx + other.vy * ty;
 
-        // Inverti le velocità lungo la normale (urto elastico)
+        // Inverti le velocità lungo la normale 
         double newV1n = v2n;
         double newV2n = v1n;
 

@@ -6,6 +6,9 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+/**
+ * Classe che gestisce la finestra di connessione al server.
+ */
 public class IpMenuFrame extends JFrame {
 
     private JPanel contentPane;

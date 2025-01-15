@@ -41,6 +41,10 @@ public class Stick {
         this.visualPower = Math.max(0, visualPower);
     }
 
+    /**
+     * Calcola la velocità iniziale della biglia colpita.
+     * @return Array di double con vx e vy
+     */
     public double[] calculateBallVelocity() {
         double vx = -power * Math.cos(Math.toRadians(angleDegrees));
         double vy = -power * Math.sin(Math.toRadians(angleDegrees));

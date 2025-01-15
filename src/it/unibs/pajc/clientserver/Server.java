@@ -11,15 +11,12 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Classe Server aggiornata per gestire sessioni multiple di gioco con gestione
- * separata dei GameField.
- */
+
 public class Server {
     private static int uniqueId;
     private final List<ClientThread> clientThreads; // Tutti i client connessi
     private final List<GameSession> gameSessions; // Tutte le sessioni di gioco
-    private final List<ClientThread> waitingClients; // Client che hanno completato il processo di JOIN@
+    private final List<ClientThread> waitingClients; // Client che hanno completato il processo di JOIN@ e che aspettano di essere assegnati ad una sessione
     private final int port;
     protected static ViewServer viewServer;
 
@@ -92,22 +89,18 @@ public class Server {
             return false;
         });
 
-        // Aggiorna i partecipanti
+
         viewServer.updateParticipants(clientThreads);
 
-        // Prepara una mappa per le sessioni di gioco da passare alla ViewServer
+        // Crea una mappa per le sessioni di gioco da passare alla ViewServer
         Map<Integer, List<ClientThread>> gameSessionData = new HashMap<>();
         for (GameSession session : gameSessions) {
             gameSessionData.put(session.getSessionId(), session.getPlayers());
         }
 
-        // Aggiorna le sessioni di gioco nella ViewServer
         viewServer.updateGameSessions(gameSessionData);
     }
 
-    /**
-     * Aggiunge un messaggio di log alla ViewServer.
-     */
     private void appendLog(String message) {
         viewServer.appendLog(message);
     }
@@ -160,7 +153,7 @@ public class Server {
                 } catch (IOException | ClassNotFoundException e) {
                     appendLog("Client " + id + " disconnesso.");
                     clientThreads.remove(this);
-                    waitingClients.remove(this); // Rimuovi anche dai client in attesa
+                    waitingClients.remove(this); 
                     if (gameSession != null) {
                         gameSession.removeClient(this);
                         if (gameSession.isEmpty()) {
@@ -179,8 +172,9 @@ public class Server {
             if (message.startsWith("JOIN@")) {
                 this.playerName = message.split("@")[1];
                 appendLog("Giocatore " + playerName + " connesso.");
-                waitingClients.add(this); // Aggiungi il client ai client in attesa
-                assignToGameSession(); // Prova a creare una nuova sessione
+                 // Aggiungi il client ai client in attesa e prova a creare una nuova sessione
+                waitingClients.add(this);
+                assignToGameSession(); 
             } else if (gameSession != null) {
                 gameSession.handleMessage(this, message);
             }
@@ -244,6 +238,9 @@ public class Server {
             broadcastMessage("START@" + formatGameState(""));
         }
 
+        /**
+         * Inoltra il messaggio ricevuto ai client con eventuali formattazioni.
+         */
         public void handleMessage(ClientThread sender, String message) {
             if (message.startsWith("SHOT@")) {
 
@@ -256,9 +253,15 @@ public class Server {
             }
         }
 
+        /**
+         * Formatta lo stato di gioco per l'invio ai client.
+         * @param shotMessage Messaggio di tiro
+         * @return Stato di gioco formattato
+         */
         private String formatGameState(String shotMessage) {
+            
             StringBuilder formattedState = new StringBuilder();
-            Locale.setDefault(Locale.US);
+            Locale.setDefault(Locale.US); // Imposta la formattazione dei numeri in stile americano "." invece di ",".
 
             for (var player : gameField.getPlayers()) {
                 formattedState.append(String.format("PLAYER@%s\n", player.getName()));
@@ -271,6 +274,10 @@ public class Server {
             return formattedState.toString();
         }
 
+        /**
+         * Inoltra un messaggio ai client nella sessione.
+         * @param message Messaggio da inviare
+         */
         private void broadcastMessage(String message) {
             player1.writeMsg(message);
             player2.writeMsg(message);

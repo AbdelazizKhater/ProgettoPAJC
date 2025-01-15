@@ -12,7 +12,7 @@ import static it.unibs.pajc.util.CostantiStatiche.*;
 import static it.unibs.pajc.GameStatus.*;
 
 /**
- *
+ * MODEL
  */
 public class GameField {
 
@@ -23,15 +23,14 @@ public class GameField {
     private final ArrayList<Integer> pottedBallsIdLastRound;
     private final Stick stick;
     private final Ball cueBall;
-    private final Player[] players = new Player[2]; // id: 1
-    private int currentPlayerIndx;// indx del Player corrente
+    private final Player[] players = new Player[2];
+    private int currentPlayerIndx;
     private GameStatus status;
     private boolean ballsAssigned = false;
     private int idBallHit = -1;
     private int idFirstBallPocketed = -1;
     private int roundCounter;
     private int playerCount;
-    private boolean done;
     private boolean foulHandled;
     private Player winningPlayer;
 
@@ -48,7 +47,6 @@ public class GameField {
         playerCount = 0;
         setupInitialPositions();
     }
-
 
     public void stepNext() {
         if (!evaluationTriggered && status == roundStart)
@@ -74,7 +72,8 @@ public class GameField {
         players[playerCount] = p;
         p.setId(playerCount);
         playerCount++;
-        if (playerCount == 1) status = gameStart;
+        if (playerCount == 1)
+            status = gameStart;
     }
 
     public Player getCurrentPlayer() {
@@ -87,14 +86,15 @@ public class GameField {
     }
 
     private void swapPlayers() {
-        if(roundCounter > 0) {
+        if (roundCounter > 0) {
             currentPlayerIndx = currentPlayerIndx == 0 ? 1 : 0;
             System.out.println("Turno del giocatore " + (currentPlayerIndx + 1));
         }
     }
 
     /**
-     * metodo statico che viene chiamato all'inizio della partita, dispone le biglie nella loro posizione
+     * metodo statico che viene chiamato all'inizio della partita, dispone le biglie
+     * nella loro posizione
      * triangolare.
      */
     private void setupInitialPositions() {
@@ -113,7 +113,7 @@ public class GameField {
         }
 
         balls.add(cueBall);
-        //Posizione di partenza della piramide
+        // Posizione di partenza della piramide
         int startX = 800;
         int startY = TABLE_HEIGHT / 2;
         int rows = 5;
@@ -157,14 +157,15 @@ public class GameField {
     }
 
     /**
-     * Viene controllata la collisione con ogni buca, non appena il centro della biglia tocca la buca,
+     * Viene controllata la collisione con ogni buca, non appena il centro della
+     * biglia tocca la buca,
      * la biglia viene tolta dal gioco. Gestione separata della biglia bianca.
      */
     private void checkPocketCollision(Ball ball) {
         for (Pocket pocket : pockets) {
             if (ball.handleCollisionWithPocket(pocket)) {
                 SoundControl.BALL_POTTED.play();
-                //Per la biglia bianca, viene settato il boolean di riposizionamento.
+                // Per la biglia bianca, viene settato il boolean di riposizionamento.
                 if (ball.isWhite()) {
                     ball.setNeedsReposition(true);
                     ball.resetSpeed();
@@ -179,7 +180,8 @@ public class GameField {
                         balls.remove(ball);
                     }
                 }
-                // Una volta che la biglia entra in una delle buche, non vengono fatti altri controlli
+                // Una volta che la biglia entra in una delle buche, non vengono fatti altri
+                // controlli
                 break;
             }
         }
@@ -188,7 +190,8 @@ public class GameField {
     private boolean evaluationTriggered = false;
 
     /**
-     * Ritorna true quando tutte le biglie sono ferme, utilizzato per gestire i turni e l'assegnamento di falli
+     * Ritorna true quando tutte le biglie sono ferme, utilizzato per gestire i
+     * turni e l'assegnamento di falli
      */
     public boolean allBallsAreStationary() {
         for (Ball ball : balls) {
@@ -198,8 +201,10 @@ public class GameField {
                 return false;
             }
         }
-        if(status == gameStart) foulDetected();
-        if(status != completed) status = roundStart;
+        if (status == gameStart)
+            foulDetected();
+        if (status != completed)
+            status = roundStart;
         return true;
     }
 
@@ -241,7 +246,8 @@ public class GameField {
         pottedBallsIdLastRound.clear();
         idBallHit = -1;
         idFirstBallPocketed = -1;
-        if(status != completed) status = waitingPlayer2;
+        if (status != completed)
+            status = waitingPlayer2;
         roundCounter++;
     }
 
@@ -260,15 +266,16 @@ public class GameField {
         if (idFirstBallPocketed < 0 && !cueBall.needsReposition() && !foulHandled) {
             swapPlayers();
         } else if (!ballsAssigned && roundCounter > 1) {
-            //Si entra nell'if se una pallina è stata messa in buca, e vengono assegnate se non è ancora successo
+            // Si entra nell'if se una pallina è stata messa in buca, e vengono assegnate se
+            // non è ancora successo
             assignBallType();
         }
         foulHandled = false;
     }
 
     /**
-     * Una volta che la biglia 8 entra in buca, viene dichiarato un vincitore. Se le condizioni di vittoria
-     * sono soddisfatte, il giocatore vince, altrimenti vince l'avversario.
+     * Una volta che la biglia 8 entra in buca, viene dichiarato un vincitore.
+     * Se le condizioni di vittoria sono soddisfatte, il giocatore vince, altrimenti vince l'avversario.
      * La partita è conclusa.
      */
     private void checkIf8BallPotted() {
@@ -285,7 +292,8 @@ public class GameField {
     }
 
     /**
-     * Dopo il break, non appena una biglia viene messa in buca viene assegnato il suo tipo al giocatore corrente,
+     * Dopo il break, non appena una biglia viene messa in buca viene assegnato il
+     * suo tipo al giocatore corrente,
      * l'altro tipo viene automaticamente assegnato al secondo giocatore.
      */
     private void assignBallType() {
@@ -326,11 +334,13 @@ public class GameField {
     }
 
     /**
-     * Viene controllato ogni turno che le biglie messe in buca siano quelle del giocatore corrente. Se
-     * il giocatore mette in buca una biglia non sua (o la biglia bianca), viene commesso un fallo.
+     * Viene controllato ogni turno che le biglie messe in buca siano quelle del
+     * giocatore corrente. Se
+     * il giocatore mette in buca una biglia non sua (o la biglia bianca), viene
+     * commesso un fallo.
      */
     private void evaluateBallsPotted() {
-        if(ballsAssigned) {
+        if (ballsAssigned) {
             for (int id : pottedBallsIdLastRound) {
                 if (getCurrentPlayer().isStripedBalls() && id < 8) {
                     foulDetected();
@@ -354,7 +364,8 @@ public class GameField {
     }
 
     /**
-     * Controllo dei tiri a vuoto, se nessuna pallina viene colpita, l'idballhit sarà a -1, quindi viene
+     * Controllo dei tiri a vuoto, se nessuna pallina viene colpita, l'idballhit
+     * sarà a -1, quindi viene
      * dichiarato fallo.
      */
     private void evaluateIfCueBallHitAnything() {

@@ -12,9 +12,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
-/**
- * Classe Client aggiornata con gestione del GameField, GameView e MultiplayerController.
- */
+
 public class Client {
     private String serverAddress;
     private int port;
@@ -106,9 +104,6 @@ public class Client {
         } else if (message.startsWith("SYN@")) {
             // Gestione del messaggio di sincronizzazione
             SwingUtilities.invokeLater(() -> controller.updateModelFromMessage(message.substring(0)));
-        } else if (message.startsWith("MESSAGE@")) {
-            // Altri tipi di messaggi (opzionale)
-            System.out.println("Messaggio dal server: " + message.substring(8));
         }
     }
 
@@ -118,15 +113,13 @@ public class Client {
      * @param gameData Dati iniziali del gioco.
      */
     private void setupGame(String gameData) {
-        // Inizializza il GameField e il MultiplayerController
+
         gameField = new GameField();
         controller = new MultiplayerController(gameField, this);
 
-        // Aggiorna il modello con i dati ricevuti
         controller.updateModelFromMessage(gameData);
         controller.addPlayersFromMessage(gameData);
 
-        // Avvia il gioco aggiornando la GUI
         startGame();
     }
 
@@ -149,7 +142,6 @@ public class Client {
         frame = new JFrame("Billiard Multiplayer - " + username);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Imposta le dimensioni corrette prese da BilliardGameApp
         frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 130);
         frame.setLayout(new BorderLayout());
 
@@ -158,10 +150,9 @@ public class Client {
         waitingLabel.setFont(new Font("Arial", Font.BOLD, 18));
         frame.add(waitingLabel, BorderLayout.CENTER);
 
-        // Centro dello schermo
         centerFrame(frame);
 
-        frame.setResizable(false); // Disabilita il ridimensionamento
+        frame.setResizable(false);
         frame.setVisible(true);
     }
 
@@ -175,8 +166,8 @@ public class Client {
             gameView = new GameView(controller, this);
             frame.add(gameView, BorderLayout.CENTER);
 
-            frame.revalidate(); // Ricostruisce il layout
-            frame.repaint(); // Ridisegna il frame
+            frame.revalidate(); 
+            frame.repaint(); 
         });
     }
 

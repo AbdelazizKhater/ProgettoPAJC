@@ -5,6 +5,10 @@ import it.unibs.pajc.GameFieldView;
 
 import java.awt.*;
 
+/**
+ * Classe che estende la View originale per la visualizzazione del gioco in
+ * modalità multiplayer
+ */
 public class MultiplayerClientView extends GameFieldView {
     private Client client;
 

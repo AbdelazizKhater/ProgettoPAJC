@@ -56,11 +56,9 @@ public class MultiplayerController extends BilliardController {
             return;
         }
 
-        // Ottieni angolo e potenza dal bastone
         double angle = model.getStick().getAngleDegrees();
         double power = model.getStick().getLastPower();
 
-        // Log per debug
         System.out.printf("Inviando SHOT: Angolo=%.2f, Potenza=%.2f%n", angle, power);
 
         // Invia il comando al server
@@ -150,27 +148,19 @@ public class MultiplayerController extends BilliardController {
                 String[] ballData = line.substring(4).split("@");
                 for (String data : ballData) {
                     String[] parts = data.split(",");
-                    int index = Integer.parseInt(parts[0]); // Indice della pallina
+                    int index = Integer.parseInt(parts[0]); // Indice della pallina nell array
                     int id = Integer.parseInt(parts[1]); // Numero della pallina
                     double x = Double.parseDouble(parts[2]);
                     double y = Double.parseDouble(parts[3]);
 
                     if (index < model.getBalls().size()) {
                         Ball ball = model.getBalls().get(index);
-                        if (ball.getNumber() == id) { // Verifica che l'ID corrisponda
-
-                            System.out.println("pallina sincronizzata: " + ball.getBallNumber());
+                        if (ball.getNumber() == id) {
                             ball.setPosition(x, y);
-                        } else {
-                            System.err.printf("Mismatch: indice %d, ID ricevuto %d, ID atteso %d\n",
-                                    index, id, ball.getNumber());
                         }
-                    } else {
-                        System.err.printf("Indice %d non valido. Esistono %d palline nel modello.\n",
-                                index, model.getBalls().size());
                     }
                 }
-                System.out.println("Modello sincronizzato con i dati ricevuti dal server.");
+
             }
 
         }
