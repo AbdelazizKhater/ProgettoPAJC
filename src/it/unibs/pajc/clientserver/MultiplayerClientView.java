@@ -24,6 +24,6 @@ public class MultiplayerClientView extends GameFieldView {
     @Override
     protected void paintComponent(Graphics g) {
         setIsMyTurn();
-        paintComponentLogic(g);
+        super.paintComponent(g);
     }
 }

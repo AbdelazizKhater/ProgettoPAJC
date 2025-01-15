@@ -33,6 +33,7 @@ public class GameField {
     private int playerCount;
     private boolean done;
     private boolean foulHandled;
+    private Player winningPlayer;
 
     public GameField() {
         balls = new ArrayList<>();
@@ -191,7 +192,7 @@ public class GameField {
             }
         }
         if(status == gameStart) foulDetected();
-        status = roundStart;
+        if(status != completed) status = roundStart;
         return true;
     }
 
@@ -229,7 +230,7 @@ public class GameField {
         pottedBallsIdLastRound.clear();
         idBallHit = -1;
         idFirstBallPocketed = -1;
-        status = waitingPlayer2;
+        if(status != completed) status = waitingPlayer2;
         roundCounter++;
     }
 
@@ -260,8 +261,10 @@ public class GameField {
             status = completed;
             if (checkWinCondition(getCurrentPlayer())) {
                 System.out.println("Il giocatore " + getCurrentPlayer().getName() + " vince!");
+                winningPlayer = getCurrentPlayer();
             } else {
                 System.out.println("Il giocatore " + getWaitingPlayer().getName() + " vince!");
+                winningPlayer = getWaitingPlayer();
             }
         }
     }
@@ -392,6 +395,10 @@ public class GameField {
 
     public boolean isDone() {
         return done;
+    }
+
+    public String getWinningPlayer() {
+        return winningPlayer.getName();
     }
 
 }

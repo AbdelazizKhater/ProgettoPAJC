@@ -349,4 +349,8 @@ public class BilliardController {
     public int getRoundNumber() {
         return model.getRoundNumber();
     }
+
+    public String winningPlayer() {
+        return model.getWinningPlayer();
+    }
 }

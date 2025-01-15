@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class GameFieldView extends JPanel implements MouseMotionListener, MouseListener {
@@ -26,6 +27,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     protected Image blueStickImage;
     protected final BilliardController cntrl;
     protected boolean isMyTurn;
+    private boolean gameFinished = false;
 
     public GameFieldView(BilliardController cntrl) {
         this.cntrl = cntrl;
@@ -53,18 +55,16 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
 
     @Override
     protected void paintComponent(Graphics g) {
-        paintComponentLogic(g);
-    }
-
-    protected void paintComponentLogic(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        
+        // Draw table background
         if (backgroundImage != null) {
             g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
-        // Draw table background
+
+
 
         // Draw each ball
         for (BallInfo ballInfo : cntrl.getBallInfos()) {
@@ -76,7 +76,8 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
                 releaseStick();
             }
 
-            if(isMyTurn) {
+            
+            if(isMyTurn && cntrl.getGameStatus() != GameStatus.completed) {
                 if (!cntrl.cueBallNeedsReposition()) {
                     drawStick(g2, cntrl.getCueBall(), cntrl.getStick(), cntrl.getCurrentPlayerIndex() == 0 ? blueStickImage : redStickImage);
                     drawTrajectory(g2, cntrl.calculateTrajectory());
@@ -87,6 +88,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             // Se non è stato commesso nessun fallo, si procede con il turno regolarmente
         }
     }
+
 
     public void drawTrajectory(Graphics2D g, TrajectoryInfo[] trajectoryInfo) {
 
@@ -261,14 +263,14 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
         dragStartY = mouseY;
         isCharging = true;
 
-        if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY) && isMyTurn) {
+        if (isWithinBounds(mouseX, mouseY) && !cntrl.isAnyBallInSight(mouseX, mouseY) && isMyTurn && cntrl.getGameStatus() != GameStatus.completed) {
             cntrl.resetCueBallPosition(mouseX, mouseY);
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (!isHitting && !cntrl.getCueBall().needsReposition() && isMyTurn) {
+        if (!isHitting && !cntrl.getCueBall().needsReposition() && isMyTurn  && cntrl.getGameStatus() != GameStatus.completed) {
             // Get the current drag position
             double dragX = e.getX();
             double dragY = e.getY();
