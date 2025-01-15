@@ -26,6 +26,9 @@ public class BilliardGameApp {
         startGameMenu();
     }
 
+
+    
+
     private void startGameMenu() {
         frame = new JFrame();
         frame.setSize(TABLE_WIDTH + 16, TABLE_HEIGHT + 39 + 70);
