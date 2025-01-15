@@ -176,12 +176,10 @@ public class GameField {
                     idFirstBallPocketed = 0;
                     balls.remove(ball);
                 } else {
-                    if (idFirstBallPocketed < 1) {
-                        idFirstBallPocketed = ball.getBallNumber();
-                        pottedBallsId.add(ball.getNumber());
-                        pottedBallsIdLastRound.add(ball.getNumber());
-                        balls.remove(ball);
-                    }
+                    idFirstBallPocketed = ball.getBallNumber();
+                    pottedBallsId.add(ball.getNumber());
+                    pottedBallsIdLastRound.add(ball.getNumber());
+                    balls.remove(ball);
                 }
                 // Una volta che la biglia entra in una delle buche, non vengono fatti altri controlli
                 //break;
