@@ -23,46 +23,50 @@ public class InformationPanel extends JPanel {
 
     private final BilliardController cntrl;
 
+
+    /**
+     * Costruttore
+     * @param cntrl Controller del biliardo
+     */
     public InformationPanel(BilliardController cntrl) {
+
         super();
         this.cntrl = cntrl;
         loadImage();
 
-        // Ensure the InformationPanel itself does not overwrite the background
         this.setOpaque(false);
 
-        // Create player1BallsPanel
+        // Crea i pannelli delle palline per i giocatori
         player1BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
                 cntrl.getPlayers()[0] == null ? "0000" : cntrl.getPlayers()[0].getName(),
                 true, false);
         player1BallsPanel.setOpaque(false);
 
-        // Wrap player1BallsPanel in a transparent parent container
+        
         JPanel player1Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         player1Panel.setOpaque(false);
         player1Panel.add(player1BallsPanel);
         add(player1Panel);
 
-        // Create player2BallsPanel
+    
         player2BallsPanel = new BallsPanel(cntrl.getPottedBallsId(),
                 cntrl.getPlayers()[1] == null ? "0000" : cntrl.getPlayers()[1].getName(),
                 true, false);
         player2BallsPanel.setOpaque(false);
 
-        // Wrap player2BallsPanel in a transparent parent container
+
         JPanel player2Panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         player2Panel.setOpaque(false);
         player2Panel.add(player2BallsPanel);
         add(player2Panel);
 
-        this.setLayout(new GridLayout(1, 2)); // Keep GridLayout
+        this.setLayout(new GridLayout(1, 2)); 
     }
 
     private void loadImage() {
-        // Replace "background.jpg" with your actual image file path
+
         panelImage = Toolkit.getDefaultToolkit().getImage("resources/panel.png");
 
-        // Ensures the image is fully loaded
         MediaTracker tracker = new MediaTracker(this);
         tracker.addImage(panelImage, 0);
         try {
@@ -72,6 +76,9 @@ public class InformationPanel extends JPanel {
         }
     }
 
+    /**
+     * Aggiorna i pannelli delle palline
+     */
     public void update() {
 
         player1BallsPanel.setBallsAssigned(cntrl.isBallsAssigned());
@@ -92,6 +99,10 @@ public class InformationPanel extends JPanel {
     }
 
 
+
+    /**
+     * Pannello contenente le palline non pottate da un giocatore
+     */
     private static class BallsPanel extends JPanel {
         private final List<Integer> pottedBallsId;
         private final String playerName;
@@ -99,7 +110,14 @@ public class InformationPanel extends JPanel {
         private boolean ballsAssigned;
         private final int spacing = 5;
 
-
+        /**
+         * Costruttore
+         * 
+         * @param pottedBallsId Lista delle palline pottate
+         * @param playerName Nome del giocatore
+         * @param isStripedBalls Se le palline sono a strisce
+         * @param ballsAssigned Se le palline sono state assegnate, in caso contrario non vengono disegnate
+         */
         public BallsPanel(ArrayList<Integer> pottedBallsId, String playerName, boolean isStripedBalls,
                 boolean ballsAssigned) {
             super();
@@ -123,7 +141,7 @@ public class InformationPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             if (isOpaque()) {
-                super.paintComponent(g); // This is optional if transparency is required
+                super.paintComponent(g);
             }
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -137,6 +155,7 @@ public class InformationPanel extends JPanel {
             int lastId = isStripedBalls ? 15 : 7;
 
 
+            // Disegna le palline non pottate
             for (int i = firstId; i <= lastId; i++) {
 
                 int ballx = (i - firstId) * (2 * BALL_RADIUS + spacing) + BALL_RADIUS;
@@ -151,6 +170,12 @@ public class InformationPanel extends JPanel {
 
         }
 
+
+        /**
+         * Metodo per disegnare una pallina
+         * @param g Contesto grafico
+         * @param ballInfo Informazioni sulla pallina
+         */
         public void drawBall(Graphics2D g, BallInfo ballInfo) {
 
             AffineTransform originalTransform = g.getTransform();

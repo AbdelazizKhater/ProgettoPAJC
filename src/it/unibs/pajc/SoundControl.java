@@ -11,11 +11,21 @@ public enum SoundControl {
     String fileName;
     Clip clip;
 
+    /**
+     * Costruttore di SoundControl.
+     * @param fname Il nome del file audio da caricare.
+     */
     private SoundControl(String fname) {
         this.fileName = fname;
         clip = loadSoundTrack(fname);
     }
 
+
+    /**
+     * Carica un file audio.
+     * @param fname Il nome del file audio da caricare.
+     * @return Il Clip del file audio caricato.
+     */
     private Clip loadSoundTrack(String fname) {
         try {
 
@@ -34,6 +44,9 @@ public enum SoundControl {
         return null;
     }
 
+    /**
+     * Riproduce il file audio.
+     */
     public void play() {
 
         if (clip == null)

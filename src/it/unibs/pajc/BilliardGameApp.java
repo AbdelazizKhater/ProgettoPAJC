@@ -42,7 +42,7 @@ public class BilliardGameApp extends JPanel {
         frame.getContentPane().add(menuPanel, BorderLayout.CENTER);
         menuPanel.setLayout(null);
 
-        JButton btnSinglePlayer = new JButton("SINGLE PLAYER");
+        JButton btnSinglePlayer = new JButton("LOCAL GAME");
         btnSinglePlayer.setFont(new Font("Arial Black", Font.PLAIN, 30));
         btnSinglePlayer.setFocusPainted(false);
         btnSinglePlayer.setForeground(Color.WHITE);
@@ -51,7 +51,7 @@ public class BilliardGameApp extends JPanel {
         menuPanel.add(btnSinglePlayer);
         btnSinglePlayer.addActionListener(this::startLocalGame);
 
-        JButton btnJoinGame = new JButton("JOIN GAME");
+        JButton btnJoinGame = new JButton("JOIN REMOTE GAME");
         btnJoinGame.addActionListener(this::joinGame);
         btnJoinGame.setFocusPainted(false);
         btnJoinGame.setForeground(Color.WHITE);

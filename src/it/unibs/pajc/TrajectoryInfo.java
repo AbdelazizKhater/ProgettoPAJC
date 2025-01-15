@@ -1,21 +1,17 @@
 package it.unibs.pajc;
 
 public class TrajectoryInfo {
-    //public final double impactX;
-    //public final double impactY;
     public final double startX;
     public final double startY;
-    public final double directionX;
-    public final double directionY;
+    public final double endX;
+    public final double endY;
 
     public TrajectoryInfo(double startX, double startY,
-            double directionX, double directionY) {
-        //this.impactX = impactX;
-        //this.impactY = impactY;
+            double endX, double endY) {
         this.startX = startX;
         this.startY = startY;
-        this.directionX = directionX;
-        this.directionY = directionY;
+        this.endX = endX;
+        this.endY = endY;
 
     }
 }

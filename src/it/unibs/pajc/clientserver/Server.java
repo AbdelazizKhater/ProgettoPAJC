@@ -1,9 +1,8 @@
 package it.unibs.pajc.clientserver;
 
 import it.unibs.pajc.GameField;
-import it.unibs.pajc.GameStatus;
 import it.unibs.pajc.Player;
-import it.unibs.pajc.fieldcomponents.Ball;
+
 
 import java.io.*;
 import java.net.Inet4Address;
@@ -247,25 +246,9 @@ public class Server {
 
         public void handleMessage(ClientThread sender, String message) {
             if (message.startsWith("SHOT@")) {
-                String[] parts = message.split("@");
-                double angle = Double.parseDouble(parts[1]);
-                double power = Double.parseDouble(parts[2]);
-
-                gameField.getStick().setAngleDegrees(angle);
-                gameField.getStick().setPower(power);
-                gameField.hitBall();
 
                 broadcastMessage("STATE@" + formatGameState(message));
             } else if (message.startsWith("POSITION@")) {
-                String[] parts = message.split("@");
-                double x = Double.parseDouble(parts[1]);
-                double y = Double.parseDouble(parts[2]);
-
-                Ball cueBall = gameField.getCueBall();
-                cueBall.setPosition(x, y);
-                gameField.setStatus(GameStatus.cueBallRepositioning);
-                cueBall.setNeedsReposition(false);
-                gameField.resetRound();
 
                 broadcastMessage("STATE@" + formatGameState(message));
             } else if (message.startsWith("SYN@")) {

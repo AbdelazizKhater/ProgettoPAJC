@@ -27,7 +27,6 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
     protected Image blueStickImage;
     protected final BilliardController cntrl;
     protected boolean isMyTurn;
-    private boolean gameFinished = false;
 
     public GameFieldView(BilliardController cntrl) {
         this.cntrl = cntrl;
@@ -106,12 +105,12 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             g.drawLine(
                     (int) (trajectoryInfo[i].startX * scaleFactor),
                     (int) (trajectoryInfo[i].startY * scaleFactor),
-                    (int) (trajectoryInfo[i].directionX * scaleFactor),
-                    (int) (trajectoryInfo[i].directionY * scaleFactor));
+                    (int) (trajectoryInfo[i].endX * scaleFactor),
+                    (int) (trajectoryInfo[i].endY * scaleFactor));
         }
 
-        g.draw(new Ellipse2D.Double((trajectoryInfo[0].directionX - BALL_RADIUS) * scaleFactor,
-                (trajectoryInfo[0].directionY - BALL_RADIUS) * scaleFactor,
+        g.draw(new Ellipse2D.Double((trajectoryInfo[0].endX - BALL_RADIUS) * scaleFactor,
+                (trajectoryInfo[0].endY - BALL_RADIUS) * scaleFactor,
                 2 * BALL_RADIUS * scaleFactor, 2 * BALL_RADIUS * scaleFactor));
 
         // Ripristina il contesto grafico originale
@@ -275,7 +274,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             double dragX = e.getX();
             double dragY = e.getY();
 
-            // Direction vector of the cue (convert angle from degrees to radians)
+            // end vector of the cue (convert angle from degrees to radians)
             double cueAngleDegrees = cntrl.stickAngleDirection(); // Angle in degrees
             double cueAngleRadians = Math.toRadians(cueAngleDegrees); // Convert to radians
             double cueDirX = Math.cos(cueAngleRadians);
@@ -285,7 +284,7 @@ public class GameFieldView extends JPanel implements MouseMotionListener, MouseL
             double deltaX = dragX - dragStartX;
             double deltaY = dragY - dragStartY;
 
-            // Project displacement onto the cue's direction
+            // Project displacement onto the cue's end
             double projection = deltaX * cueDirX + deltaY * cueDirY;
 
             // Update stick power using the projection magnitude

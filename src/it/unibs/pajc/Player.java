@@ -5,16 +5,21 @@ public class Player {
     protected String name;
     private boolean stripedBalls;
 
-    public String getName() { return name; }
-
+    
     public Player(String name) {
         this.name = name;
     }
+    
+    public String getName() { return name; }
 
     public void setStripedBalls(boolean stripedBalls) {
         this.stripedBalls = stripedBalls;
     }
 
+    /**
+     * 
+     * @return true if the player has striped balls, false otherwise
+     */
     public boolean isStripedBalls() {
         return stripedBalls;
     }
