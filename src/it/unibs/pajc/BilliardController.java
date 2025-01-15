@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.awt.geom.Point2D;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static it.unibs.pajc.util.CostantiStatiche.*;
 
@@ -25,9 +26,7 @@ public class BilliardController {
 
     public void stepNext() {
         model.stepNext();
-
     }
-
     public Player[] getPlayers() {
         return model.getPlayers();
     }
@@ -37,11 +36,6 @@ public class BilliardController {
                 .map(ball -> new BallInfo(ball.getX(), ball.getY(), ball.getRadius(), ball.getNumber()))
                 .toList();
     }
-
-    public List<Ball> getBalls() {
-        return model.getBalls();
-    }
-
     public Stick getStick() {
         return model.getStick();
     }
@@ -62,10 +56,6 @@ public class BilliardController {
         return model.getStatus();
     }
 
-    public void resetRound() {
-        model.resetRound();
-    }
-
     public Player getCurrentPlayer() {
         return model.getCurrentPlayer();
     }
@@ -74,17 +64,11 @@ public class BilliardController {
         return model.getCurrentPlayerIndx();
     }
 
-    public void handleMouseDragged(double deltaX, double deltaY) {
-        Stick stick = model.getStick();
-
-        double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        stick.setPower(Math.min(distance, Stick.MAX_POWER));
+    public AtomicBoolean isCalculationDone() {
+        return model.done;
     }
-
     public ArrayList<Integer> getPottedBallsId() {
-
         return model.getPottedBallsId();
-
     }
 
     public boolean isBallsAssigned() {
@@ -92,7 +76,6 @@ public class BilliardController {
     }
 
     public void updateStickAngle(int mouseX, int mouseY) {
-
         Stick stick = model.getStick();
         Ball cueBall = model.getCueBall();
 
