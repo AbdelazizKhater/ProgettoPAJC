@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -189,7 +190,11 @@ public class Server {
         private void close() {
             try {
                 if (sOutput != null)
-                    sOutput.close();
+                    try {
+                        sOutput.close();
+                    } catch(Exception e) {
+
+                    }
                 if (sInput != null)
                     sInput.close();
                 if (socket != null)
