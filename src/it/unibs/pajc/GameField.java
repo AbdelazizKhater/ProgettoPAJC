@@ -50,7 +50,6 @@ public class GameField {
         setupInitialPositions();
     }
 
-    private int count = 0;
     public void stepNext() {
         if (!evaluationTriggered && status == roundStart)
             resetRound();

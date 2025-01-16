@@ -23,7 +23,7 @@ public class IpMenuFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 350);
         setLocationRelativeTo(null); // Centra il frame
-        this.setTitle("UniBool");
+        this.setTitle("UniPool");
         this.setResizable(false);
 
         contentPane = new JPanel();
@@ -32,7 +32,7 @@ public class IpMenuFrame extends JFrame {
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        JLabel titleLabel = new JLabel("UniBool - Connetti al Server");
+        JLabel titleLabel = new JLabel("UniPool - Connetti al Server");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);

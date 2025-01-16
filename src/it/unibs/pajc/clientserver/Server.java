@@ -47,7 +47,7 @@ public class Server {
                 ClientThread clientThread = new ClientThread(socket);
                 clientThreads.add(clientThread);
                 clientThread.start();
-                updateViewServer();
+                //updateViewServer();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,14 +89,13 @@ public class Server {
             return false;
         });
 
-
-        viewServer.updateParticipants(clientThreads);
-
         // Crea una mappa per le sessioni di gioco da passare alla ViewServer
         Map<Integer, List<ClientThread>> gameSessionData = new HashMap<>();
         for (GameSession session : gameSessions) {
             gameSessionData.put(session.getSessionId(), session.getPlayers());
         }
+
+        viewServer.updateParticipants(clientThreads);
 
         viewServer.updateGameSessions(gameSessionData);
     }
@@ -139,10 +138,6 @@ public class Server {
             this.gameSession = session;
         }
 
-        public GameSession getGameSession() {
-            return this.gameSession;
-        }
-
         public void run() {
             boolean keepGoing = true;
             while (keepGoing) {
@@ -174,7 +169,8 @@ public class Server {
                 appendLog("Giocatore " + playerName + " connesso.");
                  // Aggiungi il client ai client in attesa e prova a creare una nuova sessione
                 waitingClients.add(this);
-                assignToGameSession(); 
+                assignToGameSession();
+                updateViewServer();
             } else if (gameSession != null) {
                 gameSession.handleMessage(this, message);
             }
