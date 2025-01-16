@@ -120,12 +120,6 @@ public class IpMenuFrame extends JFrame {
         btnEsterno.setBounds(250, 180, 220, 50);
         contentPane.add(btnEsterno);
 
-        JLabel footerLabel = new JLabel("Versione 1.0");
-        footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
-        footerLabel.setForeground(Color.LIGHT_GRAY);
-        footerLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        footerLabel.setBounds(10, 250, 460, 20);
-        contentPane.add(footerLabel);
     }
 
     /**
