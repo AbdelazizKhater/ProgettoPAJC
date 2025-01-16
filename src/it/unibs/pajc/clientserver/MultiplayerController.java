@@ -84,7 +84,6 @@ public class MultiplayerController extends BilliardController {
                 }
             } else if (line.startsWith("TURN@")) {
                 String currentPlayerName = model.getCurrentPlayer() == null ? "" : model.getCurrentPlayer().getName();
-                System.out.println("Turno del giocatore: " + currentPlayerName);
             } else if (line.startsWith("SHOT@")) {
                 String[] parts = line.split("@");
 
