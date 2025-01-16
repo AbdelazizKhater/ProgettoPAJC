@@ -244,8 +244,6 @@ public class Server {
             } else if (message.startsWith("POSITION@")) {
 
                 broadcastMessage("STATE@" + formatGameState(message));
-            } else if (message.startsWith("SYN@")) {
-                broadcastMessage(message);
             }
         }
 

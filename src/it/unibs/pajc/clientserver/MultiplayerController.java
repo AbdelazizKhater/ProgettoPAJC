@@ -15,8 +15,6 @@ import java.util.Locale;
 public class MultiplayerController extends BilliardController {
 
     private final Client client;
-    private boolean isBallsMoving = false;
-    private boolean myShot = false;
 
     /**
      * Costruttore del MultiplayerController.
@@ -27,20 +25,6 @@ public class MultiplayerController extends BilliardController {
     public MultiplayerController(GameField gameField, Client client) {
         super(gameField);
         this.client = client;
-    }
-
-    @Override
-    public void stepNext() {
-
-        super.stepNext();
-
-        // Appena tutte le palline si fermano viene inviato il messaggio di
-        // sincronizzazione
-        if (isBallsMoving && checkAllStationary() && !cueBallNeedsReposition()) {
-            sendSynchronizationMessage();
-            isBallsMoving = false;
-            myShot = false;
-        }
     }
 
     /**
@@ -64,23 +48,6 @@ public class MultiplayerController extends BilliardController {
         // Invia il comando al server
         client.sendMessage(String.format(Locale.US, "SHOT@%.2f@%.2f", angle, power));
 
-        myShot = true;
-
-    }
-
-    /**
-     * Invia un messaggio di sincronizzazione (SYN) al server con le posizioni delle
-     * palline.
-     */
-    public void sendSynchronizationMessage() {
-        StringBuilder positions = new StringBuilder("SYN");
-        for (int i = 0; i < model.getBalls().size(); i++) {
-            Ball ball = model.getBalls().get(i);
-            positions.append(
-                    String.format(Locale.US, "@%d,%d,%.2f,%.2f", i, ball.getNumber(), ball.getX(), ball.getY()));
-        }
-        client.sendMessage(positions.toString());
-        System.out.println("Inviato messaggio di sincronizzazione: " + positions);
     }
 
     @Override
@@ -128,8 +95,6 @@ public class MultiplayerController extends BilliardController {
                 model.getStick().setPower(power);
                 model.hitBall();
 
-                isBallsMoving = myShot;
-
             } else if (line.startsWith("POSITION@")) {
                 String[] parts = line.split("@");
                 double xCueBall = Double.parseDouble(parts[1]);
@@ -144,23 +109,6 @@ public class MultiplayerController extends BilliardController {
                     model.setFoulHandled();
                     model.resetRound();
                 }
-            } else if (line.startsWith("SYN@")) {
-                String[] ballData = line.substring(4).split("@");
-                for (String data : ballData) {
-                    String[] parts = data.split(",");
-                    int index = Integer.parseInt(parts[0]); // Indice della pallina nell array
-                    int id = Integer.parseInt(parts[1]); // Numero della pallina
-                    double x = Double.parseDouble(parts[2]);
-                    double y = Double.parseDouble(parts[3]);
-
-                    if (index < model.getBalls().size()) {
-                        Ball ball = model.getBalls().get(index);
-                        if (ball.getNumber() == id) {
-                            ball.setPosition(x, y);
-                        }
-                    }
-                }
-
             }
 
         }
