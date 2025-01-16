@@ -1,7 +1,0 @@
-1- Turno iniziale (spostare pallina)
-2- Menu principale e schermata end game
-3- Vari label per avvisi (p1 biglie striate, foul riposizionare pallina)
-4- Sound effect e soundtrack
-5- Connessione server
-6- X quando colpisci palline non tue
-7- Vari asset grafici
